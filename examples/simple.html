@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="../dist/ARuco.js"></script>
+
+<script >
+    console.log(CV)
+    const arr = new Uint8ClampedArray(80);
+    const grey = new CV.Image(10, 2, arr);
+    console.log(grey.width)
+
+    const arr_a = new Uint8ClampedArray(80);
+    arr_a[0] = 120;
+    arr_a[1] = 201;
+    arr_a[2] = 22;
+    const img_a = new ImageData(arr_a, 10, 2)
+    const gray = CV.grayscale(img_a, grey);
+    console.log(gray.data[0])
+</script>
+
+</body>
+</html>
