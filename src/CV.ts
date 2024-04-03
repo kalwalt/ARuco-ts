@@ -1,13 +1,19 @@
-interface IPoint {
+export interface IImage {
+    width: number,
+    height: number,
+    data: Uint8ClampedArray
+}
+
+export interface IPoint {
     x: number;
     y: number;
 }
 
-export class Image {
-    private width: number;
-    private height: number;
-    private data: Uint8ClampedArray;
-    constructor(width: number, height: number, data: Uint8ClampedArray) {
+export class Image implements IImage{
+    public width: number;
+    public height: number;
+    public data: Uint8ClampedArray;
+    constructor(width: number = 0, height: number = 0, data: Uint8ClampedArray = new Uint8ClampedArray(0)) {
         this.width = width;
         this.height = height;
         this.data = data;
@@ -24,9 +30,12 @@ class BlurStack {
 }
 
 export class CV {
-    static grayscale(imageSrc: ImageData, imageDst: ImageData): ImageData {
+    static grayscale(imageSrc: IImage, imageDst: IImage): IImage {
         let src: Uint8ClampedArray = imageSrc.data;
         let dst: Uint8ClampedArray = imageDst.data;
+        if(dst.length<=0) {
+            dst = new Uint8ClampedArray(4 * imageSrc.width * imageSrc.height)
+        }
         let len: number = src.length;
         let i: number = 0;
         let j: number = 0;
@@ -42,7 +51,7 @@ export class CV {
 
     };
 
-    static threshold (imageSrc: ImageData, imageDst: ImageData, threshold: number): ImageData{
+    static threshold (imageSrc: IImage, imageDst: IImage, threshold: number): IImage{
         let src = imageSrc.data, dst = imageDst.data,
             len = src.length, tab = [], i;
 
@@ -59,7 +68,7 @@ export class CV {
         return imageDst;
     };
 
-    static adaptiveThreshold(imageSrc: ImageData, imageDst: ImageData, kernelSize: number, threshold: number): ImageData {
+    static adaptiveThreshold(imageSrc: IImage, imageDst: IImage, kernelSize: number, threshold: number): IImage {
         let src = imageSrc.data, dst = imageDst.data, len = src.length, tab = [], i;
 
         CV.stackBoxBlur(imageSrc, imageDst, kernelSize);
@@ -77,7 +86,7 @@ export class CV {
         return imageDst;
     };
 
-    static otsu(imageSrc: ImageData): number {
+    static otsu(imageSrc: IImage): number {
         let src = imageSrc.data, len = src.length, hist = [],
             threshold = 0, sum = 0, sumB = 0, wB = 0, wF = 0, max = 0,
             mu, between, i;
@@ -125,7 +134,7 @@ export class CV {
     static stackBoxBlurShift =
         [0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13];
 
-    static stackBoxBlur (imageSrc: ImageData, imageDst: ImageData, kernelSize: number){
+    static stackBoxBlur (imageSrc: IImage, imageDst: IImage, kernelSize: number){
         let src = imageSrc.data, dst = imageDst.data,
             height = imageSrc.height, width = imageSrc.width,
             heightMinus1 = height - 1, widthMinus1 = width - 1,
@@ -302,7 +311,7 @@ export class CV {
         return kernel;
     };
 
-    static findContours (imageSrc: ImageData, binary: any){
+    static findContours (imageSrc: IImage, binary: any){
         let width = imageSrc.width, height = imageSrc.height, contours = [],
             src, deltas, pos, pix, nbd, outer, hole, i, j;
 
@@ -509,7 +518,7 @@ export class CV {
         return poly;
     };
 
-    static warp(imageSrc: ImageData, imageDst: ImageData, contour: any, warpSize: number){
+    static warp(imageSrc: IImage, imageDst: IImage, contour: any, warpSize: number){
         var src = imageSrc.data, dst = imageDst.data,
             width = imageSrc.width, height = imageSrc.height,
             pos = 0,
@@ -686,7 +695,7 @@ export class CV {
         return Math.sqrt(min);
     };
 
-    static countNonZero (imageSrc: ImageData, square: any): number {
+    static countNonZero (imageSrc: IImage, square: any): number {
         let src = imageSrc.data, height = square.height, width = square.width,
             pos = square.x + (square.y * imageSrc.width),
             span = imageSrc.width - width,
@@ -707,7 +716,7 @@ export class CV {
         return nz;
     };
 
-    static binaryBorder (imageSrc: ImageData, dst: any): any{
+    static binaryBorder (imageSrc: IImage, dst: any): any{
         let src = imageSrc.data, height = imageSrc.height, width = imageSrc.width,
             posSrc = 0, posDst = 0, i, j;
 

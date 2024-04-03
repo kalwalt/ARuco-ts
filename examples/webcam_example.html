@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1">
+    <link rel="stylesheet" href="css/nft-style.css">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <video
+            loop
+            autoplay
+            muted
+            playsinline
+            id="video">
+    </video>
+    <canvas id="canvas"></canvas>
+</div>
+<script src="../dist/ARuco.js"></script>
+<script src="initApp.js"></script>
+
+<script>
+
+    window.addEventListener('load', () => {
+        console.log('init ARuco app...');
+        initCamera()
+            .then(video => {
+
+                // start camera playback
+                sourceVideo = video;
+                sourceVideo.width = 640;
+                sourceVideo.height = 480;
+                sourceVideo.play();
+
+                // init target canvas
+                initTargetCanvas();
+
+                return new Promise(resolve => {
+                    sourceVideo.addEventListener("loadeddata", event => {
+                        console.log("Camera is ready");
+                        resolve(sourceVideo);
+                    });
+                });
+            })
+            .then(v => {
+                var imageData;
+                console.log(ARuco)
+                const detector = new ARuco.Detector();
+
+                function update() {
+                    const ctx = targetCanvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+                    imageData = ctx.getImageData(0, 0, video.width, video.height);
+                    console.log(imageData)
+                    var markers = detector.detect(imageData);
+                    console.log(markers)
+                    requestAnimationFrame(update);
+                }
+                update();
+
+
+
+            });
+
+    })
+</script>
+
+</body>
+</html>

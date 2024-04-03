@@ -1,5 +1,6 @@
 import { Image as _Image } from './CV';
 import { CV as _CV } from './CV';
+import { Detector as _Detector } from './ARuco';
 export declare namespace CV {
     const Image: typeof _Image;
     const grayscale: typeof _CV.grayscale;
@@ -16,4 +17,7 @@ export declare namespace CV {
     const perimeter: typeof _CV.perimeter;
     const minEdgeLength: typeof _CV.minEdgeLength;
     const countNonZero: typeof _CV.countNonZero;
+}
+export declare namespace ARuco {
+    const Detector: typeof _Detector;
 }

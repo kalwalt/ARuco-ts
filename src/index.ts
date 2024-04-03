@@ -1,5 +1,6 @@
 import {Image as _Image} from './CV'
 import { CV as _CV } from './CV'
+import { Detector as _Detector } from './ARuco'
 
 export namespace CV {
     export const Image = _Image;
@@ -17,4 +18,8 @@ export namespace CV {
     export const perimeter = _CV.perimeter;
     export const minEdgeLength = _CV.minEdgeLength;
     export const countNonZero = _CV.countNonZero;
+}
+
+export namespace ARuco {
+export const Detector = _Detector;
 }
