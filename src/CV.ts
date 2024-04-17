@@ -1,7 +1,7 @@
 export interface IImage {
     width: number,
     height: number,
-    data: Uint8ClampedArray
+    data: Array<number>
 }
 
 export interface IPoint {
@@ -12,8 +12,8 @@ export interface IPoint {
 export class Image implements IImage{
     public width: number;
     public height: number;
-    public data: Uint8ClampedArray;
-    constructor(width: number = 0, height: number = 0, data: Uint8ClampedArray = new Uint8ClampedArray(0)) {
+    public data: Array<number>
+    constructor(width: number = 0, height: number = 0, data: Array<number> = []) {
         this.width = width;
         this.height = height;
         this.data = data;
@@ -30,12 +30,10 @@ class BlurStack {
 }
 
 export class CV {
-    static grayscale(imageSrc: IImage, imageDst: IImage): IImage {
-        let src: Uint8ClampedArray = imageSrc.data;
-        let dst: Uint8ClampedArray = imageDst.data;
-        if(dst.length<=0) {
-            dst = new Uint8ClampedArray(4 * imageSrc.width * imageSrc.height)
-        }
+    static grayscale(imageSrc: IImage): IImage {
+        let src: Array<number> = imageSrc.data;
+        let dst: Array<number> = [];
+        let imageDst = new Image();
         let len: number = src.length;
         let i: number = 0;
         let j: number = 0;
@@ -45,13 +43,15 @@ export class CV {
                 (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) & 0xff;
         }
 
-        imageDst = new ImageData(dst, imageSrc.width, imageSrc.height);
+        imageDst.width = imageSrc.width;
+        imageDst.height = imageSrc.height;
+        imageDst.data = dst;
 
         return imageDst;
 
     };
 
-    static threshold (imageSrc: IImage, imageDst: IImage, threshold: number): IImage{
+    static threshold (imageSrc: IImage, imageDst: IImage, threshold: number): IImage {
         let src = imageSrc.data, dst = imageDst.data,
             len = src.length, tab = [], i;
 
@@ -63,7 +63,8 @@ export class CV {
             dst[i] = tab[ src[i] ];
         }
 
-        imageDst = new ImageData(dst, imageSrc.width, imageSrc.height);
+        imageDst.width = imageSrc.width;
+        imageDst.height = imageSrc.height;
 
         return imageDst;
     };
@@ -81,7 +82,8 @@ export class CV {
             dst[i] = tab[ src[i] - dst[i] + 255 ];
         }
 
-        imageDst = new ImageData(dst, imageSrc.width, imageSrc.height);
+        imageDst.width = imageSrc.width;
+        imageDst.height = imageSrc.height;
 
         return imageDst;
     };
@@ -134,7 +136,7 @@ export class CV {
     static stackBoxBlurShift =
         [0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13];
 
-    static stackBoxBlur (imageSrc: IImage, imageDst: IImage, kernelSize: number){
+    static stackBoxBlur (imageSrc: IImage, imageDst: IImage, kernelSize: number): IImage {
         let src = imageSrc.data, dst = imageDst.data,
             height = imageSrc.height, width = imageSrc.width,
             heightMinus1 = height - 1, widthMinus1 = width - 1,
@@ -216,23 +218,17 @@ export class CV {
             }
         }
 
-        imageDst = new ImageData(dst, imageSrc.width, imageSrc.height);
-
         return imageDst;
     };
 
-    static gaussianBlur(imageSrc: ImageData, imageDst: ImageData, imageMean: ImageData, kernelSize: number): ImageData{
+    static gaussianBlur(imageSrc: IImage, imageDst: IImage, imageMean: IImage, kernelSize: number): IImage {
         var kernel = CV.gaussianKernel(kernelSize);
 
-        /*imageDst.width = imageSrc.width;
-        imageDst.height = imageSrc.height;*/
+        imageDst.width = imageSrc.width;
+        imageDst.height = imageSrc.height;
 
-        imageDst = new ImageData(imageDst.data, imageSrc.width, imageSrc.height);
-
-        /*imageMean.width = imageSrc.width;
-        imageMean.height = imageSrc.height;*/
-
-        imageMean = new ImageData(imageMean.data, imageSrc.width, imageSrc.height);
+        imageMean.width = imageSrc.width;
+        imageMean.height = imageSrc.height;
 
         CV.gaussianBlurFilter(imageSrc, imageMean, kernel, true);
         CV.gaussianBlurFilter(imageMean, imageDst, kernel, false);
@@ -240,8 +236,8 @@ export class CV {
         return imageDst;
     };
 
-    static gaussianBlurFilter (imageSrc: ImageData, imageDst: ImageData, kernel: any[], horizontal: boolean){
-        var src = imageSrc.data, dst = imageDst.data,
+    static gaussianBlurFilter (imageSrc: IImage, imageDst: IImage, kernel: any[], horizontal: boolean): IImage {
+        let src = imageSrc.data, dst = imageDst.data,
             height = imageSrc.height, width = imageSrc.width,
             pos = 0, limit = kernel.length >> 1,
             cur, value, i, j, k;
@@ -278,8 +274,6 @@ export class CV {
             }
         }
 
-        //imageDst = new ImageData(dst, imageDst.width, imageDst.height);
-
         return imageDst;
     };
 
@@ -311,7 +305,7 @@ export class CV {
         return kernel;
     };
 
-    static findContours (imageSrc: IImage, binary: any){
+    static findContours (imageSrc: IImage, binary: any): number[] {
         let width = imageSrc.width, height = imageSrc.height, contours = [],
             src, deltas, pos, pix, nbd, outer, hole, i, j;
 
@@ -518,8 +512,8 @@ export class CV {
         return poly;
     };
 
-    static warp(imageSrc: IImage, imageDst: IImage, contour: any, warpSize: number){
-        var src = imageSrc.data, dst = imageDst.data,
+    static warp(imageSrc: IImage, imageDst: IImage, contour: IPoint[], warpSize: number): IImage {
+        let src = imageSrc.data, dst = imageDst.data,
             width = imageSrc.width, height = imageSrc.height,
             pos = 0,
             sx1, sx2, dx1, dx2, sy1, sy2, dy1, dy2, p1, p2, p3, p4,
@@ -568,15 +562,13 @@ export class CV {
             }
         }
 
-        /*imageDst.width = warpSize;
-        imageDst.height = warpSize;*/
-
-        imageDst = new ImageData(dst, warpSize, warpSize);
+        imageDst.width = warpSize;
+        imageDst.height = warpSize;
 
         return imageDst;
     };
 
-    static getPerspectiveTransform (src: IPoint[], size: number){
+    static getPerspectiveTransform (src: IPoint[], size: number): number[] {
         let rq = CV.square2quad(src);
 
         rq[0] /= size;
@@ -627,7 +619,7 @@ export class CV {
         return sq;
     };
 
-    static isContourConvex (contour: IPoint[]): boolean{
+    static isContourConvex (contour: IPoint[]): boolean {
         let orientation = 0, convex = true,
             len = contour.length, i = 0, j = 0,
             cur_pt, prev_pt, dxdy0, dydx0, dx0, dy0, dx, dy;
@@ -663,7 +655,7 @@ export class CV {
         return convex;
     };
 
-    static perimeter(poly: IPoint[]): number{
+    static perimeter(poly: IPoint[]): number {
         let len = poly.length, i = 0, j = len - 1,
             p = 0.0, dx, dy;
 
@@ -716,7 +708,7 @@ export class CV {
         return nz;
     };
 
-    static binaryBorder (imageSrc: IImage, dst: any): any{
+    static binaryBorder (imageSrc: IImage, dst: number[]): number[] {
         let src = imageSrc.data, height = imageSrc.height, width = imageSrc.width,
             posSrc = 0, posDst = 0, i, j;
 
