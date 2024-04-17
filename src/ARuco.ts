@@ -30,8 +30,8 @@ export class Detector {
         this.candidates = [];
     };
 
-    detect(image: ImageData) {
-        CV.grayscale(image, this.grey);
+    detect(image: any) {
+        this.grey = CV.grayscale(image);
         CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
 
         this.contours = CV.findContours(this.thres, this.binary);
