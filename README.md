@@ -4,12 +4,13 @@
  
 ## Examples
 
-Try one of the examples in the examples folder: 
-- simple.html
-- webcam_example.html
+Try one of the examples: 
+- examples/simple.html
+- examples/webcam_example.html
 
 ## Future development
 
 - use [speedy-vision](https://github.com/alemart/speedy-vision) for image manipulations routines (grayscale conversion, blurring...).
+- add Posit and SVD classes
 - add a Dictionary, so it will support other markers types.
 - more examples
