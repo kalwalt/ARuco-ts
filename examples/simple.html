@@ -48,9 +48,13 @@
     grayCanvas.width = gray.width / 4;
     grayCanvas.height = gray.height / 4;
     const ctx = grayCanvas.getContext('2d');
+
+    let grayData = ctx.createImageData(1637, 2048)
+    grayData.data.set(gray.data);
     ctx.fillStyle = 'grey'
     ctx.fillRect(0, 0, gray.width / 4, gray.height / 4)
-    ctx.putImageData(gray, 0, 0, 0, 0, gray.width / 4, gray.height / 4);
+    ctx.putImageData(grayData, 0, 0);
+
     document.body.appendChild(grayCanvas)
 </script>
 
