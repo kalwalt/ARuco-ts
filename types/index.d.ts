@@ -1,6 +1,9 @@
 import { Image as _Image } from './CV';
 import { CV as _CV } from './CV';
 import { Detector as _Detector } from './ARuco';
+import { SVD as _SVD } from './svd';
+import { Pose as _Pose } from './posit';
+import { Posit as _Posit } from './posit';
 export declare namespace CV {
     const Image: typeof _Image;
     const grayscale: typeof _CV.grayscale;
@@ -20,4 +23,13 @@ export declare namespace CV {
 }
 export declare namespace ARuco {
     const Detector: typeof _Detector;
+}
+export declare namespace SVD {
+    const svdcmp: typeof _SVD.svdcmp;
+    const pythag: typeof _SVD.pythag;
+    const sign: typeof _SVD.sign;
+}
+export declare namespace POS {
+    const Pose: typeof _Pose;
+    const Posit: typeof _Posit;
 }
