@@ -1,6 +1,9 @@
-import {Image as _Image} from './CV'
+import { Image as _Image } from './CV'
 import { CV as _CV } from './CV'
 import { Detector as _Detector } from './ARuco'
+import { SVD as _SVD } from './svd'
+import { Pose as _Pose } from './posit'
+import { Posit as _Posit } from './posit'
 
 export namespace CV {
     export const Image = _Image;
@@ -22,4 +25,15 @@ export namespace CV {
 
 export namespace ARuco {
 export const Detector = _Detector;
+}
+
+export namespace SVD {
+    export const svdcmp = _SVD.svdcmp;
+    export const pythag = _SVD.pythag;
+    export const sign = _SVD.sign;
+}
+
+export namespace POS {
+    export const Pose = _Pose;
+    export const Posit = _Posit;
 }
