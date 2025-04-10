@@ -1,3 +1,10 @@
+
+// Interface for 2D points
+export interface Point {
+    x: number;
+    y: number;
+}
+
 export class Vec3 {
     public v: number[];
 

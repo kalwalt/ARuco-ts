@@ -1,25 +1,30 @@
-import { Vec3 } from './math-types';
+import { Vec3, Mat3 } from './math-types';
+interface Point {
+    x: number;
+    y: number;
+}
 export declare class Posit {
-    model: any;
-    focalLength: any;
-    modelVectors: any;
-    modelNormal: any;
-    modelPseudoInverse: any;
-    constructor(modelSize: any, focalLength: any);
-    buildModel(modelSize: any): Vec3[];
+    model: Vec3[];
+    focalLength: number;
+    modelVectors: Mat3;
+    modelNormal: Vec3;
+    modelPseudoInverse: Mat3;
+    constructor(modelSize: number, focalLength: number);
+    buildModel(modelSize: number): Vec3[];
     init(): void;
-    pose(points: any): Pose;
-    pos(points: any, eps: any, rotation1: any, rotation2: any, translation1: any, translation2: any): void;
-    iterate(points: any, rotation: any, translation: any): number;
-    getError(points: any, rotation: any, translation: any): number;
-    angle(a: any, b: any, c: any): number;
+    pose(points: Point[]): Pose;
+    pos(points: Point[], eps: Vec3, rotation1: Mat3, rotation2: Mat3, translation1: Vec3, translation2: Vec3): void;
+    iterate(points: Point[], rotation: Mat3, translation: Vec3): number;
+    getError(points: Point[], rotation: Mat3, translation: Vec3): number;
+    angle(a: Point, b: Point, c: Point): number;
 }
 export declare class Pose {
-    bestError: any;
-    bestRotation: any;
-    bestTranslation: any;
-    alternativeError: any;
-    alternativeRotation: any;
-    alternativeTranslation: any;
-    constructor(error1: any, rotation1: any, translation1: any, error2: any, rotation2: any, translation2: any);
+    bestError: number;
+    bestRotation: number[][];
+    bestTranslation: number[];
+    alternativeError: number;
+    alternativeRotation: number[][];
+    alternativeTranslation: number[];
+    constructor(error1: number, rotation1: number[][], translation1: number[], error2: number, rotation2: number[][], translation2: number[]);
 }
+export {};
