@@ -1,21 +1,21 @@
 import {SVD} from './svd';
-import {Vec3, Mat3} from './math-types';
+import {Point, Vec3, Mat3} from './math-types';
 
 export class Posit {
-    public model: any;
-    public focalLength: any;
-    public modelVectors: any;
-    public modelNormal: any;
-    public modelPseudoInverse: any;
+    public model: Vec3[];
+    public focalLength: number;
+    public modelVectors: Mat3;
+    public modelNormal: Vec3;
+    public modelPseudoInverse: Mat3;
 
-    constructor(modelSize: any, focalLength: any) {
+    constructor(modelSize: number, focalLength: number) {
         this.model = this.buildModel(modelSize);
         this.focalLength = focalLength;
 
         this.init();
     };
 
-    buildModel(modelSize: any) {
+    buildModel(modelSize: number): Vec3[] {
         const half = modelSize / 2.0;
 
         return [
@@ -25,7 +25,7 @@ export class Posit {
             new Vec3(-half, -half, 0.0)];
     };
 
-    init() {
+    init(): void {
         let d = new Vec3(), v = new Mat3(), u;
 
         this.modelVectors = Mat3.fromRows(
@@ -43,11 +43,11 @@ export class Posit {
         this.modelNormal = v.column(d.minIndex());
     };
 
-    pose(points: any) {
+    pose(points: Point[]): Pose {
         let eps = new Vec3(1.0, 1.0, 1.0),
             rotation1 = new Mat3(), rotation2 = new Mat3(),
             translation1 = new Vec3(), translation2 = new Vec3(),
-            error1, error2;
+            error1: number, error2: number;
 
         this.pos(points, eps, rotation1, rotation2, translation1, translation2);
 
@@ -59,7 +59,7 @@ export class Posit {
             new Pose(error2, rotation2.m, translation2.v, error1, rotation1.m, translation1.v);
     };
 
-    pos(points: any, eps: any, rotation1: any, rotation2: any, translation1: any, translation2: any) {
+    pos(points: Point[], eps: Vec3, rotation1: Mat3, rotation2: Mat3, translation1: Vec3, translation2: Vec3): void {
         let xi = new Vec3(points[1].x, points[2].x, points[3].x),
             yi = new Vec3(points[1].y, points[2].y, points[3].y),
             xs = Vec3.addScalar(Vec3.mult(xi, eps), -points[0].x),
@@ -117,7 +117,7 @@ export class Posit {
             this.focalLength / scale];
     };
 
-    iterate(points: any, rotation: any, translation: any) {
+    iterate(points: Point[], rotation: Mat3, translation: Vec3): number {
         let prevError = Infinity,
             rotation1 = new Mat3(), rotation2 = new Mat3(),
             translation1 = new Vec3(), translation2 = new Vec3(),
@@ -152,48 +152,20 @@ export class Posit {
         return error;
     };
 
-    getError(points: any, rotation: any, translation: any) {
+    getError(points: Point[], rotation: Mat3, translation: Vec3): number {
         let v1 = Vec3.add(Mat3.multVector(rotation, this.model[0]), translation),
             v2 = Vec3.add(Mat3.multVector(rotation, this.model[1]), translation),
             v3 = Vec3.add(Mat3.multVector(rotation, this.model[2]), translation),
             v4 = Vec3.add(Mat3.multVector(rotation, this.model[3]), translation),
-            modeled, ia1, ia2, ia3, ia4, ma1, ma2, ma3, ma4;
+            modeled: Point[], ia1: number, ia2: number, ia3: number, ia4: number, 
+            ma1: number, ma2: number, ma3: number, ma4: number;
 
-        //@ts-ignore
-        v1 = v1.v;
-        //@ts-ignore
-        v2 = v2.v;
-        //@ts-ignore
-        v3 = v3.v;
-        //@ts-ignore
-        v4 = v4.v;
-
-        //@ts-ignore
-        v1[0] *= this.focalLength / v1[2];
-        //@ts-ignore
-        v1[1] *= this.focalLength / v1[2];
-        //@ts-ignore
-        v2[0] *= this.focalLength / v2[2];
-        //@ts-ignore
-        v2[1] *= this.focalLength / v2[2];
-        //@ts-ignore
-        v3[0] *= this.focalLength / v3[2];
-        //@ts-ignore
-        v3[1] *= this.focalLength / v3[2];
-        //@ts-ignore
-        v4[0] *= this.focalLength / v4[2];
-        //@ts-ignore
-        v4[1] *= this.focalLength / v4[2];
-
+        // Convert Vec3 objects to projected 2D points
         modeled = [
-            //@ts-ignore
-            {x: v1[0], y: v1[1]},
-            //@ts-ignore
-            {x: v2[0], y: v2[1]},
-            //@ts-ignore
-            {x: v3[0], y: v3[1]},
-            //@ts-ignore
-            {x: v4[0], y: v4[1]}
+            {x: v1.v[0] * this.focalLength / v1.v[2], y: v1.v[1] * this.focalLength / v1.v[2]},
+            {x: v2.v[0] * this.focalLength / v2.v[2], y: v2.v[1] * this.focalLength / v2.v[2]},
+            {x: v3.v[0] * this.focalLength / v3.v[2], y: v3.v[1] * this.focalLength / v3.v[2]},
+            {x: v4.v[0] * this.focalLength / v4.v[2], y: v4.v[1] * this.focalLength / v4.v[2]}
         ];
 
         ia1 = this.angle(points[0], points[1], points[3]);
@@ -212,26 +184,25 @@ export class Posit {
             Math.abs(ia4 - ma4)) / 4.0;
     };
 
-    angle(a: any, b: any, c: any) {
+    angle(a: Point, b: Point, c: Point): number {
         const x1 = b.x - a.x, y1 = b.y - a.y,
             x2 = c.x - a.x, y2 = c.y - a.y;
 
         return Math.acos((x1 * x2 + y1 * y2) /
             (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2))) * 180.0 / Math.PI;
     };
-
-
 }
 
 export class Pose {
-    public bestError: any;
-    public bestRotation: any;
-    public bestTranslation: any;
-    public alternativeError: any;
-    public alternativeRotation: any;
-    public alternativeTranslation: any;
+    public bestError: number;
+    public bestRotation: number[][];
+    public bestTranslation: number[];
+    public alternativeError: number;
+    public alternativeRotation: number[][];
+    public alternativeTranslation: number[];
 
-    constructor(error1: any, rotation1: any, translation1: any, error2: any, rotation2: any, translation2: any) {
+    constructor(error1: number, rotation1: number[][], translation1: number[], 
+                error2: number, rotation2: number[][], translation2: number[]) {
         this.bestError = error1;
         this.bestRotation = rotation1;
         this.bestTranslation = translation1;
