@@ -1,99 +1,94 @@
 export class Vec3 {
-    public v;
+    public v: number[];
 
     constructor(x?: number, y?: number, z?: number) {
         this.v = [x || 0.0, y || 0.0, z || 0.0];
     }
 
-    copy(a: any): Vec3 {
+    copy(a: Vec3): Vec3 {
         let v = this.v;
-        a = a.v;
+        const aVector = a.v;
 
-        v[0] = a[0];
-        v[1] = a[1];
-        v[2] = a[2];
+        v[0] = aVector[0];
+        v[1] = aVector[1];
+        v[2] = aVector[2];
 
         return this;
     }
 
-    static add(a: any, b: any): Vec3 {
+    static add(a: Vec3, b: Vec3): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
+        const bVector = b.v;
 
-        a = a.v;
-        b = b.v;
-
-        v[0] = a[0] + b[0];
-        v[1] = a[1] + b[1];
-        v[2] = a[2] + b[2];
+        v[0] = aVector[0] + bVector[0];
+        v[1] = aVector[1] + bVector[1];
+        v[2] = aVector[2] + bVector[2];
 
         return vector;
     }
 
-    static sub(a: any, b: any): Vec3 {
+    static sub(a: Vec3, b: Vec3): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
+        const bVector = b.v;
 
-        a = a.v;
-        b = b.v;
-
-        v[0] = a[0] - b[0];
-        v[1] = a[1] - b[1];
-        v[2] = a[2] - b[2];
+        v[0] = aVector[0] - bVector[0];
+        v[1] = aVector[1] - bVector[1];
+        v[2] = aVector[2] - bVector[2];
 
         return vector;
     }
 
-    static mult(a: any, b: any): Vec3 {
+    static mult(a: Vec3, b: Vec3): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
+        const bVector = b.v;
 
-        a = a.v;
-        b = b.v;
-
-        v[0] = a[0] * b[0];
-        v[1] = a[1] * b[1];
-        v[2] = a[2] * b[2];
+        v[0] = aVector[0] * bVector[0];
+        v[1] = aVector[1] * bVector[1];
+        v[2] = aVector[2] * bVector[2];
 
         return vector;
     }
 
-    static addScalar(a: any, b: number): Vec3 {
+    static addScalar(a: Vec3, b: number): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
 
-        a = a.v;
-
-        v[0] = a[0] + b;
-        v[1] = a[1] + b;
-        v[2] = a[2] + b;
+        v[0] = aVector[0] + b;
+        v[1] = aVector[1] + b;
+        v[2] = aVector[2] + b;
 
         return vector;
     }
 
-    static multScalar(a: any, b: number): Vec3 {
+    static multScalar(a: Vec3, b: number): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
 
-        a = a.v;
-
-        v[0] = a[0] * b;
-        v[1] = a[1] * b;
-        v[2] = a[2] * b;
+        v[0] = aVector[0] * b;
+        v[1] = aVector[1] * b;
+        v[2] = aVector[2] * b;
 
         return vector;
     }
 
-    static dot(a: any, b: any): number {
-        a = a.v;
-        b = b.v;
+    static dot(a: Vec3, b: Vec3): number {
+        const aVector = a.v;
+        const bVector = b.v;
 
-        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        return aVector[0] * bVector[0] + aVector[1] * bVector[1] + aVector[2] * bVector[2];
     }
 
-    static cross(a: any, b: any): Vec3 {
-        a = a.v;
-        b = b.v;
+    static cross(a: Vec3, b: Vec3): Vec3 {
+        const aVector = a.v;
+        const bVector = b.v;
 
         return new Vec3(
-            a[1] * b[2] - a[2] * b[1],
-            a[2] * b[0] - a[0] * b[2],
-            a[0] * b[1] - a[1] * b[0]
+            aVector[1] * bVector[2] - aVector[2] * bVector[1],
+            aVector[2] * bVector[0] - aVector[0] * bVector[2],
+            aVector[0] * bVector[1] - aVector[1] * bVector[0]
         );
     }
 
@@ -110,19 +105,18 @@ export class Vec3 {
         return len;
     }
 
-    static inverse(a: any): Vec3 {
+    static inverse(a: Vec3): Vec3 {
         const vector = new Vec3(), v = vector.v;
+        const aVector = a.v;
 
-        a = a.v;
-
-        if (a[0] !== 0.0) {
-            v[0] = 1.0 / a[0];
+        if (aVector[0] !== 0.0) {
+            v[0] = 1.0 / aVector[0];
         }
-        if (a[1] !== 0.0) {
-            v[1] = 1.0 / a[1];
+        if (aVector[1] !== 0.0) {
+            v[1] = 1.0 / aVector[1];
         }
-        if (a[2] !== 0.0) {
-            v[2] = 1.0 / a[2];
+        if (aVector[2] !== 0.0) {
+            v[2] = 1.0 / aVector[2];
         }
 
         return vector;
@@ -152,122 +146,119 @@ export class Mat3 {
         ];
     }
 
-    static clone(a: any): Mat3 {
+    static clone(a: Mat3): Mat3 {
         const matrix = new Mat3();
         const m = matrix.m;
-        a = a.m;
+        const aMatrix = a.m;
 
-        m[0][0] = a[0][0];
-        m[0][1] = a[0][1];
-        m[0][2] = a[0][2];
-        m[1][0] = a[1][0];
-        m[1][1] = a[1][1];
-        m[1][2] = a[1][2];
-        m[2][0] = a[2][0];
-        m[2][1] = a[2][1];
-        m[2][2] = a[2][2];
+        m[0][0] = aMatrix[0][0];
+        m[0][1] = aMatrix[0][1];
+        m[0][2] = aMatrix[0][2];
+        m[1][0] = aMatrix[1][0];
+        m[1][1] = aMatrix[1][1];
+        m[1][2] = aMatrix[1][2];
+        m[2][0] = aMatrix[2][0];
+        m[2][1] = aMatrix[2][1];
+        m[2][2] = aMatrix[2][2];
 
         return matrix;
     }
 
-    copy(a: any): Mat3 {
+    copy(a: Mat3): Mat3 {
         const m = this.m;
-        a = a.m;
+        const aMatrix = a.m;
 
-        m[0][0] = a[0][0];
-        m[0][1] = a[0][1];
-        m[0][2] = a[0][2];
-        m[1][0] = a[1][0];
-        m[1][1] = a[1][1];
-        m[1][2] = a[1][2];
-        m[2][0] = a[2][0];
-        m[2][1] = a[2][1];
-        m[2][2] = a[2][2];
+        m[0][0] = aMatrix[0][0];
+        m[0][1] = aMatrix[0][1];
+        m[0][2] = aMatrix[0][2];
+        m[1][0] = aMatrix[1][0];
+        m[1][1] = aMatrix[1][1];
+        m[1][2] = aMatrix[1][2];
+        m[2][0] = aMatrix[2][0];
+        m[2][1] = aMatrix[2][1];
+        m[2][2] = aMatrix[2][2];
 
         return this;
     }
 
-    static fromRows(a: any, b: any, c: any): Mat3 {
+    static fromRows(a: Vec3, b: Vec3, c: Vec3): Mat3 {
         const matrix = new Mat3();
         const m = matrix.m;
 
-        a = a.v;
-        b = b.v;
-        c = c.v;
+        const aVector = a.v;
+        const bVector = b.v;
+        const cVector = c.v;
 
-        m[0][0] = a[0];
-        m[0][1] = a[1];
-        m[0][2] = a[2];
-        m[1][0] = b[0];
-        m[1][1] = b[1];
-        m[1][2] = b[2];
-        m[2][0] = c[0];
-        m[2][1] = c[1];
-        m[2][2] = c[2];
+        m[0][0] = aVector[0];
+        m[0][1] = aVector[1];
+        m[0][2] = aVector[2];
+        m[1][0] = bVector[0];
+        m[1][1] = bVector[1];
+        m[1][2] = bVector[2];
+        m[2][0] = cVector[0];
+        m[2][1] = cVector[1];
+        m[2][2] = cVector[2];
 
         return matrix;
     }
 
-    static fromDiagonal(a: any): Mat3 {
+    static fromDiagonal(a: Vec3): Mat3 {
         const matrix = new Mat3();
         const m = matrix.m;
+        const aVector = a.v;
 
-        a = a.v;
-
-        m[0][0] = a[0];
-        m[1][1] = a[1];
-        m[2][2] = a[2];
+        m[0][0] = aVector[0];
+        m[1][1] = aVector[1];
+        m[2][2] = aVector[2];
 
         return matrix;
     }
 
-    static transpose(a: any): Mat3 {
+    static transpose(a: Mat3): Mat3 {
         const matrix = new Mat3();
         const m = matrix.m;
+        const aMatrix = a.m;
 
-        a = a.m;
-
-        m[0][0] = a[0][0];
-        m[0][1] = a[1][0];
-        m[0][2] = a[2][0];
-        m[1][0] = a[0][1];
-        m[1][1] = a[1][1];
-        m[1][2] = a[2][1];
-        m[2][0] = a[0][2];
-        m[2][1] = a[1][2];
-        m[2][2] = a[2][2];
+        m[0][0] = aMatrix[0][0];
+        m[0][1] = aMatrix[1][0];
+        m[0][2] = aMatrix[2][0];
+        m[1][0] = aMatrix[0][1];
+        m[1][1] = aMatrix[1][1];
+        m[1][2] = aMatrix[2][1];
+        m[2][0] = aMatrix[0][2];
+        m[2][1] = aMatrix[1][2];
+        m[2][2] = aMatrix[2][2];
 
         return matrix;
     }
 
-    static mult(a: any, b: any): Mat3 {
+    static mult(a: Mat3, b: Mat3): Mat3 {
         const matrix = new Mat3();
         const m = matrix.m;
+        const aMatrix = a.m;
+        const bMatrix = b.m;
 
-        a = a.m;
-        b = b.m;
-
-        m[0][0] = a[0][0] * b[0][0] + a[0][1] * b[1][0] + a[0][2] * b[2][0];
-        m[0][1] = a[0][0] * b[0][1] + a[0][1] * b[1][1] + a[0][2] * b[2][1];
-        m[0][2] = a[0][0] * b[0][2] + a[0][1] * b[1][2] + a[0][2] * b[2][2];
-        m[1][0] = a[1][0] * b[0][0] + a[1][1] * b[1][0] + a[1][2] * b[2][0];
-        m[1][1] = a[1][0] * b[0][1] + a[1][1] * b[1][1] + a[1][2] * b[2][1];
-        m[1][2] = a[1][0] * b[0][2] + a[1][1] * b[1][2] + a[1][2] * b[2][2];
-        m[2][0] = a[2][0] * b[0][0] + a[2][1] * b[1][0] + a[2][2] * b[2][0];
-        m[2][1] = a[2][0] * b[0][1] + a[2][1] * b[1][1] + a[2][2] * b[2][1];
-        m[2][2] = a[2][0] * b[0][2] + a[2][1] * b[1][2] + a[2][2] * b[2][2];
+        m[0][0] = aMatrix[0][0] * bMatrix[0][0] + aMatrix[0][1] * bMatrix[1][0] + aMatrix[0][2] * bMatrix[2][0];
+        m[0][1] = aMatrix[0][0] * bMatrix[0][1] + aMatrix[0][1] * bMatrix[1][1] + aMatrix[0][2] * bMatrix[2][1];
+        m[0][2] = aMatrix[0][0] * bMatrix[0][2] + aMatrix[0][1] * bMatrix[1][2] + aMatrix[0][2] * bMatrix[2][2];
+        m[1][0] = aMatrix[1][0] * bMatrix[0][0] + aMatrix[1][1] * bMatrix[1][0] + aMatrix[1][2] * bMatrix[2][0];
+        m[1][1] = aMatrix[1][0] * bMatrix[0][1] + aMatrix[1][1] * bMatrix[1][1] + aMatrix[1][2] * bMatrix[2][1];
+        m[1][2] = aMatrix[1][0] * bMatrix[0][2] + aMatrix[1][1] * bMatrix[1][2] + aMatrix[1][2] * bMatrix[2][2];
+        m[2][0] = aMatrix[2][0] * bMatrix[0][0] + aMatrix[2][1] * bMatrix[1][0] + aMatrix[2][2] * bMatrix[2][0];
+        m[2][1] = aMatrix[2][0] * bMatrix[0][1] + aMatrix[2][1] * bMatrix[1][1] + aMatrix[2][2] * bMatrix[2][1];
+        m[2][2] = aMatrix[2][0] * bMatrix[0][2] + aMatrix[2][1] * bMatrix[1][2] + aMatrix[2][2] * bMatrix[2][2];
 
         return matrix;
     }
 
-    static multVector(m: any, a: any): Vec3 {
-        m = m.m;
-        a = a.v;
+    static multVector(m: Mat3, a: Vec3): Vec3 {
+        const mMatrix = m.m;
+        const aVector = a.v;
 
         return new Vec3(
-            m[0][0] * a[0] + m[0][1] * a[1] + m[0][2] * a[2],
-            m[1][0] * a[0] + m[1][1] * a[1] + m[1][2] * a[2],
-            m[2][0] * a[0] + m[2][1] * a[1] + m[2][2] * a[2]
+            mMatrix[0][0] * aVector[0] + mMatrix[0][1] * aVector[1] + mMatrix[0][2] * aVector[2],
+            mMatrix[1][0] * aVector[0] + mMatrix[1][1] * aVector[1] + mMatrix[1][2] * aVector[2],
+            mMatrix[2][0] * aVector[0] + mMatrix[2][1] * aVector[1] + mMatrix[2][2] * aVector[2]
         );
     }
 
