@@ -159,6 +159,12 @@
     };
 
     function render(){
+      // Validate all scene objects before rendering
+      validateSceneObjects(scene1);
+      validateSceneObjects(scene2);
+      validateSceneObjects(scene3);
+      validateSceneObjects(scene4);
+      
       renderer1.clear();
       renderer1.render(scene1, camera1);
       
@@ -187,7 +193,7 @@
     
     function createPlane(){
       var object = new THREE.Object3D(),
-          geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
+          geometry = new THREE.PlaneGeometry(1.0, 1.0, 1.0),
           material = new THREE.MeshNormalMaterial(),
           mesh = new THREE.Mesh(geometry, material);
       
@@ -205,7 +211,7 @@
       videoTexture.magFilter = THREE.LinearFilter;
       
       var object = new THREE.Object3D(),
-          geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
+          geometry = new THREE.PlaneGeometry(1.0, 1.0, 1.0),
           material = new THREE.MeshBasicMaterial({
             map: videoTexture, 
             depthTest: false, 
@@ -286,15 +292,38 @@
     function updateObject(object, rotation, translation){
       if (!rotation || !translation) return;
 
+      // Ensure valid scaling
       object.scale.set(modelSize, modelSize, modelSize);
 
-      if (!isNaN(rotation[1][2]) && !isNaN(rotation[0][2]) && !isNaN(rotation[2][2])) {
-        object.rotation.x = -Math.asin(-rotation[1][2]);
-        object.rotation.y = -Math.atan2(rotation[0][2], rotation[2][2]);
-        object.rotation.z = Math.atan2(rotation[1][0], rotation[1][1]);
+      // Enhanced NaN checking for rotation values
+      let validRotation = true;
+      for(let i = 0; i < 3; i++) {
+        for(let j = 0; j < 3; j++) {
+          if(isNaN(rotation[i][j]) || !isFinite(rotation[i][j])) {
+            validRotation = false;
+            break;
+          }
+        }
+      }
+      
+      if (validRotation) {
+        try {
+          // Safely calculate rotations with boundary checking
+          const sinVal = -rotation[1][2];
+          // Clamp asin input to avoid domain errors
+          const clampedSinVal = Math.max(-1, Math.min(1, sinVal));
+          
+          object.rotation.x = -Math.asin(clampedSinVal);
+          object.rotation.y = -Math.atan2(rotation[0][2], rotation[2][2]);
+          object.rotation.z = Math.atan2(rotation[1][0], rotation[1][1]);
+        } catch(e) {
+          console.error("Error in rotation calculation:", e);
+        }
       }
 
-      if (!isNaN(translation[0]) && !isNaN(translation[1]) && !isNaN(translation[2])) {
+      // Enhanced NaN checking for translation values
+      if (!isNaN(translation[0]) && !isNaN(translation[1]) && !isNaN(translation[2]) &&
+          isFinite(translation[0]) && isFinite(translation[1]) && isFinite(translation[2])) {
         object.position.set(translation[0], translation[1], -translation[2]);
       }
     };
@@ -315,6 +344,34 @@
                   + " pitch: " + Math.round(-pitch * 180.0/Math.PI)
                   + " roll: " + Math.round(roll * 180.0/Math.PI);
     };
+
+    // Add this utility function to validate scene objects
+    function validateSceneObjects(scene) {
+      scene.traverse(function(object) {
+        if (object.isMesh) {
+          // Check for NaN in matrix elements
+          const matrix = object.matrixWorld.elements;
+          let hasNaN = false;
+          
+          for (let i = 0; i < matrix.length; i++) {
+            if (isNaN(matrix[i]) || !isFinite(matrix[i])) {
+              hasNaN = true;
+              break;
+            }
+          }
+          
+          if (hasNaN) {
+            // Reset problematic transforms to identity
+            object.position.set(0, 0, 0);
+            object.rotation.set(0, 0, 0);
+            object.scale.set(1, 1, 1);
+            object.updateMatrix();
+            object.updateMatrixWorld(true);
+            console.warn("Fixed NaN values in object matrix", object);
+          }
+        }
+      });
+    }
 
     window.onload = onLoad;
   </script>
