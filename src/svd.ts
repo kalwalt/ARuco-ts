@@ -152,7 +152,7 @@ export class SVD {
                         h = 1.0 / h;
                         c = g * h;
                         s = -f * h;
-                        for (j = 1; j <= m; ++ j){
+                        for (j = 0; j < m; ++ j){
                             y = a[j][nm];
                             z = a[j][i];
                             a[j][nm] = y * c + z * s;
