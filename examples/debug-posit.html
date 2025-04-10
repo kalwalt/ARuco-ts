@@ -84,7 +84,10 @@
       
       if (video.readyState === video.HAVE_ENOUGH_DATA){
         snapshot();
-
+        
+        // Remove this line - VideoTexture handles updates automatically
+        // texture.children[0].material.map.needsUpdate = true;
+        
         var markers = detector.detect(imageData);
         drawCorners(markers);
         updateScenes(markers);
@@ -196,29 +199,49 @@
     };
     
     function createTexture(){
-      var texture = new THREE.Texture(video),
-          object = new THREE.Object3D(),
+      // Use VideoTexture instead of regular Texture
+      var videoTexture = new THREE.VideoTexture(video);
+      videoTexture.minFilter = THREE.LinearFilter;
+      videoTexture.magFilter = THREE.LinearFilter;
+      
+      var object = new THREE.Object3D(),
           geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
-          material = new THREE.MeshBasicMaterial( {map: texture, depthTest: false, depthWrite: false} ),
+          material = new THREE.MeshBasicMaterial({
+            map: videoTexture, 
+            depthTest: false, 
+            depthWrite: false
+          }),
           mesh = new THREE.Mesh(geometry, material);
       
       object.position.z = -1;
-      
       object.add(mesh);
-      console.log(object);
       
       return object;
     };
     
     function createModel(){
       const loader = new THREE.TextureLoader();
-      var object = new THREE.Object3D(),
-          geometry = new THREE.SphereGeometry(0.5, 15, 15, Math.PI),
-              texture = loader.load("textures/earth.jpg"),
-          material = new THREE.MeshBasicMaterial( {map: texture} ),
-          mesh = new THREE.Mesh(geometry, material);
+      var object = new THREE.Object3D();
+      var geometry = new THREE.SphereGeometry(0.5, 15, 15, Math.PI);
+      var material = new THREE.MeshBasicMaterial({ color: 0xcccccc }); // Default material
+      var mesh = new THREE.Mesh(geometry, material);
       
       object.add(mesh);
+      
+      // Load texture with proper error handling
+      loader.load(
+        "textures/earth.jpg",
+        function(texture) {
+          // Success - texture loaded
+          texture.minFilter = THREE.LinearFilter; // Prevent mipmap issues
+          mesh.material.map = texture;
+          mesh.material.needsUpdate = true;
+        },
+        undefined,
+        function(err) {
+          console.error("Error loading earth texture:", err);
+        }
+      );
       
       return object;
     };
@@ -258,8 +281,6 @@
         
         model.rotation.z -= step;
       }
-      
-      texture.children[0].material.map.needsUpdate = true;
     };
     
     function updateObject(object, rotation, translation){
