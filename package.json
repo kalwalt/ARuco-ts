@@ -1,8 +1,9 @@
 {
   "name": "aruco-ts",
   "version": "0.1.0",
-  "description": "Typescript version of js-aruco",
+  "description": "A TypeScript implementation of js-aruco, designed for developers interested in augmented reality and computer vision, providing tools for marker detection and tracking in WebAR applications.",
   "main": "dist/ARuco.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev-ts": "webpack --mode development --progress --watch",
@@ -10,16 +11,17 @@
   },
   "keywords": [
     "ARuco",
+    "Augmented-Reality",
     "OpenCV",
-    "WebAR",
-    "Typescript"
+    "Typescript",
+    "WebAR"
   ],
-  "author": "@kalwalt",
+  "author": "Walter Perdan <github@kalwaltart.it>",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4"
+    "webpack": "^5.99.5",
+    "webpack-cli": "^6.0.1"
   }
 }
