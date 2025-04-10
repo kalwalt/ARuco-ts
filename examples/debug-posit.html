@@ -70,7 +70,9 @@
       console.log(ARuco)
       console.log(CV)
       console.log(POS)
-      detector = new ARuco.Detector();
+      detector =  new ARuco.Detector({
+                        dictionaryName: 'ARUCO'
+                    });
       posit = new POS.Posit(modelSize, canvas.width);
 
       createRenderers();
