@@ -1,11 +1,8 @@
+import { IPoint } from "./math-types";
 export interface IImage {
     width: number;
     height: number;
     data: Array<number>;
-}
-export interface IPoint {
-    x: number;
-    y: number;
 }
 export declare class Image implements IImage {
     width: number;

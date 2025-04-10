@@ -1,6 +1,6 @@
 
 // Interface for 2D points
-export interface Point {
+export interface IPoint {
     x: number;
     y: number;
 }

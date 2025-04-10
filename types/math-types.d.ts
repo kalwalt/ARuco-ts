@@ -1,3 +1,7 @@
+export interface IPoint {
+    x: number;
+    y: number;
+}
 export declare class Vec3 {
     v: number[];
     constructor(x?: number, y?: number, z?: number);
