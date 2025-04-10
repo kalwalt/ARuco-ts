@@ -1,4 +1,5 @@
-import {IImage, Image, IPoint} from './CV'
+import {IImage, Image} from './CV'
+import {IPoint} from './math-types';
 import {CV} from './CV'
 
 interface IDictionaries {

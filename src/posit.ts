@@ -1,5 +1,5 @@
 import {SVD} from './svd';
-import {Point, Vec3, Mat3} from './math-types';
+import {IPoint, Vec3, Mat3} from './math-types';
 
 export class Posit {
     public model: Vec3[];
@@ -43,7 +43,7 @@ export class Posit {
         this.modelNormal = v.column(d.minIndex());
     };
 
-    pose(points: Point[]): Pose {
+    pose(points: IPoint[]): Pose {
         let eps = new Vec3(1.0, 1.0, 1.0),
             rotation1 = new Mat3(), rotation2 = new Mat3(),
             translation1 = new Vec3(), translation2 = new Vec3(),
@@ -59,7 +59,7 @@ export class Posit {
             new Pose(error2, rotation2.m, translation2.v, error1, rotation1.m, translation1.v);
     };
 
-    pos(points: Point[], eps: Vec3, rotation1: Mat3, rotation2: Mat3, translation1: Vec3, translation2: Vec3): void {
+    pos(points: IPoint[], eps: Vec3, rotation1: Mat3, rotation2: Mat3, translation1: Vec3, translation2: Vec3): void {
         let xi = new Vec3(points[1].x, points[2].x, points[3].x),
             yi = new Vec3(points[1].y, points[2].y, points[3].y),
             xs = Vec3.addScalar(Vec3.mult(xi, eps), -points[0].x),
@@ -117,7 +117,7 @@ export class Posit {
             this.focalLength / scale];
     };
 
-    iterate(points: Point[], rotation: Mat3, translation: Vec3): number {
+    iterate(points: IPoint[], rotation: Mat3, translation: Vec3): number {
         let prevError = Infinity,
             rotation1 = new Mat3(), rotation2 = new Mat3(),
             translation1 = new Vec3(), translation2 = new Vec3(),
@@ -152,12 +152,12 @@ export class Posit {
         return error;
     };
 
-    getError(points: Point[], rotation: Mat3, translation: Vec3): number {
+    getError(points: IPoint[], rotation: Mat3, translation: Vec3): number {
         let v1 = Vec3.add(Mat3.multVector(rotation, this.model[0]), translation),
             v2 = Vec3.add(Mat3.multVector(rotation, this.model[1]), translation),
             v3 = Vec3.add(Mat3.multVector(rotation, this.model[2]), translation),
             v4 = Vec3.add(Mat3.multVector(rotation, this.model[3]), translation),
-            modeled: Point[], ia1: number, ia2: number, ia3: number, ia4: number, 
+            modeled: IPoint[], ia1: number, ia2: number, ia3: number, ia4: number, 
             ma1: number, ma2: number, ma3: number, ma4: number;
 
         // Convert Vec3 objects to projected 2D points
@@ -184,7 +184,7 @@ export class Posit {
             Math.abs(ia4 - ma4)) / 4.0;
     };
 
-    angle(a: Point, b: Point, c: Point): number {
+    angle(a: IPoint, b: IPoint, c: IPoint): number {
         const x1 = b.x - a.x, y1 = b.y - a.y,
             x2 = c.x - a.x, y2 = c.y - a.y;
 
