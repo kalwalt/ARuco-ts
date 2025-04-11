@@ -5,11 +5,6 @@ export interface IImage {
     data: Array<number>
 }
 
-/*export interface IPoint {
-    x: number;
-    y: number;
-}*/
-
 export class Image implements IImage{
     public width: number;
     public height: number;

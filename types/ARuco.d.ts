@@ -13,7 +13,7 @@ interface DictionaryConfig {
 export declare class DICTIONARIES {
     static ARUCO: DictionaryConfig;
     static ARUCO_MIP_36h12: DictionaryConfig;
-    static getDictionary(name: string): DictionaryConfig;
+    static getDictionary(name: keyof typeof DICTIONARIES): DictionaryConfig;
 }
 interface IConfig {
     dictionaryName: IDictionaries;
