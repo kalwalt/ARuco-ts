@@ -4,6 +4,9 @@ import { Detector as _Detector } from "./ARuco";
 import { SVD as _SVD } from "./svd";
 import { Pose as _Pose } from "./posit";
 import { Posit as _Posit } from "./posit";
+import { version } from "../package.json";
+
+export const VERSION = version;
 
 export namespace CV {
   export const Image = _Image;
