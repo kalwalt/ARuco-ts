@@ -1,1 +1,1865 @@
-!function(t,e){if("object"==typeof exports&&"object"==typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var r=e();for(var i in r)("object"==typeof exports?exports:t)[i]=r[i]}}(this,(()=>(()=>{"use strict";var t,e,r,i,s={d:(t,e)=>{for(var r in e)s.o(e,r)&&!s.o(t,r)&&Object.defineProperty(t,r,{enumerable:!0,get:e[r]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e),r:t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})}},o={};s.r(o),s.d(o,{ARuco:()=>e,CV:()=>t,POS:()=>i,SVD:()=>r});class n{width;height;data;constructor(t=0,e=0,r=[]){this.width=t,this.height=e,this.data=r}}class a{color;next;constructor(){this.color=0,this.next=null}}class h{static grayscale(t){let e=t.data,r=[],i=new n,s=e.length,o=0,a=0;for(;o<s;o+=4)r[a++]=.299*e[o]+.587*e[o+1]+.114*e[o+2]+.5&255;return i.width=t.width,i.height=t.height,i.data=r,i}static threshold(t,e,r){let i,s=t.data,o=e.data,n=s.length,a=[];for(i=0;i<256;++i)a[i]=i<=r?0:255;for(i=0;i<n;++i)o[i]=a[s[i]];return e.width=t.width,e.height=t.height,e}static adaptiveThreshold(t,e,r,i){let s,o=t.data,n=e.data,a=o.length,d=[];for(h.stackBoxBlur(t,e,r),s=0;s<768;++s)d[s]=s-255<=-i?255:0;for(s=0;s<a;++s)n[s]=d[o[s]-n[s]+255];return e.width=t.width,e.height=t.height,e}static otsu(t){let e,r,i,s=t.data,o=s.length,n=[],a=0,h=0,d=0,c=0,l=0,u=0;for(i=0;i<256;++i)n[i]=0;for(i=0;i<o;++i)n[s[i]]++;for(i=0;i<256;++i)h+=n[i]*i;for(i=0;i<256;++i)if(c+=n[i],0!==c){if(l=o-c,0===l)break;d+=n[i]*i,e=d/c-(h-d)/l,r=c*l*e*e,r>u&&(u=r,a=i)}return a}static stackBoxBlurMult=[1,171,205,293,57,373,79,137,241,27,391,357,41,19,283,265];static stackBoxBlurShift=[0,9,10,11,9,12,10,11,12,9,13,13,10,9,13,13];static stackBoxBlur(t,e,r){let i,s,o,n,d,c,l,u,f,g,m=t.data,x=e.data,y=t.height,p=t.width,w=y-1,v=p-1,b=r+r+1,M=r+1,_=h.stackBoxBlurMult[r],S=h.stackBoxBlurShift[r];for(i=s=new a,g=1;g<b;++g)i=i.next=new a;for(i.next=s,d=0,f=0;f<y;++f){for(c=d,o=m[d],n=M*o,i=s,g=0;g<M;++g)i.color=o,i=i.next;for(g=1;g<M;++g)i.color=m[d+g],n+=i.color,i=i.next;for(i=s,u=0;u<p;++u)x[d++]=n*_>>>S,l=u+M,l=c+(l<v?l:v),n-=i.color-m[l],i.color=m[l],i=i.next}for(u=0;u<p;++u){for(d=u,c=d+p,o=x[d],n=M*o,i=s,g=0;g<M;++g)i.color=o,i=i.next;for(g=1;g<M;++g)i.color=x[c],n+=i.color,i=i.next,c+=p;for(i=s,f=0;f<y;++f)x[d]=n*_>>>S,l=f+M,l=u+(l<w?l:w)*p,n-=i.color-x[l],i.color=x[l],i=i.next,d+=p}return e}static gaussianBlur(t,e,r,i){var s=h.gaussianKernel(i);return e.width=t.width,e.height=t.height,r.width=t.width,r.height=t.height,h.gaussianBlurFilter(t,r,s,!0),h.gaussianBlurFilter(r,e,s,!1),e}static gaussianBlurFilter(t,e,r,i){let s,o,n,a,h,d=t.data,c=e.data,l=t.height,u=t.width,f=0,g=r.length>>1;for(n=0;n<l;++n)for(a=0;a<u;++a){for(o=0,h=-g;h<=g;++h)i?(s=f+h,(a+h<0||a+h>=u)&&(s=f)):(s=f+h*u,(n+h<0||n+h>=l)&&(s=f)),o+=r[g+h]*d[s];c[f++]=i?o:o+.5&255}return e}static gaussianKernel(t){let e,r,i,s,o,n,a=[];if(t<=7&&t%2==1)a=[[1],[.25,.5,.25],[.0625,.25,.375,.25,.0625],[.03125,.109375,.21875,.28125,.21875,.109375,.03125]][t>>1];else{for(e=.5*(t-1),r=.8+.3*(e-1),i=-.5/(r*r),s=0,n=0;n<t;++n)o=n-e,s+=a[n]=Math.exp(i*o*o);for(s=1/s,n=0;n<t;++n)a[n]*=s}return a}static findContours(t,e){let r,i,s,o,n,a,d,c,l,u=t.width,f=t.height,g=[];for(r=h.binaryBorder(t,e),i=h.neighborhoodDeltas(u+2),s=u+3,n=1,c=0;c<f;++c,s+=2)for(l=0;l<u;++l,++s)o=r[s],0!==o&&(a=d=!1,1===o&&0===r[s-1]?a=!0:o>=1&&0===r[s+1]&&(d=!0),(a||d)&&(++n,g.push(h.borderFollowing(r,s,n,{x:l,y:c},d,i))));return g}static borderFollowing(t,e,r,i,s,o){let n,a,d,c,l,u=[];u.hole=s,c=l=s?0:4;do{if(c=c-1&7,n=e+o[c],0!==t[n])break}while(c!==l);if(c===l)t[e]=-r,u.push({x:i.x,y:i.y});else for(a=e;;){l=c;do{d=a+o[++c]}while(0===t[d]);if(c&=7,c-1>>>0<l>>>0?t[a]=-r:1===t[a]&&(t[a]=r),u.push({x:i.x,y:i.y}),i.x+=h.neighborhood[c][0],i.y+=h.neighborhood[c][1],d===e&&a===n)break;a=d,c=c+4&7}return u}static neighborhood=[[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1],[1,1]];static neighborhoodDeltas(t){let e=[],r=h.neighborhood.length,i=0;for(;i<r;++i)e[i]=h.neighborhood[i][0]+h.neighborhood[i][1]*t;return e.concat(e)}static approxPolyDP(t,e){let r,i,s,o,n,a,h,d,c,l,u,f={start_index:0,end_index:0},g={start_index:0,end_index:0},m=[],x=[],y=t.length;for(e*=e,u=0,c=0;c<3;++c)for(n=0,u=(u+g.start_index)%y,i=t[u],++u===y&&(u=0),l=1;l<y;++l)r=t[u],++u===y&&(u=0),h=r.x-i.x,d=r.y-i.y,o=h*h+d*d,o>n&&(n=o,g.start_index=l);for(n<=e?m.push({x:i.x,y:i.y}):(f.start_index=u,f.end_index=g.start_index+=f.start_index,g.start_index-=g.start_index>=y?y:0,g.end_index=f.start_index,g.end_index<g.start_index&&(g.end_index+=y),x.push({start_index:g.start_index,end_index:g.end_index}),x.push({start_index:f.start_index,end_index:f.end_index}));0!==x.length;){if(f=x.pop(),s=t[f.end_index%y],i=t[u=f.start_index%y],++u===y&&(u=0),f.end_index<=f.start_index+1)a=!0;else{for(n=0,h=s.x-i.x,d=s.y-i.y,c=f.start_index+1;c<f.end_index;++c)r=t[u],++u===y&&(u=0),o=Math.abs((r.y-i.y)*h-(r.x-i.x)*d),o>n&&(n=o,g.start_index=c);a=n*n<=e*(h*h+d*d)}a?m.push({x:i.x,y:i.y}):(g.end_index=f.end_index,f.end_index=g.start_index,x.push({start_index:g.start_index,end_index:g.end_index}),x.push({start_index:f.start_index,end_index:f.end_index}))}return m}static warp(t,e,r,i){let s,o,n,a,d,c,l,u,f,g,m,x,y,p,w,v,b,M,_,S,C,k,B,L=t.data,P=e.data,I=t.width,j=t.height,D=0;for(y=h.getPerspectiveTransform(r,i-1),p=y[8],w=y[2],v=y[5],k=0;k<i;++k)for(p+=y[7],w+=y[1],v+=y[4],b=p,M=w,_=v,B=0;B<i;++B)b+=y[6],M+=y[0],_+=y[3],S=M/b,C=_/b,s=S>>>0,o=s===I-1?s:s+1,n=S-s,a=1-n,d=C>>>0,c=d===j-1?d:d+1,l=C-d,u=1-l,f=g=d*I,m=x=c*I,P[D++]=u*(a*L[f+s]+n*L[g+o])+l*(a*L[m+s]+n*L[x+o])&255;return e.width=i,e.height=i,e}static getPerspectiveTransform(t,e){let r=h.square2quad(t);return r[0]/=e,r[1]/=e,r[3]/=e,r[4]/=e,r[6]/=e,r[7]/=e,r}static square2quad(t){let e,r,i,s,o,n,a,h=[];return e=t[0].x-t[1].x+t[2].x-t[3].x,r=t[0].y-t[1].y+t[2].y-t[3].y,0===e&&0===r?(h[0]=t[1].x-t[0].x,h[1]=t[2].x-t[1].x,h[2]=t[0].x,h[3]=t[1].y-t[0].y,h[4]=t[2].y-t[1].y,h[5]=t[0].y,h[6]=0,h[7]=0,h[8]=1):(i=t[1].x-t[2].x,s=t[3].x-t[2].x,o=t[1].y-t[2].y,n=t[3].y-t[2].y,a=i*n-s*o,h[6]=(e*n-s*r)/a,h[7]=(i*r-e*o)/a,h[8]=1,h[0]=t[1].x-t[0].x+h[6]*t[1].x,h[1]=t[3].x-t[0].x+h[7]*t[3].x,h[2]=t[0].x,h[3]=t[1].y-t[0].y+h[6]*t[1].y,h[4]=t[3].y-t[0].y+h[7]*t[3].y,h[5]=t[0].y),h}static isContourConvex(t){let e,r,i,s,o,n,a,h,d=0,c=!0,l=t.length,u=0,f=0;for(r=t[l-1],e=t[0],o=e.x-r.x,n=e.y-r.y;u<l;++u){if(++f===l&&(f=0),r=e,e=t[f],a=e.x-r.x,h=e.y-r.y,i=a*n,s=h*o,d|=s>i?1:s<i?2:3,3===d){c=!1;break}o=a,n=h}return c}static perimeter(t){let e,r,i=t.length,s=0,o=i-1,n=0;for(;s<i;o=s++)e=t[s].x-t[o].x,r=t[s].y-t[o].y,n+=Math.sqrt(e*e+r*r);return n}static minEdgeLength(t){let e,r,i,s=t.length,o=0,n=s-1,a=1/0;for(;o<s;n=o++)r=t[o].x-t[n].x,i=t[o].y-t[n].y,e=r*r+i*i,e<a&&(a=e);return Math.sqrt(a)}static countNonZero(t,e){let r,i,s=t.data,o=e.height,n=e.width,a=e.x+e.y*t.width,h=t.width-n,d=0;for(r=0;r<o;++r){for(i=0;i<n;++i)0!==s[a++]&&++d;a+=h}return d}static binaryBorder(t,e){let r,i,s=t.data,o=t.height,n=t.width,a=0,h=0;for(i=-2;i<n;++i)e[h++]=0;for(r=0;r<o;++r){for(e[h++]=0,i=0;i<n;++i)e[h++]=0===s[a++]?0:1;e[h++]=0}for(i=-2;i<n;++i)e[h++]=0;return e}}class d{static ARUCO={nBits:25,tau:3,codeList:[17318416,17318423,17318409,17318414,17318640,17318647,17318633,17318638,17318192,17318199,17318185,17318190,17318352,17318359,17318345,17318350,17325584,17325591,17325577,17325582,17325808,17325815,17325801,17325806,17325360,17325367,17325353,17325358,17325520,17325527,17325513,17325518,17311248,17311255,17311241,17311246,17311472,17311479,17311465,17311470,17311024,17311031,17311017,17311022,17311184,17311191,17311177,17311182,17316368,17316375,17316361,17316366,17316592,17316599,17316585,17316590,17316144,17316151,17316137,17316142,17316304,17316311,17316297,17316302,17547792,17547799,17547785,17547790,17548016,17548023,17548009,17548014,17547568,17547575,17547561,17547566,17547728,17547735,17547721,17547726,17554960,17554967,17554953,17554958,17555184,17555191,17555177,17555182,17554736,17554743,17554729,17554734,17554896,17554903,17554889,17554894,17540624,17540631,17540617,17540622,17540848,17540855,17540841,17540846,17540400,17540407,17540393,17540398,17540560,17540567,17540553,17540558,17545744,17545751,17545737,17545742,17545968,17545975,17545961,17545966,17545520,17545527,17545513,17545518,17545680,17545687,17545673,17545678,17089040,17089047,17089033,17089038,17089264,17089271,17089257,17089262,17088816,17088823,17088809,17088814,17088976,17088983,17088969,17088974,17096208,17096215,17096201,17096206,17096432,17096439,17096425,17096430,17095984,17095991,17095977,17095982,17096144,17096151,17096137,17096142,17081872,17081879,17081865,17081870,17082096,17082103,17082089,17082094,17081648,17081655,17081641,17081646,17081808,17081815,17081801,17081806,17086992,17086999,17086985,17086990,17087216,17087223,17087209,17087214,17086768,17086775,17086761,17086766,17086928,17086935,17086921,17086926,17252880,17252887,17252873,17252878,17253104,17253111,17253097,17253102,17252656,17252663,17252649,17252654,17252816,17252823,17252809,17252814,17260048,17260055,17260041,17260046,17260272,17260279,17260265,17260270,17259824,17259831,17259817,17259822,17259984,17259991,17259977,17259982,17245712,17245719,17245705,17245710,17245936,17245943,17245929,17245934,17245488,17245495,17245481,17245486,17245648,17245655,17245641,17245646,17250832,17250839,17250825,17250830,17251056,17251063,17251049,17251054,17250608,17250615,17250601,17250606,17250768,17250775,17250761,17250766,24658448,24658455,24658441,24658446,24658672,24658679,24658665,24658670,24658224,24658231,24658217,24658222,24658384,24658391,24658377,24658382,24665616,24665623,24665609,24665614,24665840,24665847,24665833,24665838,24665392,24665399,24665385,24665390,24665552,24665559,24665545,24665550,24651280,24651287,24651273,24651278,24651504,24651511,24651497,24651502,24651056,24651063,24651049,24651054,24651216,24651223,24651209,24651214,24656400,24656407,24656393,24656398,24656624,24656631,24656617,24656622,24656176,24656183,24656169,24656174,24656336,24656343,24656329,24656334,24887824,24887831,24887817,24887822,24888048,24888055,24888041,24888046,24887600,24887607,24887593,24887598,24887760,24887767,24887753,24887758,24894992,24894999,24894985,24894990,24895216,24895223,24895209,24895214,24894768,24894775,24894761,24894766,24894928,24894935,24894921,24894926,24880656,24880663,24880649,24880654,24880880,24880887,24880873,24880878,24880432,24880439,24880425,24880430,24880592,24880599,24880585,24880590,24885776,24885783,24885769,24885774,24886e3,24886007,24885993,24885998,24885552,24885559,24885545,24885550,24885712,24885719,24885705,24885710,24429072,24429079,24429065,24429070,24429296,24429303,24429289,24429294,24428848,24428855,24428841,24428846,24429008,24429015,24429001,24429006,24436240,24436247,24436233,24436238,24436464,24436471,24436457,24436462,24436016,24436023,24436009,24436014,24436176,24436183,24436169,24436174,24421904,24421911,24421897,24421902,24422128,24422135,24422121,24422126,24421680,24421687,24421673,24421678,24421840,24421847,24421833,24421838,24427024,24427031,24427017,24427022,24427248,24427255,24427241,24427246,24426800,24426807,24426793,24426798,24426960,24426967,24426953,24426958,24592912,24592919,24592905,24592910,24593136,24593143,24593129,24593134,24592688,24592695,24592681,24592686,24592848,24592855,24592841,24592846,24600080,24600087,24600073,24600078,24600304,24600311,24600297,24600302,24599856,24599863,24599849,24599854,24600016,24600023,24600009,24600014,24585744,24585751,24585737,24585742,24585968,24585975,24585961,24585966,24585520,24585527,24585513,24585518,24585680,24585687,24585673,24585678,24590864,24590871,24590857,24590862,24591088,24591095,24591081,24591086,24590640,24590647,24590633,24590638,24590800,24590807,24590793,24590798,9978384,9978391,9978377,9978382,9978608,9978615,9978601,9978606,9978160,9978167,9978153,9978158,9978320,9978327,9978313,9978318,9985552,9985559,9985545,9985550,9985776,9985783,9985769,9985774,9985328,9985335,9985321,9985326,9985488,9985495,9985481,9985486,9971216,9971223,9971209,9971214,9971440,9971447,9971433,9971438,9970992,9970999,9970985,9970990,9971152,9971159,9971145,9971150,9976336,9976343,9976329,9976334,9976560,9976567,9976553,9976558,9976112,9976119,9976105,9976110,9976272,9976279,9976265,9976270,10207760,10207767,10207753,10207758,10207984,10207991,10207977,10207982,10207536,10207543,10207529,10207534,10207696,10207703,10207689,10207694,10214928,10214935,10214921,10214926,10215152,10215159,10215145,10215150,10214704,10214711,10214697,10214702,10214864,10214871,10214857,10214862,10200592,10200599,10200585,10200590,10200816,10200823,10200809,10200814,10200368,10200375,10200361,10200366,10200528,10200535,10200521,10200526,10205712,10205719,10205705,10205710,10205936,10205943,10205929,10205934,10205488,10205495,10205481,10205486,10205648,10205655,10205641,10205646,9749008,9749015,9749001,9749006,9749232,9749239,9749225,9749230,9748784,9748791,9748777,9748782,9748944,9748951,9748937,9748942,9756176,9756183,9756169,9756174,9756400,9756407,9756393,9756398,9755952,9755959,9755945,9755950,9756112,9756119,9756105,9756110,9741840,9741847,9741833,9741838,9742064,9742071,9742057,9742062,9741616,9741623,9741609,9741614,9741776,9741783,9741769,9741774,9746960,9746967,9746953,9746958,9747184,9747191,9747177,9747182,9746736,9746743,9746729,9746734,9746896,9746903,9746889,9746894,9912848,9912855,9912841,9912846,9913072,9913079,9913065,9913070,9912624,9912631,9912617,9912622,9912784,9912791,9912777,9912782,9920016,9920023,9920009,9920014,9920240,9920247,9920233,9920238,9919792,9919799,9919785,9919790,9919952,9919959,9919945,9919950,9905680,9905687,9905673,9905678,9905904,9905911,9905897,9905902,9905456,9905463,9905449,9905454,9905616,9905623,9905609,9905614,9910800,9910807,9910793,9910798,9911024,9911031,9911017,9911022,9910576,9910583,9910569,9910574,9910736,9910743,9910729,9910734,15221264,15221271,15221257,15221262,15221488,15221495,15221481,15221486,15221040,15221047,15221033,15221038,15221200,15221207,15221193,15221198,15228432,15228439,15228425,15228430,15228656,15228663,15228649,15228654,15228208,15228215,15228201,15228206,15228368,15228375,15228361,15228366,15214096,15214103,15214089,15214094,15214320,15214327,15214313,15214318,15213872,15213879,15213865,15213870,15214032,15214039,15214025,15214030,15219216,15219223,15219209,15219214,15219440,15219447,15219433,15219438,15218992,15218999,15218985,15218990,15219152,15219159,15219145,15219150,15450640,15450647,15450633,15450638,15450864,15450871,15450857,15450862,15450416,15450423,15450409,15450414,15450576,15450583,15450569,15450574,15457808,15457815,15457801,15457806,15458032,15458039,15458025,15458030,15457584,15457591,15457577,15457582,15457744,15457751,15457737,15457742,15443472,15443479,15443465,15443470,15443696,15443703,15443689,15443694,15443248,15443255,15443241,15443246,15443408,15443415,15443401,15443406,15448592,15448599,15448585,15448590,15448816,15448823,15448809,15448814,15448368,15448375,15448361,15448366,15448528,15448535,15448521,15448526,14991888,14991895,14991881,14991886,14992112,14992119,14992105,14992110,14991664,14991671,14991657,14991662,14991824,14991831,14991817,14991822,14999056,14999063,14999049,14999054,14999280,14999287,14999273,14999278,14998832,14998839,14998825,14998830,14998992,14998999,14998985,14998990,14984720,14984727,14984713,14984718,14984944,14984951,14984937,14984942,14984496,14984503,14984489,14984494,14984656,14984663,14984649,14984654,14989840,14989847,14989833,14989838,14990064,14990071,14990057,14990062,14989616,14989623,14989609,14989614,14989776,14989783,14989769,14989774,15155728,15155735,15155721,15155726,15155952,15155959,15155945,15155950,15155504,15155511,15155497,15155502,15155664,15155671,15155657,15155662,15162896,15162903,15162889,15162894,15163120,15163127,15163113,15163118,15162672,15162679,15162665,15162670,15162832,15162839,15162825,15162830,15148560,15148567,15148553,15148558,15148784,15148791,15148777,15148782,15148336,15148343,15148329,15148334,15148496,15148503,15148489,15148494,15153680,15153687,15153673,15153678,15153904,15153911,15153897,15153902,15153456,15153463,15153449,15153454,15153616,15153623,15153609]};static ARUCO_MIP_36h12={nBits:36,tau:12,codeList:[56562524317,25770931429,4839161458,68596624564,35931143241,48420814492,29449387539,22088012831,150160643,38290206414,63018100589,7237360708,48463388455,12429895739,32398847912,10690557310,36811505649,20424594438,51348452625,59082132829,4789649285,6074601013,60833300223,17865158156,38878348407,9422290067,52530265596,1112263881,11282798128,31716556182,55939809049,65378188640,53364103696,16135388261,10585857635,18405277539,58620300626,16314326873,45976886702,36730781048,49079839777,48251450950,9367376904,46270871306,45811842918,20579384461,24858916784,45800689157,1885099856,46307169374,30966095476,37785816804,61277293828,48822885856,10217422095,64915480245,43389267094,6254111746,8290563862,37342276841,28460125290,3495333372,6758227551,7209929928,55814160128,56029470330,36738889758,18344320185,58975059075,44171881969,49170624125,3264591167,65657841412,41180650537,42494701445,36108643611,34639993860,28659990498,26930865685,15452591512,7682723690,52184653157,35325736853,15770954845,14355922747,3586151781,12705066820,36172812353,26860166751,55306861815,4458230846,52097670290,14416739556,18680720626,63503185964,21886004944,12308700311,12349350212,17960603545,41482020135,38252944768,36805791540,10164380688,9551813940,38630526064,39745661296,34997908492,4238126902,28053085457,30473796616,4054545961,43846990872,20404992582,8671648998,46543146295,35647704329,17739867588,36459700136,32297088841,21060713596,51319791578,58119572901,9474224e3,14900282644,46136470867,14594576121,19808283810,1010425331,53297363037,24692637543,26359373345,46113281484,15179644549,58533795373,4434812905,20743912811,31920827745,42332552509,64106723953,61987860015,18286833283,49956032501,13203889835,29235312165,36521555341,37903965709,11787234849,57448344684,18958239524,36489129683,17809534842,32896732754,31847577168,41236569844,33564302914,51585414251,39285898823,8882101696,42729360772,251636777,33075363724,27518016937,55852068415,7734342848,40004287547,66652317552,15292841334,14569959493,55326630930,32846929320,5603651436,25389875160,48026662697,918846935,49642306667,3924358743,57089912602,36525866802,19258047537,15798762340,29623485812,13931892113,11469315373,37306662699,61910613086,30606478781,46814571538,4917445926,4439324737,60918689504,47457428851,68021616262,18332513560,51148727658,27928255740,46173761192,40760335900,7855435272,7001299726,61833121153,43896074151,14605260403,62541610373,12393639381,37350739731,66194071346,18666749070,12382112924,1680236413,16493370640,6059486961,16751996745,21543890275,7001355285,27046496066,2804870197,8337874016,45455359079,65272880397,9060569084,60159882672,20975334688,45716885065,60604533827,8739419880,35574477989,42573002072,11905513436,39802521107,35050605614,81139249,55923865609,42972972333,38492698169,54935698999,54512761978,67740646995,41511353392,50981879100,60163858300,20282826672,49415583287,13921455465,4465851981,53900345171,59632123755,19009048020,13643781953,30188444676,20762705568]};static getDictionary(t){const e=d[t];if(e&&"object"==typeof e&&"nBits"in e&&"tau"in e&&"codeList"in e)return e;throw new Error(`The dictionary "${t}" is not recognized.`)}}class c{codes={};codeList=[];tau=0;nBits=0;markSize=0;dicName;constructor(t){this.codes={},this.codeList=[],this.tau=0,this.dicName=t,this.initialize(t)}initialize(t){this.codes={},this.codeList=[],this.tau=0,this.nBits=0,this.markSize=0,this.dicName=t;const e=d.getDictionary(t);if(!e)throw new Error('The dictionary "'+t+'" is not recognized.');this.nBits=e.nBits,this.markSize=Math.sqrt(e.nBits)+2;for(let t=0;t<e.codeList.length;t++){const r=this.parseCode(e.codeList[t],e.nBits);this.codeList.push(r),this.codes[r]={id:t}}this.tau=e.tau||this.calculateTau()}parseCode(t,e){if("number"==typeof t)return t.toString(2).padStart(e,"0");if("string"==typeof t)return parseInt(t,16).toString(2).padStart(e,"0");if(Array.isArray(t))return t.map((t=>t.toString(2).padStart(8,"0"))).join("").slice(0,e);throw new Error(`Invalid code: ${t}`)}find(t){const e=t.flat().join("");let r=null;for(const t of this.codeList){const i=this.hammingDistance(e,t);i<this.tau&&(!r||i<r.distance)&&(r={id:this.codes[t].id,distance:i})}return r}_hex2bin(t,e){return t.toString(2).padStart(e,"0")}_bytes2bin(t,e){let r="";for(const i of t)r+=i.toString(2).padStart(r.length+8>e?e-r.length:8,"0");return r}hammingDistance(t,e){if(t.length!==e.length)throw new Error("Hamming distance requires inputs of the same length.");return Array.from(t).reduce(((t,r,i)=>t+(r!==e[i]?1:0)),0)}calculateTau(){let t=Number.MAX_VALUE;for(let e=0;e<this.codeList.length;e++)for(let r=e+1;r<this.codeList.length;r++){const i=this.hammingDistance(this.codeList[e],this.codeList[r]);t=i<t?i:t}return t}generateSVG(t){const e=this.codeList[t];if(null==e)throw new Error('The id "'+t+'" is not valid for the dictionary "'+this.dicName+'". ID must be between 0 and '+(this.codeList.length-1)+" included.");const r=this.markSize-2;let i='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(r+4)+" "+(r+4)+'">';i+='<rect x="0" y="0" width="'+(r+4)+'" height="'+(r+4)+'" fill="white"/>',i+='<rect x="1" y="1" width="'+(r+2)+'" height="'+(r+2)+'" fill="black"/>';for(let t=0;t<r;t++)for(let s=0;s<r;s++)"1"==e[t*r+s]&&(i+='<rect x="'+(s+2)+'" y="'+(t+2)+'" width="1" height="1" fill="white"/>');return i+="</svg>",i}}class l{id;corners;hammingDistance;constructor(t,e,r){this.id=t,this.corners=e,this.hammingDistance=r}}class u{config;dictionary;grey;thres;homography;binary;contours;polys;candidates;streamConfig;mjpeg;static mjpeg;constructor(t){this.config=t,this.grey=new n,this.thres=new n,this.homography=new n,this.binary=[],this.contours=[],this.polys=[],this.candidates=[],this.dictionary=new c(t.dictionaryName),this.dictionary.tau=null!=t.maxHammingDistance?t.maxHammingDistance:this.dictionary.tau}detectImage(t,e,r){return this.detect({width:t,height:e,data:r})}detectStreamInit(t,e,r){this.streamConfig={},this.streamConfig.width=t,this.streamConfig.height=e,this.streamConfig.imageSize=t*e*4,this.streamConfig.index=0,this.streamConfig.imageData=new Uint8ClampedArray(this.streamConfig.imageSize),this.streamConfig.callback=r||function(t,e){}}detectStream(t){for(let e=0;e<t.length;e++)if(this.streamConfig.imageData[this.streamConfig.index]=t[e],this.streamConfig.index=(this.streamConfig.index+1)%this.streamConfig.imageSize,0==this.streamConfig.index){const t={width:this.streamConfig.width,height:this.streamConfig.height,data:this.streamConfig.imageData},e=this.detect(t);this.streamConfig.callback(t,e)}}detectMJPEGStreamInit(t,e,r,i){this.mjpeg={decoderFn:i,chunks:[],SOI:[255,216],EOI:[255,217]},this.detectStreamInit(t,e,r)}detectMJPEGStream(t){const e=t.findIndex((function(t,e,r){return u.mjpeg.EOI[0]==t&&r.length>e+1&&u.mjpeg.EOI[1]==r[e+1]})),r=t.findIndex((function(t,e,r){return u.mjpeg.SOI[0]==t&&r.length>e+1&&u.mjpeg.SOI[1]==r[e+1]}));if(-1===e)this.mjpeg.chunks.push(t);else{const r=t.slice(0,e+2);if(r.length&&this.mjpeg.chunks.push(r),this.mjpeg.chunks.length){const t=this.mjpeg.chunks.flat(),e=this.mjpeg.decoderFn(t);this.detectStream(e)}this.mjpeg.chunks=[]}r>-1&&(this.mjpeg.chunks=[],this.mjpeg.chunks.push(t.slice(r)))}detect(t){return this.grey=h.grayscale(t),h.adaptiveThreshold(this.grey,this.thres,2,7),this.contours=h.findContours(this.thres,this.binary),this.candidates=this.findCandidates(this.contours,.01*t.width,.05,10),this.candidates=this.clockwiseCorners(this.candidates),this.candidates=this.notTooNear(this.candidates,10),this.findMarkers(this.grey,this.candidates,49)}findCandidates(t,e,r,i){let s,o,n,a=[],d=t.length;for(this.polys=[],n=0;n<d;++n)s=t[n],s.length>=e&&(o=h.approxPolyDP(s,s.length*r),this.polys.push(o),4===o.length&&h.isContourConvex(o)&&h.minEdgeLength(o)>=i&&a.push(o));return a}clockwiseCorners(t){let e,r,i,s,o,n=t.length;for(let a=0;a<n;++a)e=t[a][1].x-t[a][0].x,i=t[a][1].y-t[a][0].y,r=t[a][2].x-t[a][0].x,s=t[a][2].y-t[a][0].y,e*s-i*r<0&&(o=t[a][1],t[a][1]=t[a][3],t[a][3]=o);return t}notTooNear(t,e){let r,i,s,o,n,a,d=[],c=t.length;for(o=0;o<c;++o)for(n=o+1;n<c;++n){for(r=0,a=0;a<4;++a)i=t[o][a].x-t[n][a].x,s=t[o][a].y-t[n][a].y,r+=i*i+s*s;r/4<e*e&&(h.perimeter(t[o])<h.perimeter(t[n])?t[o].tooNear=!0:t[n].tooNear=!0)}for(o=0;o<c;++o)t[o].tooNear||d.push(t[o]);return d}findMarkers(t,e,r){let i,s,o=[],n=e.length;for(let a=0;a<n;++a)i=e[a],h.warp(t,this.homography,i,r),h.threshold(this.homography,this.homography,h.otsu(this.homography)),s=this.getMarker(this.homography,i),s&&o.push(s);return o}getMarker(t,e){let r,i,s,o,n=this.dictionary.markSize,a=t.width/n>>>0,d=a*a>>1,c=[],u=[];for(s=0;s<n;++s)for(i=0===s||n-1===s?1:n-1,o=0;o<n;o+=i)if(r={x:o*a,y:s*a,width:a,height:a},h.countNonZero(t,r)>d)return null;for(s=0;s<n-2;++s)for(c[s]=[],o=0;o<n-2;++o)r={x:(o+1)*a,y:(s+1)*a,width:a,height:a},c[s][o]=h.countNonZero(t,r)>d?1:0;u[0]=c;let f=null,g=0;for(s=0;s<4;s++){const t=this.dictionary.find(u[s]);if(t&&(null===f||t.distance<f.distance)&&(f=t,g=s,0===f.distance))break;u[s+1]=this.rotate(u[s])}return f?new l(f.id,this.rotate2(e,4-g),f.distance):null}hammingDistance(t){let e,r,i,s,o,n=[[1,0,0,0,0],[1,0,1,1,1],[0,1,0,0,1],[0,1,1,1,0]],a=0;for(i=0;i<5;++i){for(r=1/0,s=0;s<4;++s){for(e=0,o=0;o<5;++o)e+=t[i][o]===n[s][o]?0:1;e<r&&(r=e)}a+=r}return a}mat2id(t){let e,r=0;for(e=0;e<5;++e)r<<=1,r|=t[e][1],r<<=1,r|=t[e][3];return r}rotate(t){let e=[],r=t.length;for(let i=0;i<r;++i){e[i]=[];for(let r=0;r<t[i].length;++r)e[i][r]=t[t[i].length-r-1][i]}return e}rotate2=function(t,e){let r=[],i=t.length;for(let s=0;s<i;++s)r[s]=t[(e+s)%i];return r}}class f{static svdcmp(t,e,r,i,s){let o,n,a,h,d,c,l,u,g,m,x,y,p,w,v,b=0,M=0,_=0,S=[];for(n=0;n<r;++n){if(l=n+1,S[n]=_*M,M=y=_=0,n<e){for(c=n;c<e;++c)_+=Math.abs(t[c][n]);if(0!==_){for(c=n;c<e;++c)t[c][n]/=_,y+=t[c][n]*t[c][n];for(m=t[n][n],M=-f.sign(Math.sqrt(y),m),x=m*M-y,t[n][n]=m-M,h=l;h<r;++h){for(y=0,c=n;c<e;++c)y+=t[c][n]*t[c][h];for(m=y/x,c=n;c<e;++c)t[c][h]+=m*t[c][n]}for(c=n;c<e;++c)t[c][n]*=_}}if(i[n]=_*M,M=y=_=0,n<e&&n!==r-1){for(c=l;c<r;++c)_+=Math.abs(t[n][c]);if(0!==_){for(c=l;c<r;++c)t[n][c]/=_,y+=t[n][c]*t[n][c];for(m=t[n][l],M=-f.sign(Math.sqrt(y),m),x=m*M-y,t[n][l]=m-M,c=l;c<r;++c)S[c]=t[n][c]/x;for(h=l;h<e;++h){for(y=0,c=l;c<r;++c)y+=t[h][c]*t[n][c];for(c=l;c<r;++c)t[h][c]+=y*S[c]}for(c=l;c<r;++c)t[n][c]*=_}}b=Math.max(b,Math.abs(i[n])+Math.abs(S[n]))}for(n=r-1;n>=0;--n){if(n<r-1){if(0!==M){for(h=l;h<r;++h)s[h][n]=t[n][h]/t[n][l]/M;for(h=l;h<r;++h){for(y=0,c=l;c<r;++c)y+=t[n][c]*s[c][h];for(c=l;c<r;++c)s[c][h]+=y*s[c][n]}}for(h=l;h<r;++h)s[n][h]=s[h][n]=0}s[n][n]=1,M=S[n],l=n}for(n=Math.min(r,e)-1;n>=0;--n){for(l=n+1,M=i[n],h=l;h<r;++h)t[n][h]=0;if(0!==M){for(M=1/M,h=l;h<r;++h){for(y=0,c=l;c<e;++c)y+=t[c][n]*t[c][h];for(m=y/t[n][n]*M,c=n;c<e;++c)t[c][h]+=m*t[c][n]}for(h=n;h<e;++h)t[h][n]*=M}else for(h=n;h<e;++h)t[h][n]=0;++t[n][n]}for(c=r-1;c>=0;--c)for(a=1;a<=30;++a){for(o=!0,l=c;l>=0;--l){if(u=l-1,Math.abs(S[l])+b===b){o=!1;break}if(Math.abs(i[u])+b===b)break}if(o)for(g=0,y=1,n=l;n<=c&&(m=y*S[n],Math.abs(m)+b!==b);++n)for(M=i[n],x=f.pythag(m,M),i[n]=x,x=1/x,g=M*x,y=-m*x,h=0;h<e;++h)w=t[h][u],v=t[h][n],t[h][u]=w*g+v*y,t[h][n]=v*g-w*y;if(v=i[c],l===c){if(v<0)for(i[c]=-v,h=0;h<r;++h)s[h][c]=-s[h][c];break}if(30===a)return!1;for(p=i[l],u=c-1,w=i[u],M=S[u],x=S[c],m=((w-v)*(w+v)+(M-x)*(M+x))/(2*x*w),M=f.pythag(m,1),m=((p-v)*(p+v)+x*(w/(m+f.sign(M,m))-x))/p,g=y=1,h=l;h<=u;++h){for(n=h+1,M=S[n],w=i[n],x=y*M,M*=g,v=f.pythag(m,x),S[h]=v,g=m/v,y=x/v,m=p*g+M*y,M=M*g-p*y,x=w*y,w*=g,d=0;d<r;++d)p=s[d][h],v=s[d][n],s[d][h]=p*g+v*y,s[d][n]=v*g-p*y;for(v=f.pythag(m,x),i[h]=v,0!==v&&(v=1/v,g=m*v,y=x*v),m=g*M+y*w,p=g*w-y*M,d=0;d<e;++d)w=t[d][h],v=t[d][n],t[d][h]=w*g+v*y,t[d][n]=v*g-w*y}S[l]=0,S[c]=m,i[c]=p}return!0}static pythag(t,e){let r,i=Math.abs(t),s=Math.abs(e);return i>s?(r=s/i,i*Math.sqrt(1+r*r)):0===s?0:(r=i/s,s*Math.sqrt(1+r*r))}static sign(t,e){return e>=0?Math.abs(t):-Math.abs(t)}}class g{v;constructor(t,e,r){this.v=[t||0,e||0,r||0]}copy(t){let e=this.v;const r=t.v;return e[0]=r[0],e[1]=r[1],e[2]=r[2],this}static add(t,e){const r=new g,i=r.v,s=t.v,o=e.v;return i[0]=s[0]+o[0],i[1]=s[1]+o[1],i[2]=s[2]+o[2],r}static sub(t,e){const r=new g,i=r.v,s=t.v,o=e.v;return i[0]=s[0]-o[0],i[1]=s[1]-o[1],i[2]=s[2]-o[2],r}static mult(t,e){const r=new g,i=r.v,s=t.v,o=e.v;return i[0]=s[0]*o[0],i[1]=s[1]*o[1],i[2]=s[2]*o[2],r}static addScalar(t,e){const r=new g,i=r.v,s=t.v;return i[0]=s[0]+e,i[1]=s[1]+e,i[2]=s[2]+e,r}static multScalar(t,e){const r=new g,i=r.v,s=t.v;return i[0]=s[0]*e,i[1]=s[1]*e,i[2]=s[2]*e,r}static dot(t,e){const r=t.v,i=e.v;return r[0]*i[0]+r[1]*i[1]+r[2]*i[2]}static cross(t,e){const r=t.v,i=e.v;return new g(r[1]*i[2]-r[2]*i[1],r[2]*i[0]-r[0]*i[2],r[0]*i[1]-r[1]*i[0])}normalize(){const t=this.v,e=Math.sqrt(t[0]*t[0]+t[1]*t[1]+t[2]*t[2]);return e>0&&(t[0]/=e,t[1]/=e,t[2]/=e),e}static inverse(t){const e=new g,r=e.v,i=t.v;return 0!==i[0]&&(r[0]=1/i[0]),0!==i[1]&&(r[1]=1/i[1]),0!==i[2]&&(r[2]=1/i[2]),e}square(){const t=this.v;return t[0]*t[0]+t[1]*t[1]+t[2]*t[2]}minIndex(){const t=this.v;return t[0]<t[1]?t[0]<t[2]?0:2:t[1]<t[2]?1:2}}class m{m;constructor(){this.m=[[0,0,0],[0,0,0],[0,0,0]]}static clone(t){const e=new m,r=e.m,i=t.m;return r[0][0]=i[0][0],r[0][1]=i[0][1],r[0][2]=i[0][2],r[1][0]=i[1][0],r[1][1]=i[1][1],r[1][2]=i[1][2],r[2][0]=i[2][0],r[2][1]=i[2][1],r[2][2]=i[2][2],e}copy(t){const e=this.m,r=t.m;return e[0][0]=r[0][0],e[0][1]=r[0][1],e[0][2]=r[0][2],e[1][0]=r[1][0],e[1][1]=r[1][1],e[1][2]=r[1][2],e[2][0]=r[2][0],e[2][1]=r[2][1],e[2][2]=r[2][2],this}static fromRows(t,e,r){const i=new m,s=i.m,o=t.v,n=e.v,a=r.v;return s[0][0]=o[0],s[0][1]=o[1],s[0][2]=o[2],s[1][0]=n[0],s[1][1]=n[1],s[1][2]=n[2],s[2][0]=a[0],s[2][1]=a[1],s[2][2]=a[2],i}static fromDiagonal(t){const e=new m,r=e.m,i=t.v;return r[0][0]=i[0],r[1][1]=i[1],r[2][2]=i[2],e}static transpose(t){const e=new m,r=e.m,i=t.m;return r[0][0]=i[0][0],r[0][1]=i[1][0],r[0][2]=i[2][0],r[1][0]=i[0][1],r[1][1]=i[1][1],r[1][2]=i[2][1],r[2][0]=i[0][2],r[2][1]=i[1][2],r[2][2]=i[2][2],e}static mult(t,e){const r=new m,i=r.m,s=t.m,o=e.m;return i[0][0]=s[0][0]*o[0][0]+s[0][1]*o[1][0]+s[0][2]*o[2][0],i[0][1]=s[0][0]*o[0][1]+s[0][1]*o[1][1]+s[0][2]*o[2][1],i[0][2]=s[0][0]*o[0][2]+s[0][1]*o[1][2]+s[0][2]*o[2][2],i[1][0]=s[1][0]*o[0][0]+s[1][1]*o[1][0]+s[1][2]*o[2][0],i[1][1]=s[1][0]*o[0][1]+s[1][1]*o[1][1]+s[1][2]*o[2][1],i[1][2]=s[1][0]*o[0][2]+s[1][1]*o[1][2]+s[1][2]*o[2][2],i[2][0]=s[2][0]*o[0][0]+s[2][1]*o[1][0]+s[2][2]*o[2][0],i[2][1]=s[2][0]*o[0][1]+s[2][1]*o[1][1]+s[2][2]*o[2][1],i[2][2]=s[2][0]*o[0][2]+s[2][1]*o[1][2]+s[2][2]*o[2][2],r}static multVector(t,e){const r=t.m,i=e.v;return new g(r[0][0]*i[0]+r[0][1]*i[1]+r[0][2]*i[2],r[1][0]*i[0]+r[1][1]*i[1]+r[1][2]*i[2],r[2][0]*i[0]+r[2][1]*i[1]+r[2][2]*i[2])}column(t){const e=this.m;return new g(e[0][t],e[1][t],e[2][t])}row(t){const e=this.m;return new g(e[t][0],e[t][1],e[t][2])}}class x{model;focalLength;modelVectors;modelNormal;modelPseudoInverse;constructor(t,e){this.model=this.buildModel(t),this.focalLength=e,this.init()}buildModel(t){const e=t/2;return[new g(-e,e,0),new g(e,e,0),new g(e,-e,0),new g(-e,-e,0)]}init(){let t,e=new g,r=new m;this.modelVectors=m.fromRows(g.sub(this.model[1],this.model[0]),g.sub(this.model[2],this.model[0]),g.sub(this.model[3],this.model[0])),t=m.clone(this.modelVectors),f.svdcmp(t.m,3,3,e.v,r.m),this.modelPseudoInverse=m.mult(m.mult(r,m.fromDiagonal(g.inverse(e))),m.transpose(t)),this.modelNormal=r.column(e.minIndex())}pose(t){let e,r,i=new g(1,1,1),s=new m,o=new m,n=new g,a=new g;return this.pos(t,i,s,o,n,a),e=this.iterate(t,s,n),r=this.iterate(t,o,a),e<r?new y(e,s.m,n.v,r,o.m,a.v):new y(r,o.m,a.v,e,s.m,n.v)}pos(t,e,r,i,s,o){let n,a,h,d,c,l,u,f,x,y=new g(t[1].x,t[2].x,t[3].x),p=new g(t[1].y,t[2].y,t[3].y),w=g.addScalar(g.mult(y,e),-t[0].x),v=g.addScalar(g.mult(p,e),-t[0].y),b=m.multVector(this.modelPseudoInverse,w),M=m.multVector(this.modelPseudoInverse,v),_=M.square()-b.square(),S=g.dot(b,M),C=0,k=0;0===_?(C=Math.sqrt(Math.abs(2*S)),k=-Math.PI/2*(S<0?-1:S>0?1:0)):(C=Math.sqrt(Math.sqrt(_*_+4*S*S)),k=Math.atan(-2*S/_),_<0&&(k+=Math.PI),k/=2),f=C*Math.cos(k),x=C*Math.sin(k),n=g.add(b,g.multScalar(this.modelNormal,f)),a=g.add(M,g.multScalar(this.modelNormal,x)),d=n.normalize(),c=a.normalize(),h=g.cross(n,a),r.copy(m.fromRows(n,a,h)),l=(d+c)/2,u=m.multVector(r,this.model[0]),s.v=[t[0].x/l-u.v[0],t[0].y/l-u.v[1],this.focalLength/l],n=g.sub(b,g.multScalar(this.modelNormal,f)),a=g.sub(M,g.multScalar(this.modelNormal,x)),d=n.normalize(),c=a.normalize(),h=g.cross(n,a),i.copy(m.fromRows(n,a,h)),l=(d+c)/2,u=m.multVector(i,this.model[0]),o.v=[t[0].x/l-u.v[0],t[0].y/l-u.v[1],this.focalLength/l]}iterate(t,e,r){let i,s,o,n,a=1/0,h=new m,d=new m,c=new g,l=new g,u=0;for(;u<100&&(i=g.addScalar(g.multScalar(m.multVector(this.modelVectors,e.row(2)),1/r.v[2]),1),this.pos(t,i,h,d,c,l),o=this.getError(t,h,c),n=this.getError(t,d,l),o<n?(e.copy(h),r.copy(c),s=o):(e.copy(d),r.copy(l),s=n),!(s<=2||s>a));++u)a=s;return s}getError(t,e,r){let i,s,o,n,a,h,d,c,l,u=g.add(m.multVector(e,this.model[0]),r),f=g.add(m.multVector(e,this.model[1]),r),x=g.add(m.multVector(e,this.model[2]),r),y=g.add(m.multVector(e,this.model[3]),r);return i=[{x:u.v[0]*this.focalLength/u.v[2],y:u.v[1]*this.focalLength/u.v[2]},{x:f.v[0]*this.focalLength/f.v[2],y:f.v[1]*this.focalLength/f.v[2]},{x:x.v[0]*this.focalLength/x.v[2],y:x.v[1]*this.focalLength/x.v[2]},{x:y.v[0]*this.focalLength/y.v[2],y:y.v[1]*this.focalLength/y.v[2]}],s=this.angle(t[0],t[1],t[3]),o=this.angle(t[1],t[2],t[0]),n=this.angle(t[2],t[3],t[1]),a=this.angle(t[3],t[0],t[2]),h=this.angle(i[0],i[1],i[3]),d=this.angle(i[1],i[2],i[0]),c=this.angle(i[2],i[3],i[1]),l=this.angle(i[3],i[0],i[2]),(Math.abs(s-h)+Math.abs(o-d)+Math.abs(n-c)+Math.abs(a-l))/4}angle(t,e,r){const i=e.x-t.x,s=e.y-t.y,o=r.x-t.x,n=r.y-t.y;return 180*Math.acos((i*o+s*n)/(Math.sqrt(i*i+s*s)*Math.sqrt(o*o+n*n)))/Math.PI}}class y{bestError;bestRotation;bestTranslation;alternativeError;alternativeRotation;alternativeTranslation;constructor(t,e,r,i,s,o){this.bestError=t,this.bestRotation=e,this.bestTranslation=r,this.alternativeError=i,this.alternativeRotation=s,this.alternativeTranslation=o}}return function(t){t.Image=n,t.grayscale=h.grayscale,t.threshold=h.threshold,t.adaptiveThreshold=h.adaptiveThreshold,t.otsu=h.otsu,t.stackBoxBlur=h.stackBoxBlur,t.gaussianBlur=h.gaussianBlur,t.findContours=h.findContours,t.approxPolyDP=h.approxPolyDP,t.warp=h.warp,t.getPerspectiveTransform=h.getPerspectiveTransform,t.isContourConvex=h.isContourConvex,t.perimeter=h.perimeter,t.minEdgeLength=h.minEdgeLength,t.countNonZero=h.countNonZero}(t||(t={})),function(t){t.Detector=u}(e||(e={})),function(t){t.svdcmp=f.svdcmp,t.pythag=f.pythag,t.sign=f.sign}(r||(r={})),function(t){t.Pose=y,t.Posit=x}(i||(i={})),o})()));
+!(function (t, e) {
+  if ("object" == typeof exports && "object" == typeof module)
+    module.exports = e();
+  else if ("function" == typeof define && define.amd) define([], e);
+  else {
+    var r = e();
+    for (var i in r) ("object" == typeof exports ? exports : t)[i] = r[i];
+  }
+})(this, () =>
+  (() => {
+    "use strict";
+    var t,
+      e,
+      r,
+      i,
+      s = {
+        d: (t, e) => {
+          for (var r in e)
+            s.o(e, r) &&
+              !s.o(t, r) &&
+              Object.defineProperty(t, r, { enumerable: !0, get: e[r] });
+        },
+        o: (t, e) => Object.prototype.hasOwnProperty.call(t, e),
+        r: (t) => {
+          "undefined" != typeof Symbol &&
+            Symbol.toStringTag &&
+            Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }),
+            Object.defineProperty(t, "__esModule", { value: !0 });
+        },
+      },
+      o = {};
+    s.r(o), s.d(o, { ARuco: () => e, CV: () => t, POS: () => i, SVD: () => r });
+    class n {
+      width;
+      height;
+      data;
+      constructor(t = 0, e = 0, r = []) {
+        (this.width = t), (this.height = e), (this.data = r);
+      }
+    }
+    class a {
+      color;
+      next;
+      constructor() {
+        (this.color = 0), (this.next = null);
+      }
+    }
+    class h {
+      static grayscale(t) {
+        let e = t.data,
+          r = [],
+          i = new n(),
+          s = e.length,
+          o = 0,
+          a = 0;
+        for (; o < s; o += 4)
+          r[a++] =
+            (0.299 * e[o] + 0.587 * e[o + 1] + 0.114 * e[o + 2] + 0.5) & 255;
+        return (i.width = t.width), (i.height = t.height), (i.data = r), i;
+      }
+      static threshold(t, e, r) {
+        let i,
+          s = t.data,
+          o = e.data,
+          n = s.length,
+          a = [];
+        for (i = 0; i < 256; ++i) a[i] = i <= r ? 0 : 255;
+        for (i = 0; i < n; ++i) o[i] = a[s[i]];
+        return (e.width = t.width), (e.height = t.height), e;
+      }
+      static adaptiveThreshold(t, e, r, i) {
+        let s,
+          o = t.data,
+          n = e.data,
+          a = o.length,
+          d = [];
+        for (h.stackBoxBlur(t, e, r), s = 0; s < 768; ++s)
+          d[s] = s - 255 <= -i ? 255 : 0;
+        for (s = 0; s < a; ++s) n[s] = d[o[s] - n[s] + 255];
+        return (e.width = t.width), (e.height = t.height), e;
+      }
+      static otsu(t) {
+        let e,
+          r,
+          i,
+          s = t.data,
+          o = s.length,
+          n = [],
+          a = 0,
+          h = 0,
+          d = 0,
+          c = 0,
+          l = 0,
+          u = 0;
+        for (i = 0; i < 256; ++i) n[i] = 0;
+        for (i = 0; i < o; ++i) n[s[i]]++;
+        for (i = 0; i < 256; ++i) h += n[i] * i;
+        for (i = 0; i < 256; ++i)
+          if (((c += n[i]), 0 !== c)) {
+            if (((l = o - c), 0 === l)) break;
+            (d += n[i] * i),
+              (e = d / c - (h - d) / l),
+              (r = c * l * e * e),
+              r > u && ((u = r), (a = i));
+          }
+        return a;
+      }
+      static stackBoxBlurMult = [
+        1, 171, 205, 293, 57, 373, 79, 137, 241, 27, 391, 357, 41, 19, 283, 265,
+      ];
+      static stackBoxBlurShift = [
+        0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13,
+      ];
+      static stackBoxBlur(t, e, r) {
+        let i,
+          s,
+          o,
+          n,
+          d,
+          c,
+          l,
+          u,
+          f,
+          g,
+          m = t.data,
+          x = e.data,
+          y = t.height,
+          p = t.width,
+          w = y - 1,
+          v = p - 1,
+          b = r + r + 1,
+          M = r + 1,
+          _ = h.stackBoxBlurMult[r],
+          S = h.stackBoxBlurShift[r];
+        for (i = s = new a(), g = 1; g < b; ++g) i = i.next = new a();
+        for (i.next = s, d = 0, f = 0; f < y; ++f) {
+          for (c = d, o = m[d], n = M * o, i = s, g = 0; g < M; ++g)
+            (i.color = o), (i = i.next);
+          for (g = 1; g < M; ++g)
+            (i.color = m[d + g]), (n += i.color), (i = i.next);
+          for (i = s, u = 0; u < p; ++u)
+            (x[d++] = (n * _) >>> S),
+              (l = u + M),
+              (l = c + (l < v ? l : v)),
+              (n -= i.color - m[l]),
+              (i.color = m[l]),
+              (i = i.next);
+        }
+        for (u = 0; u < p; ++u) {
+          for (d = u, c = d + p, o = x[d], n = M * o, i = s, g = 0; g < M; ++g)
+            (i.color = o), (i = i.next);
+          for (g = 1; g < M; ++g)
+            (i.color = x[c]), (n += i.color), (i = i.next), (c += p);
+          for (i = s, f = 0; f < y; ++f)
+            (x[d] = (n * _) >>> S),
+              (l = f + M),
+              (l = u + (l < w ? l : w) * p),
+              (n -= i.color - x[l]),
+              (i.color = x[l]),
+              (i = i.next),
+              (d += p);
+        }
+        return e;
+      }
+      static gaussianBlur(t, e, r, i) {
+        var s = h.gaussianKernel(i);
+        return (
+          (e.width = t.width),
+          (e.height = t.height),
+          (r.width = t.width),
+          (r.height = t.height),
+          h.gaussianBlurFilter(t, r, s, !0),
+          h.gaussianBlurFilter(r, e, s, !1),
+          e
+        );
+      }
+      static gaussianBlurFilter(t, e, r, i) {
+        let s,
+          o,
+          n,
+          a,
+          h,
+          d = t.data,
+          c = e.data,
+          l = t.height,
+          u = t.width,
+          f = 0,
+          g = r.length >> 1;
+        for (n = 0; n < l; ++n)
+          for (a = 0; a < u; ++a) {
+            for (o = 0, h = -g; h <= g; ++h)
+              i
+                ? ((s = f + h), (a + h < 0 || a + h >= u) && (s = f))
+                : ((s = f + h * u), (n + h < 0 || n + h >= l) && (s = f)),
+                (o += r[g + h] * d[s]);
+            c[f++] = i ? o : (o + 0.5) & 255;
+          }
+        return e;
+      }
+      static gaussianKernel(t) {
+        let e,
+          r,
+          i,
+          s,
+          o,
+          n,
+          a = [];
+        if (t <= 7 && t % 2 == 1)
+          a = [
+            [1],
+            [0.25, 0.5, 0.25],
+            [0.0625, 0.25, 0.375, 0.25, 0.0625],
+            [0.03125, 0.109375, 0.21875, 0.28125, 0.21875, 0.109375, 0.03125],
+          ][t >> 1];
+        else {
+          for (
+            e = 0.5 * (t - 1),
+              r = 0.8 + 0.3 * (e - 1),
+              i = -0.5 / (r * r),
+              s = 0,
+              n = 0;
+            n < t;
+            ++n
+          )
+            (o = n - e), (s += a[n] = Math.exp(i * o * o));
+          for (s = 1 / s, n = 0; n < t; ++n) a[n] *= s;
+        }
+        return a;
+      }
+      static findContours(t, e) {
+        let r,
+          i,
+          s,
+          o,
+          n,
+          a,
+          d,
+          c,
+          l,
+          u = t.width,
+          f = t.height,
+          g = [];
+        for (
+          r = h.binaryBorder(t, e),
+            i = h.neighborhoodDeltas(u + 2),
+            s = u + 3,
+            n = 1,
+            c = 0;
+          c < f;
+          ++c, s += 2
+        )
+          for (l = 0; l < u; ++l, ++s)
+            (o = r[s]),
+              0 !== o &&
+                ((a = d = !1),
+                1 === o && 0 === r[s - 1]
+                  ? (a = !0)
+                  : o >= 1 && 0 === r[s + 1] && (d = !0),
+                (a || d) &&
+                  (++n,
+                  g.push(h.borderFollowing(r, s, n, { x: l, y: c }, d, i))));
+        return g;
+      }
+      static borderFollowing(t, e, r, i, s, o) {
+        let n,
+          a,
+          d,
+          c,
+          l,
+          u = [];
+        (u.hole = s), (c = l = s ? 0 : 4);
+        do {
+          if (((c = (c - 1) & 7), (n = e + o[c]), 0 !== t[n])) break;
+        } while (c !== l);
+        if (c === l) (t[e] = -r), u.push({ x: i.x, y: i.y });
+        else
+          for (a = e; ; ) {
+            l = c;
+            do {
+              d = a + o[++c];
+            } while (0 === t[d]);
+            if (
+              ((c &= 7),
+              (c - 1) >>> 0 < l >>> 0 ? (t[a] = -r) : 1 === t[a] && (t[a] = r),
+              u.push({ x: i.x, y: i.y }),
+              (i.x += h.neighborhood[c][0]),
+              (i.y += h.neighborhood[c][1]),
+              d === e && a === n)
+            )
+              break;
+            (a = d), (c = (c + 4) & 7);
+          }
+        return u;
+      }
+      static neighborhood = [
+        [1, 0],
+        [1, -1],
+        [0, -1],
+        [-1, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, 1],
+        [1, 1],
+      ];
+      static neighborhoodDeltas(t) {
+        let e = [],
+          r = h.neighborhood.length,
+          i = 0;
+        for (; i < r; ++i)
+          e[i] = h.neighborhood[i][0] + h.neighborhood[i][1] * t;
+        return e.concat(e);
+      }
+      static approxPolyDP(t, e) {
+        let r,
+          i,
+          s,
+          o,
+          n,
+          a,
+          h,
+          d,
+          c,
+          l,
+          u,
+          f = { start_index: 0, end_index: 0 },
+          g = { start_index: 0, end_index: 0 },
+          m = [],
+          x = [],
+          y = t.length;
+        for (e *= e, u = 0, c = 0; c < 3; ++c)
+          for (
+            n = 0,
+              u = (u + g.start_index) % y,
+              i = t[u],
+              ++u === y && (u = 0),
+              l = 1;
+            l < y;
+            ++l
+          )
+            (r = t[u]),
+              ++u === y && (u = 0),
+              (h = r.x - i.x),
+              (d = r.y - i.y),
+              (o = h * h + d * d),
+              o > n && ((n = o), (g.start_index = l));
+        for (
+          n <= e
+            ? m.push({ x: i.x, y: i.y })
+            : ((f.start_index = u),
+              (f.end_index = g.start_index += f.start_index),
+              (g.start_index -= g.start_index >= y ? y : 0),
+              (g.end_index = f.start_index),
+              g.end_index < g.start_index && (g.end_index += y),
+              x.push({ start_index: g.start_index, end_index: g.end_index }),
+              x.push({ start_index: f.start_index, end_index: f.end_index }));
+          0 !== x.length;
+
+        ) {
+          if (
+            ((f = x.pop()),
+            (s = t[f.end_index % y]),
+            (i = t[(u = f.start_index % y)]),
+            ++u === y && (u = 0),
+            f.end_index <= f.start_index + 1)
+          )
+            a = !0;
+          else {
+            for (
+              n = 0, h = s.x - i.x, d = s.y - i.y, c = f.start_index + 1;
+              c < f.end_index;
+              ++c
+            )
+              (r = t[u]),
+                ++u === y && (u = 0),
+                (o = Math.abs((r.y - i.y) * h - (r.x - i.x) * d)),
+                o > n && ((n = o), (g.start_index = c));
+            a = n * n <= e * (h * h + d * d);
+          }
+          a
+            ? m.push({ x: i.x, y: i.y })
+            : ((g.end_index = f.end_index),
+              (f.end_index = g.start_index),
+              x.push({ start_index: g.start_index, end_index: g.end_index }),
+              x.push({ start_index: f.start_index, end_index: f.end_index }));
+        }
+        return m;
+      }
+      static warp(t, e, r, i) {
+        let s,
+          o,
+          n,
+          a,
+          d,
+          c,
+          l,
+          u,
+          f,
+          g,
+          m,
+          x,
+          y,
+          p,
+          w,
+          v,
+          b,
+          M,
+          _,
+          S,
+          C,
+          k,
+          B,
+          L = t.data,
+          P = e.data,
+          I = t.width,
+          j = t.height,
+          D = 0;
+        for (
+          y = h.getPerspectiveTransform(r, i - 1),
+            p = y[8],
+            w = y[2],
+            v = y[5],
+            k = 0;
+          k < i;
+          ++k
+        )
+          for (
+            p += y[7], w += y[1], v += y[4], b = p, M = w, _ = v, B = 0;
+            B < i;
+            ++B
+          )
+            (b += y[6]),
+              (M += y[0]),
+              (_ += y[3]),
+              (S = M / b),
+              (C = _ / b),
+              (s = S >>> 0),
+              (o = s === I - 1 ? s : s + 1),
+              (n = S - s),
+              (a = 1 - n),
+              (d = C >>> 0),
+              (c = d === j - 1 ? d : d + 1),
+              (l = C - d),
+              (u = 1 - l),
+              (f = g = d * I),
+              (m = x = c * I),
+              (P[D++] =
+                (u * (a * L[f + s] + n * L[g + o]) +
+                  l * (a * L[m + s] + n * L[x + o])) &
+                255);
+        return (e.width = i), (e.height = i), e;
+      }
+      static getPerspectiveTransform(t, e) {
+        let r = h.square2quad(t);
+        return (
+          (r[0] /= e),
+          (r[1] /= e),
+          (r[3] /= e),
+          (r[4] /= e),
+          (r[6] /= e),
+          (r[7] /= e),
+          r
+        );
+      }
+      static square2quad(t) {
+        let e,
+          r,
+          i,
+          s,
+          o,
+          n,
+          a,
+          h = [];
+        return (
+          (e = t[0].x - t[1].x + t[2].x - t[3].x),
+          (r = t[0].y - t[1].y + t[2].y - t[3].y),
+          0 === e && 0 === r
+            ? ((h[0] = t[1].x - t[0].x),
+              (h[1] = t[2].x - t[1].x),
+              (h[2] = t[0].x),
+              (h[3] = t[1].y - t[0].y),
+              (h[4] = t[2].y - t[1].y),
+              (h[5] = t[0].y),
+              (h[6] = 0),
+              (h[7] = 0),
+              (h[8] = 1))
+            : ((i = t[1].x - t[2].x),
+              (s = t[3].x - t[2].x),
+              (o = t[1].y - t[2].y),
+              (n = t[3].y - t[2].y),
+              (a = i * n - s * o),
+              (h[6] = (e * n - s * r) / a),
+              (h[7] = (i * r - e * o) / a),
+              (h[8] = 1),
+              (h[0] = t[1].x - t[0].x + h[6] * t[1].x),
+              (h[1] = t[3].x - t[0].x + h[7] * t[3].x),
+              (h[2] = t[0].x),
+              (h[3] = t[1].y - t[0].y + h[6] * t[1].y),
+              (h[4] = t[3].y - t[0].y + h[7] * t[3].y),
+              (h[5] = t[0].y)),
+          h
+        );
+      }
+      static isContourConvex(t) {
+        let e,
+          r,
+          i,
+          s,
+          o,
+          n,
+          a,
+          h,
+          d = 0,
+          c = !0,
+          l = t.length,
+          u = 0,
+          f = 0;
+        for (r = t[l - 1], e = t[0], o = e.x - r.x, n = e.y - r.y; u < l; ++u) {
+          if (
+            (++f === l && (f = 0),
+            (r = e),
+            (e = t[f]),
+            (a = e.x - r.x),
+            (h = e.y - r.y),
+            (i = a * n),
+            (s = h * o),
+            (d |= s > i ? 1 : s < i ? 2 : 3),
+            3 === d)
+          ) {
+            c = !1;
+            break;
+          }
+          (o = a), (n = h);
+        }
+        return c;
+      }
+      static perimeter(t) {
+        let e,
+          r,
+          i = t.length,
+          s = 0,
+          o = i - 1,
+          n = 0;
+        for (; s < i; o = s++)
+          (e = t[s].x - t[o].x),
+            (r = t[s].y - t[o].y),
+            (n += Math.sqrt(e * e + r * r));
+        return n;
+      }
+      static minEdgeLength(t) {
+        let e,
+          r,
+          i,
+          s = t.length,
+          o = 0,
+          n = s - 1,
+          a = 1 / 0;
+        for (; o < s; n = o++)
+          (r = t[o].x - t[n].x),
+            (i = t[o].y - t[n].y),
+            (e = r * r + i * i),
+            e < a && (a = e);
+        return Math.sqrt(a);
+      }
+      static countNonZero(t, e) {
+        let r,
+          i,
+          s = t.data,
+          o = e.height,
+          n = e.width,
+          a = e.x + e.y * t.width,
+          h = t.width - n,
+          d = 0;
+        for (r = 0; r < o; ++r) {
+          for (i = 0; i < n; ++i) 0 !== s[a++] && ++d;
+          a += h;
+        }
+        return d;
+      }
+      static binaryBorder(t, e) {
+        let r,
+          i,
+          s = t.data,
+          o = t.height,
+          n = t.width,
+          a = 0,
+          h = 0;
+        for (i = -2; i < n; ++i) e[h++] = 0;
+        for (r = 0; r < o; ++r) {
+          for (e[h++] = 0, i = 0; i < n; ++i) e[h++] = 0 === s[a++] ? 0 : 1;
+          e[h++] = 0;
+        }
+        for (i = -2; i < n; ++i) e[h++] = 0;
+        return e;
+      }
+    }
+    class d {
+      static ARUCO = {
+        nBits: 25,
+        tau: 3,
+        codeList: [
+          17318416, 17318423, 17318409, 17318414, 17318640, 17318647, 17318633,
+          17318638, 17318192, 17318199, 17318185, 17318190, 17318352, 17318359,
+          17318345, 17318350, 17325584, 17325591, 17325577, 17325582, 17325808,
+          17325815, 17325801, 17325806, 17325360, 17325367, 17325353, 17325358,
+          17325520, 17325527, 17325513, 17325518, 17311248, 17311255, 17311241,
+          17311246, 17311472, 17311479, 17311465, 17311470, 17311024, 17311031,
+          17311017, 17311022, 17311184, 17311191, 17311177, 17311182, 17316368,
+          17316375, 17316361, 17316366, 17316592, 17316599, 17316585, 17316590,
+          17316144, 17316151, 17316137, 17316142, 17316304, 17316311, 17316297,
+          17316302, 17547792, 17547799, 17547785, 17547790, 17548016, 17548023,
+          17548009, 17548014, 17547568, 17547575, 17547561, 17547566, 17547728,
+          17547735, 17547721, 17547726, 17554960, 17554967, 17554953, 17554958,
+          17555184, 17555191, 17555177, 17555182, 17554736, 17554743, 17554729,
+          17554734, 17554896, 17554903, 17554889, 17554894, 17540624, 17540631,
+          17540617, 17540622, 17540848, 17540855, 17540841, 17540846, 17540400,
+          17540407, 17540393, 17540398, 17540560, 17540567, 17540553, 17540558,
+          17545744, 17545751, 17545737, 17545742, 17545968, 17545975, 17545961,
+          17545966, 17545520, 17545527, 17545513, 17545518, 17545680, 17545687,
+          17545673, 17545678, 17089040, 17089047, 17089033, 17089038, 17089264,
+          17089271, 17089257, 17089262, 17088816, 17088823, 17088809, 17088814,
+          17088976, 17088983, 17088969, 17088974, 17096208, 17096215, 17096201,
+          17096206, 17096432, 17096439, 17096425, 17096430, 17095984, 17095991,
+          17095977, 17095982, 17096144, 17096151, 17096137, 17096142, 17081872,
+          17081879, 17081865, 17081870, 17082096, 17082103, 17082089, 17082094,
+          17081648, 17081655, 17081641, 17081646, 17081808, 17081815, 17081801,
+          17081806, 17086992, 17086999, 17086985, 17086990, 17087216, 17087223,
+          17087209, 17087214, 17086768, 17086775, 17086761, 17086766, 17086928,
+          17086935, 17086921, 17086926, 17252880, 17252887, 17252873, 17252878,
+          17253104, 17253111, 17253097, 17253102, 17252656, 17252663, 17252649,
+          17252654, 17252816, 17252823, 17252809, 17252814, 17260048, 17260055,
+          17260041, 17260046, 17260272, 17260279, 17260265, 17260270, 17259824,
+          17259831, 17259817, 17259822, 17259984, 17259991, 17259977, 17259982,
+          17245712, 17245719, 17245705, 17245710, 17245936, 17245943, 17245929,
+          17245934, 17245488, 17245495, 17245481, 17245486, 17245648, 17245655,
+          17245641, 17245646, 17250832, 17250839, 17250825, 17250830, 17251056,
+          17251063, 17251049, 17251054, 17250608, 17250615, 17250601, 17250606,
+          17250768, 17250775, 17250761, 17250766, 24658448, 24658455, 24658441,
+          24658446, 24658672, 24658679, 24658665, 24658670, 24658224, 24658231,
+          24658217, 24658222, 24658384, 24658391, 24658377, 24658382, 24665616,
+          24665623, 24665609, 24665614, 24665840, 24665847, 24665833, 24665838,
+          24665392, 24665399, 24665385, 24665390, 24665552, 24665559, 24665545,
+          24665550, 24651280, 24651287, 24651273, 24651278, 24651504, 24651511,
+          24651497, 24651502, 24651056, 24651063, 24651049, 24651054, 24651216,
+          24651223, 24651209, 24651214, 24656400, 24656407, 24656393, 24656398,
+          24656624, 24656631, 24656617, 24656622, 24656176, 24656183, 24656169,
+          24656174, 24656336, 24656343, 24656329, 24656334, 24887824, 24887831,
+          24887817, 24887822, 24888048, 24888055, 24888041, 24888046, 24887600,
+          24887607, 24887593, 24887598, 24887760, 24887767, 24887753, 24887758,
+          24894992, 24894999, 24894985, 24894990, 24895216, 24895223, 24895209,
+          24895214, 24894768, 24894775, 24894761, 24894766, 24894928, 24894935,
+          24894921, 24894926, 24880656, 24880663, 24880649, 24880654, 24880880,
+          24880887, 24880873, 24880878, 24880432, 24880439, 24880425, 24880430,
+          24880592, 24880599, 24880585, 24880590, 24885776, 24885783, 24885769,
+          24885774, 24886e3, 24886007, 24885993, 24885998, 24885552, 24885559,
+          24885545, 24885550, 24885712, 24885719, 24885705, 24885710, 24429072,
+          24429079, 24429065, 24429070, 24429296, 24429303, 24429289, 24429294,
+          24428848, 24428855, 24428841, 24428846, 24429008, 24429015, 24429001,
+          24429006, 24436240, 24436247, 24436233, 24436238, 24436464, 24436471,
+          24436457, 24436462, 24436016, 24436023, 24436009, 24436014, 24436176,
+          24436183, 24436169, 24436174, 24421904, 24421911, 24421897, 24421902,
+          24422128, 24422135, 24422121, 24422126, 24421680, 24421687, 24421673,
+          24421678, 24421840, 24421847, 24421833, 24421838, 24427024, 24427031,
+          24427017, 24427022, 24427248, 24427255, 24427241, 24427246, 24426800,
+          24426807, 24426793, 24426798, 24426960, 24426967, 24426953, 24426958,
+          24592912, 24592919, 24592905, 24592910, 24593136, 24593143, 24593129,
+          24593134, 24592688, 24592695, 24592681, 24592686, 24592848, 24592855,
+          24592841, 24592846, 24600080, 24600087, 24600073, 24600078, 24600304,
+          24600311, 24600297, 24600302, 24599856, 24599863, 24599849, 24599854,
+          24600016, 24600023, 24600009, 24600014, 24585744, 24585751, 24585737,
+          24585742, 24585968, 24585975, 24585961, 24585966, 24585520, 24585527,
+          24585513, 24585518, 24585680, 24585687, 24585673, 24585678, 24590864,
+          24590871, 24590857, 24590862, 24591088, 24591095, 24591081, 24591086,
+          24590640, 24590647, 24590633, 24590638, 24590800, 24590807, 24590793,
+          24590798, 9978384, 9978391, 9978377, 9978382, 9978608, 9978615,
+          9978601, 9978606, 9978160, 9978167, 9978153, 9978158, 9978320,
+          9978327, 9978313, 9978318, 9985552, 9985559, 9985545, 9985550,
+          9985776, 9985783, 9985769, 9985774, 9985328, 9985335, 9985321,
+          9985326, 9985488, 9985495, 9985481, 9985486, 9971216, 9971223,
+          9971209, 9971214, 9971440, 9971447, 9971433, 9971438, 9970992,
+          9970999, 9970985, 9970990, 9971152, 9971159, 9971145, 9971150,
+          9976336, 9976343, 9976329, 9976334, 9976560, 9976567, 9976553,
+          9976558, 9976112, 9976119, 9976105, 9976110, 9976272, 9976279,
+          9976265, 9976270, 10207760, 10207767, 10207753, 10207758, 10207984,
+          10207991, 10207977, 10207982, 10207536, 10207543, 10207529, 10207534,
+          10207696, 10207703, 10207689, 10207694, 10214928, 10214935, 10214921,
+          10214926, 10215152, 10215159, 10215145, 10215150, 10214704, 10214711,
+          10214697, 10214702, 10214864, 10214871, 10214857, 10214862, 10200592,
+          10200599, 10200585, 10200590, 10200816, 10200823, 10200809, 10200814,
+          10200368, 10200375, 10200361, 10200366, 10200528, 10200535, 10200521,
+          10200526, 10205712, 10205719, 10205705, 10205710, 10205936, 10205943,
+          10205929, 10205934, 10205488, 10205495, 10205481, 10205486, 10205648,
+          10205655, 10205641, 10205646, 9749008, 9749015, 9749001, 9749006,
+          9749232, 9749239, 9749225, 9749230, 9748784, 9748791, 9748777,
+          9748782, 9748944, 9748951, 9748937, 9748942, 9756176, 9756183,
+          9756169, 9756174, 9756400, 9756407, 9756393, 9756398, 9755952,
+          9755959, 9755945, 9755950, 9756112, 9756119, 9756105, 9756110,
+          9741840, 9741847, 9741833, 9741838, 9742064, 9742071, 9742057,
+          9742062, 9741616, 9741623, 9741609, 9741614, 9741776, 9741783,
+          9741769, 9741774, 9746960, 9746967, 9746953, 9746958, 9747184,
+          9747191, 9747177, 9747182, 9746736, 9746743, 9746729, 9746734,
+          9746896, 9746903, 9746889, 9746894, 9912848, 9912855, 9912841,
+          9912846, 9913072, 9913079, 9913065, 9913070, 9912624, 9912631,
+          9912617, 9912622, 9912784, 9912791, 9912777, 9912782, 9920016,
+          9920023, 9920009, 9920014, 9920240, 9920247, 9920233, 9920238,
+          9919792, 9919799, 9919785, 9919790, 9919952, 9919959, 9919945,
+          9919950, 9905680, 9905687, 9905673, 9905678, 9905904, 9905911,
+          9905897, 9905902, 9905456, 9905463, 9905449, 9905454, 9905616,
+          9905623, 9905609, 9905614, 9910800, 9910807, 9910793, 9910798,
+          9911024, 9911031, 9911017, 9911022, 9910576, 9910583, 9910569,
+          9910574, 9910736, 9910743, 9910729, 9910734, 15221264, 15221271,
+          15221257, 15221262, 15221488, 15221495, 15221481, 15221486, 15221040,
+          15221047, 15221033, 15221038, 15221200, 15221207, 15221193, 15221198,
+          15228432, 15228439, 15228425, 15228430, 15228656, 15228663, 15228649,
+          15228654, 15228208, 15228215, 15228201, 15228206, 15228368, 15228375,
+          15228361, 15228366, 15214096, 15214103, 15214089, 15214094, 15214320,
+          15214327, 15214313, 15214318, 15213872, 15213879, 15213865, 15213870,
+          15214032, 15214039, 15214025, 15214030, 15219216, 15219223, 15219209,
+          15219214, 15219440, 15219447, 15219433, 15219438, 15218992, 15218999,
+          15218985, 15218990, 15219152, 15219159, 15219145, 15219150, 15450640,
+          15450647, 15450633, 15450638, 15450864, 15450871, 15450857, 15450862,
+          15450416, 15450423, 15450409, 15450414, 15450576, 15450583, 15450569,
+          15450574, 15457808, 15457815, 15457801, 15457806, 15458032, 15458039,
+          15458025, 15458030, 15457584, 15457591, 15457577, 15457582, 15457744,
+          15457751, 15457737, 15457742, 15443472, 15443479, 15443465, 15443470,
+          15443696, 15443703, 15443689, 15443694, 15443248, 15443255, 15443241,
+          15443246, 15443408, 15443415, 15443401, 15443406, 15448592, 15448599,
+          15448585, 15448590, 15448816, 15448823, 15448809, 15448814, 15448368,
+          15448375, 15448361, 15448366, 15448528, 15448535, 15448521, 15448526,
+          14991888, 14991895, 14991881, 14991886, 14992112, 14992119, 14992105,
+          14992110, 14991664, 14991671, 14991657, 14991662, 14991824, 14991831,
+          14991817, 14991822, 14999056, 14999063, 14999049, 14999054, 14999280,
+          14999287, 14999273, 14999278, 14998832, 14998839, 14998825, 14998830,
+          14998992, 14998999, 14998985, 14998990, 14984720, 14984727, 14984713,
+          14984718, 14984944, 14984951, 14984937, 14984942, 14984496, 14984503,
+          14984489, 14984494, 14984656, 14984663, 14984649, 14984654, 14989840,
+          14989847, 14989833, 14989838, 14990064, 14990071, 14990057, 14990062,
+          14989616, 14989623, 14989609, 14989614, 14989776, 14989783, 14989769,
+          14989774, 15155728, 15155735, 15155721, 15155726, 15155952, 15155959,
+          15155945, 15155950, 15155504, 15155511, 15155497, 15155502, 15155664,
+          15155671, 15155657, 15155662, 15162896, 15162903, 15162889, 15162894,
+          15163120, 15163127, 15163113, 15163118, 15162672, 15162679, 15162665,
+          15162670, 15162832, 15162839, 15162825, 15162830, 15148560, 15148567,
+          15148553, 15148558, 15148784, 15148791, 15148777, 15148782, 15148336,
+          15148343, 15148329, 15148334, 15148496, 15148503, 15148489, 15148494,
+          15153680, 15153687, 15153673, 15153678, 15153904, 15153911, 15153897,
+          15153902, 15153456, 15153463, 15153449, 15153454, 15153616, 15153623,
+          15153609,
+        ],
+      };
+      static ARUCO_MIP_36h12 = {
+        nBits: 36,
+        tau: 12,
+        codeList: [
+          56562524317, 25770931429, 4839161458, 68596624564, 35931143241,
+          48420814492, 29449387539, 22088012831, 150160643, 38290206414,
+          63018100589, 7237360708, 48463388455, 12429895739, 32398847912,
+          10690557310, 36811505649, 20424594438, 51348452625, 59082132829,
+          4789649285, 6074601013, 60833300223, 17865158156, 38878348407,
+          9422290067, 52530265596, 1112263881, 11282798128, 31716556182,
+          55939809049, 65378188640, 53364103696, 16135388261, 10585857635,
+          18405277539, 58620300626, 16314326873, 45976886702, 36730781048,
+          49079839777, 48251450950, 9367376904, 46270871306, 45811842918,
+          20579384461, 24858916784, 45800689157, 1885099856, 46307169374,
+          30966095476, 37785816804, 61277293828, 48822885856, 10217422095,
+          64915480245, 43389267094, 6254111746, 8290563862, 37342276841,
+          28460125290, 3495333372, 6758227551, 7209929928, 55814160128,
+          56029470330, 36738889758, 18344320185, 58975059075, 44171881969,
+          49170624125, 3264591167, 65657841412, 41180650537, 42494701445,
+          36108643611, 34639993860, 28659990498, 26930865685, 15452591512,
+          7682723690, 52184653157, 35325736853, 15770954845, 14355922747,
+          3586151781, 12705066820, 36172812353, 26860166751, 55306861815,
+          4458230846, 52097670290, 14416739556, 18680720626, 63503185964,
+          21886004944, 12308700311, 12349350212, 17960603545, 41482020135,
+          38252944768, 36805791540, 10164380688, 9551813940, 38630526064,
+          39745661296, 34997908492, 4238126902, 28053085457, 30473796616,
+          4054545961, 43846990872, 20404992582, 8671648998, 46543146295,
+          35647704329, 17739867588, 36459700136, 32297088841, 21060713596,
+          51319791578, 58119572901, 9474224e3, 14900282644, 46136470867,
+          14594576121, 19808283810, 1010425331, 53297363037, 24692637543,
+          26359373345, 46113281484, 15179644549, 58533795373, 4434812905,
+          20743912811, 31920827745, 42332552509, 64106723953, 61987860015,
+          18286833283, 49956032501, 13203889835, 29235312165, 36521555341,
+          37903965709, 11787234849, 57448344684, 18958239524, 36489129683,
+          17809534842, 32896732754, 31847577168, 41236569844, 33564302914,
+          51585414251, 39285898823, 8882101696, 42729360772, 251636777,
+          33075363724, 27518016937, 55852068415, 7734342848, 40004287547,
+          66652317552, 15292841334, 14569959493, 55326630930, 32846929320,
+          5603651436, 25389875160, 48026662697, 918846935, 49642306667,
+          3924358743, 57089912602, 36525866802, 19258047537, 15798762340,
+          29623485812, 13931892113, 11469315373, 37306662699, 61910613086,
+          30606478781, 46814571538, 4917445926, 4439324737, 60918689504,
+          47457428851, 68021616262, 18332513560, 51148727658, 27928255740,
+          46173761192, 40760335900, 7855435272, 7001299726, 61833121153,
+          43896074151, 14605260403, 62541610373, 12393639381, 37350739731,
+          66194071346, 18666749070, 12382112924, 1680236413, 16493370640,
+          6059486961, 16751996745, 21543890275, 7001355285, 27046496066,
+          2804870197, 8337874016, 45455359079, 65272880397, 9060569084,
+          60159882672, 20975334688, 45716885065, 60604533827, 8739419880,
+          35574477989, 42573002072, 11905513436, 39802521107, 35050605614,
+          81139249, 55923865609, 42972972333, 38492698169, 54935698999,
+          54512761978, 67740646995, 41511353392, 50981879100, 60163858300,
+          20282826672, 49415583287, 13921455465, 4465851981, 53900345171,
+          59632123755, 19009048020, 13643781953, 30188444676, 20762705568,
+        ],
+      };
+      static getDictionary(t) {
+        const e = d[t];
+        if (
+          e &&
+          "object" == typeof e &&
+          "nBits" in e &&
+          "tau" in e &&
+          "codeList" in e
+        )
+          return e;
+        throw new Error(`The dictionary "${t}" is not recognized.`);
+      }
+    }
+    class c {
+      codes = {};
+      codeList = [];
+      tau = 0;
+      nBits = 0;
+      markSize = 0;
+      dicName;
+      constructor(t) {
+        (this.codes = {}),
+          (this.codeList = []),
+          (this.tau = 0),
+          (this.dicName = t),
+          this.initialize(t);
+      }
+      initialize(t) {
+        (this.codes = {}),
+          (this.codeList = []),
+          (this.tau = 0),
+          (this.nBits = 0),
+          (this.markSize = 0),
+          (this.dicName = t);
+        const e = d.getDictionary(t);
+        if (!e)
+          throw new Error('The dictionary "' + t + '" is not recognized.');
+        (this.nBits = e.nBits), (this.markSize = Math.sqrt(e.nBits) + 2);
+        for (let t = 0; t < e.codeList.length; t++) {
+          const r = this.parseCode(e.codeList[t], e.nBits);
+          this.codeList.push(r), (this.codes[r] = { id: t });
+        }
+        this.tau = e.tau || this.calculateTau();
+      }
+      parseCode(t, e) {
+        if ("number" == typeof t) return t.toString(2).padStart(e, "0");
+        if ("string" == typeof t)
+          return parseInt(t, 16).toString(2).padStart(e, "0");
+        if (Array.isArray(t))
+          return t
+            .map((t) => t.toString(2).padStart(8, "0"))
+            .join("")
+            .slice(0, e);
+        throw new Error(`Invalid code: ${t}`);
+      }
+      find(t) {
+        const e = t.flat().join("");
+        let r = null;
+        for (const t of this.codeList) {
+          const i = this.hammingDistance(e, t);
+          i < this.tau &&
+            (!r || i < r.distance) &&
+            (r = { id: this.codes[t].id, distance: i });
+        }
+        return r;
+      }
+      _hex2bin(t, e) {
+        return t.toString(2).padStart(e, "0");
+      }
+      _bytes2bin(t, e) {
+        let r = "";
+        for (const i of t)
+          r += i.toString(2).padStart(r.length + 8 > e ? e - r.length : 8, "0");
+        return r;
+      }
+      hammingDistance(t, e) {
+        if (t.length !== e.length)
+          throw new Error(
+            "Hamming distance requires inputs of the same length."
+          );
+        return Array.from(t).reduce((t, r, i) => t + (r !== e[i] ? 1 : 0), 0);
+      }
+      calculateTau() {
+        let t = Number.MAX_VALUE;
+        for (let e = 0; e < this.codeList.length; e++)
+          for (let r = e + 1; r < this.codeList.length; r++) {
+            const i = this.hammingDistance(this.codeList[e], this.codeList[r]);
+            t = i < t ? i : t;
+          }
+        return t;
+      }
+      generateSVG(t) {
+        const e = this.codeList[t];
+        if (null == e)
+          throw new Error(
+            'The id "' +
+              t +
+              '" is not valid for the dictionary "' +
+              this.dicName +
+              '". ID must be between 0 and ' +
+              (this.codeList.length - 1) +
+              " included."
+          );
+        const r = this.markSize - 2;
+        let i =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' +
+          (r + 4) +
+          " " +
+          (r + 4) +
+          '">';
+        (i +=
+          '<rect x="0" y="0" width="' +
+          (r + 4) +
+          '" height="' +
+          (r + 4) +
+          '" fill="white"/>'),
+          (i +=
+            '<rect x="1" y="1" width="' +
+            (r + 2) +
+            '" height="' +
+            (r + 2) +
+            '" fill="black"/>');
+        for (let t = 0; t < r; t++)
+          for (let s = 0; s < r; s++)
+            "1" == e[t * r + s] &&
+              (i +=
+                '<rect x="' +
+                (s + 2) +
+                '" y="' +
+                (t + 2) +
+                '" width="1" height="1" fill="white"/>');
+        return (i += "</svg>"), i;
+      }
+    }
+    class l {
+      id;
+      corners;
+      hammingDistance;
+      constructor(t, e, r) {
+        (this.id = t), (this.corners = e), (this.hammingDistance = r);
+      }
+    }
+    class u {
+      config;
+      dictionary;
+      grey;
+      thres;
+      homography;
+      binary;
+      contours;
+      polys;
+      candidates;
+      streamConfig;
+      mjpeg;
+      static mjpeg;
+      constructor(t) {
+        (this.config = t),
+          (this.grey = new n()),
+          (this.thres = new n()),
+          (this.homography = new n()),
+          (this.binary = []),
+          (this.contours = []),
+          (this.polys = []),
+          (this.candidates = []),
+          (this.dictionary = new c(t.dictionaryName)),
+          (this.dictionary.tau =
+            null != t.maxHammingDistance
+              ? t.maxHammingDistance
+              : this.dictionary.tau);
+      }
+      detectImage(t, e, r) {
+        return this.detect({ width: t, height: e, data: r });
+      }
+      detectStreamInit(t, e, r) {
+        (this.streamConfig = {}),
+          (this.streamConfig.width = t),
+          (this.streamConfig.height = e),
+          (this.streamConfig.imageSize = t * e * 4),
+          (this.streamConfig.index = 0),
+          (this.streamConfig.imageData = new Uint8ClampedArray(
+            this.streamConfig.imageSize
+          )),
+          (this.streamConfig.callback = r || function (t, e) {});
+      }
+      detectStream(t) {
+        for (let e = 0; e < t.length; e++)
+          if (
+            ((this.streamConfig.imageData[this.streamConfig.index] = t[e]),
+            (this.streamConfig.index =
+              (this.streamConfig.index + 1) % this.streamConfig.imageSize),
+            0 == this.streamConfig.index)
+          ) {
+            const t = {
+                width: this.streamConfig.width,
+                height: this.streamConfig.height,
+                data: this.streamConfig.imageData,
+              },
+              e = this.detect(t);
+            this.streamConfig.callback(t, e);
+          }
+      }
+      detectMJPEGStreamInit(t, e, r, i) {
+        (this.mjpeg = {
+          decoderFn: i,
+          chunks: [],
+          SOI: [255, 216],
+          EOI: [255, 217],
+        }),
+          this.detectStreamInit(t, e, r);
+      }
+      detectMJPEGStream(t) {
+        const e = t.findIndex(function (t, e, r) {
+            return (
+              u.mjpeg.EOI[0] == t &&
+              r.length > e + 1 &&
+              u.mjpeg.EOI[1] == r[e + 1]
+            );
+          }),
+          r = t.findIndex(function (t, e, r) {
+            return (
+              u.mjpeg.SOI[0] == t &&
+              r.length > e + 1 &&
+              u.mjpeg.SOI[1] == r[e + 1]
+            );
+          });
+        if (-1 === e) this.mjpeg.chunks.push(t);
+        else {
+          const r = t.slice(0, e + 2);
+          if (
+            (r.length && this.mjpeg.chunks.push(r), this.mjpeg.chunks.length)
+          ) {
+            const t = this.mjpeg.chunks.flat(),
+              e = this.mjpeg.decoderFn(t);
+            this.detectStream(e);
+          }
+          this.mjpeg.chunks = [];
+        }
+        r > -1 &&
+          ((this.mjpeg.chunks = []), this.mjpeg.chunks.push(t.slice(r)));
+      }
+      detect(t) {
+        return (
+          (this.grey = h.grayscale(t)),
+          h.adaptiveThreshold(this.grey, this.thres, 2, 7),
+          (this.contours = h.findContours(this.thres, this.binary)),
+          (this.candidates = this.findCandidates(
+            this.contours,
+            0.01 * t.width,
+            0.05,
+            10
+          )),
+          (this.candidates = this.clockwiseCorners(this.candidates)),
+          (this.candidates = this.notTooNear(this.candidates, 10)),
+          this.findMarkers(this.grey, this.candidates, 49)
+        );
+      }
+      findCandidates(t, e, r, i) {
+        let s,
+          o,
+          n,
+          a = [],
+          d = t.length;
+        for (this.polys = [], n = 0; n < d; ++n)
+          (s = t[n]),
+            s.length >= e &&
+              ((o = h.approxPolyDP(s, s.length * r)),
+              this.polys.push(o),
+              4 === o.length &&
+                h.isContourConvex(o) &&
+                h.minEdgeLength(o) >= i &&
+                a.push(o));
+        return a;
+      }
+      clockwiseCorners(t) {
+        let e,
+          r,
+          i,
+          s,
+          o,
+          n = t.length;
+        for (let a = 0; a < n; ++a)
+          (e = t[a][1].x - t[a][0].x),
+            (i = t[a][1].y - t[a][0].y),
+            (r = t[a][2].x - t[a][0].x),
+            (s = t[a][2].y - t[a][0].y),
+            e * s - i * r < 0 &&
+              ((o = t[a][1]), (t[a][1] = t[a][3]), (t[a][3] = o));
+        return t;
+      }
+      notTooNear(t, e) {
+        let r,
+          i,
+          s,
+          o,
+          n,
+          a,
+          d = [],
+          c = t.length;
+        for (o = 0; o < c; ++o)
+          for (n = o + 1; n < c; ++n) {
+            for (r = 0, a = 0; a < 4; ++a)
+              (i = t[o][a].x - t[n][a].x),
+                (s = t[o][a].y - t[n][a].y),
+                (r += i * i + s * s);
+            r / 4 < e * e &&
+              (h.perimeter(t[o]) < h.perimeter(t[n])
+                ? (t[o].tooNear = !0)
+                : (t[n].tooNear = !0));
+          }
+        for (o = 0; o < c; ++o) t[o].tooNear || d.push(t[o]);
+        return d;
+      }
+      findMarkers(t, e, r) {
+        let i,
+          s,
+          o = [],
+          n = e.length;
+        for (let a = 0; a < n; ++a)
+          (i = e[a]),
+            h.warp(t, this.homography, i, r),
+            h.threshold(
+              this.homography,
+              this.homography,
+              h.otsu(this.homography)
+            ),
+            (s = this.getMarker(this.homography, i)),
+            s && o.push(s);
+        return o;
+      }
+      getMarker(t, e) {
+        let r,
+          i,
+          s,
+          o,
+          n = this.dictionary.markSize,
+          a = (t.width / n) >>> 0,
+          d = (a * a) >> 1,
+          c = [],
+          u = [];
+        for (s = 0; s < n; ++s)
+          for (i = 0 === s || n - 1 === s ? 1 : n - 1, o = 0; o < n; o += i)
+            if (
+              ((r = { x: o * a, y: s * a, width: a, height: a }),
+              h.countNonZero(t, r) > d)
+            )
+              return null;
+        for (s = 0; s < n - 2; ++s)
+          for (c[s] = [], o = 0; o < n - 2; ++o)
+            (r = { x: (o + 1) * a, y: (s + 1) * a, width: a, height: a }),
+              (c[s][o] = h.countNonZero(t, r) > d ? 1 : 0);
+        u[0] = c;
+        let f = null,
+          g = 0;
+        for (s = 0; s < 4; s++) {
+          const t = this.dictionary.find(u[s]);
+          if (
+            t &&
+            (null === f || t.distance < f.distance) &&
+            ((f = t), (g = s), 0 === f.distance)
+          )
+            break;
+          u[s + 1] = this.rotate(u[s]);
+        }
+        return f ? new l(f.id, this.rotate2(e, 4 - g), f.distance) : null;
+      }
+      hammingDistance(t) {
+        let e,
+          r,
+          i,
+          s,
+          o,
+          n = [
+            [1, 0, 0, 0, 0],
+            [1, 0, 1, 1, 1],
+            [0, 1, 0, 0, 1],
+            [0, 1, 1, 1, 0],
+          ],
+          a = 0;
+        for (i = 0; i < 5; ++i) {
+          for (r = 1 / 0, s = 0; s < 4; ++s) {
+            for (e = 0, o = 0; o < 5; ++o) e += t[i][o] === n[s][o] ? 0 : 1;
+            e < r && (r = e);
+          }
+          a += r;
+        }
+        return a;
+      }
+      mat2id(t) {
+        let e,
+          r = 0;
+        for (e = 0; e < 5; ++e)
+          (r <<= 1), (r |= t[e][1]), (r <<= 1), (r |= t[e][3]);
+        return r;
+      }
+      rotate(t) {
+        let e = [],
+          r = t.length;
+        for (let i = 0; i < r; ++i) {
+          e[i] = [];
+          for (let r = 0; r < t[i].length; ++r)
+            e[i][r] = t[t[i].length - r - 1][i];
+        }
+        return e;
+      }
+      rotate2 = function (t, e) {
+        let r = [],
+          i = t.length;
+        for (let s = 0; s < i; ++s) r[s] = t[(e + s) % i];
+        return r;
+      };
+    }
+    class f {
+      static svdcmp(t, e, r, i, s) {
+        let o,
+          n,
+          a,
+          h,
+          d,
+          c,
+          l,
+          u,
+          g,
+          m,
+          x,
+          y,
+          p,
+          w,
+          v,
+          b = 0,
+          M = 0,
+          _ = 0,
+          S = [];
+        for (n = 0; n < r; ++n) {
+          if (((l = n + 1), (S[n] = _ * M), (M = y = _ = 0), n < e)) {
+            for (c = n; c < e; ++c) _ += Math.abs(t[c][n]);
+            if (0 !== _) {
+              for (c = n; c < e; ++c) (t[c][n] /= _), (y += t[c][n] * t[c][n]);
+              for (
+                m = t[n][n],
+                  M = -f.sign(Math.sqrt(y), m),
+                  x = m * M - y,
+                  t[n][n] = m - M,
+                  h = l;
+                h < r;
+                ++h
+              ) {
+                for (y = 0, c = n; c < e; ++c) y += t[c][n] * t[c][h];
+                for (m = y / x, c = n; c < e; ++c) t[c][h] += m * t[c][n];
+              }
+              for (c = n; c < e; ++c) t[c][n] *= _;
+            }
+          }
+          if (((i[n] = _ * M), (M = y = _ = 0), n < e && n !== r - 1)) {
+            for (c = l; c < r; ++c) _ += Math.abs(t[n][c]);
+            if (0 !== _) {
+              for (c = l; c < r; ++c) (t[n][c] /= _), (y += t[n][c] * t[n][c]);
+              for (
+                m = t[n][l],
+                  M = -f.sign(Math.sqrt(y), m),
+                  x = m * M - y,
+                  t[n][l] = m - M,
+                  c = l;
+                c < r;
+                ++c
+              )
+                S[c] = t[n][c] / x;
+              for (h = l; h < e; ++h) {
+                for (y = 0, c = l; c < r; ++c) y += t[h][c] * t[n][c];
+                for (c = l; c < r; ++c) t[h][c] += y * S[c];
+              }
+              for (c = l; c < r; ++c) t[n][c] *= _;
+            }
+          }
+          b = Math.max(b, Math.abs(i[n]) + Math.abs(S[n]));
+        }
+        for (n = r - 1; n >= 0; --n) {
+          if (n < r - 1) {
+            if (0 !== M) {
+              for (h = l; h < r; ++h) s[h][n] = t[n][h] / t[n][l] / M;
+              for (h = l; h < r; ++h) {
+                for (y = 0, c = l; c < r; ++c) y += t[n][c] * s[c][h];
+                for (c = l; c < r; ++c) s[c][h] += y * s[c][n];
+              }
+            }
+            for (h = l; h < r; ++h) s[n][h] = s[h][n] = 0;
+          }
+          (s[n][n] = 1), (M = S[n]), (l = n);
+        }
+        for (n = Math.min(r, e) - 1; n >= 0; --n) {
+          for (l = n + 1, M = i[n], h = l; h < r; ++h) t[n][h] = 0;
+          if (0 !== M) {
+            for (M = 1 / M, h = l; h < r; ++h) {
+              for (y = 0, c = l; c < e; ++c) y += t[c][n] * t[c][h];
+              for (m = (y / t[n][n]) * M, c = n; c < e; ++c)
+                t[c][h] += m * t[c][n];
+            }
+            for (h = n; h < e; ++h) t[h][n] *= M;
+          } else for (h = n; h < e; ++h) t[h][n] = 0;
+          ++t[n][n];
+        }
+        for (c = r - 1; c >= 0; --c)
+          for (a = 1; a <= 30; ++a) {
+            for (o = !0, l = c; l >= 0; --l) {
+              if (((u = l - 1), Math.abs(S[l]) + b === b)) {
+                o = !1;
+                break;
+              }
+              if (Math.abs(i[u]) + b === b) break;
+            }
+            if (o)
+              for (
+                g = 0, y = 1, n = l;
+                n <= c && ((m = y * S[n]), Math.abs(m) + b !== b);
+                ++n
+              )
+                for (
+                  M = i[n],
+                    x = f.pythag(m, M),
+                    i[n] = x,
+                    x = 1 / x,
+                    g = M * x,
+                    y = -m * x,
+                    h = 0;
+                  h < e;
+                  ++h
+                )
+                  (w = t[h][u]),
+                    (v = t[h][n]),
+                    (t[h][u] = w * g + v * y),
+                    (t[h][n] = v * g - w * y);
+            if (((v = i[c]), l === c)) {
+              if (v < 0) for (i[c] = -v, h = 0; h < r; ++h) s[h][c] = -s[h][c];
+              break;
+            }
+            if (30 === a) return !1;
+            for (
+              p = i[l],
+                u = c - 1,
+                w = i[u],
+                M = S[u],
+                x = S[c],
+                m = ((w - v) * (w + v) + (M - x) * (M + x)) / (2 * x * w),
+                M = f.pythag(m, 1),
+                m = ((p - v) * (p + v) + x * (w / (m + f.sign(M, m)) - x)) / p,
+                g = y = 1,
+                h = l;
+              h <= u;
+              ++h
+            ) {
+              for (
+                n = h + 1,
+                  M = S[n],
+                  w = i[n],
+                  x = y * M,
+                  M *= g,
+                  v = f.pythag(m, x),
+                  S[h] = v,
+                  g = m / v,
+                  y = x / v,
+                  m = p * g + M * y,
+                  M = M * g - p * y,
+                  x = w * y,
+                  w *= g,
+                  d = 0;
+                d < r;
+                ++d
+              )
+                (p = s[d][h]),
+                  (v = s[d][n]),
+                  (s[d][h] = p * g + v * y),
+                  (s[d][n] = v * g - p * y);
+              for (
+                v = f.pythag(m, x),
+                  i[h] = v,
+                  0 !== v && ((v = 1 / v), (g = m * v), (y = x * v)),
+                  m = g * M + y * w,
+                  p = g * w - y * M,
+                  d = 0;
+                d < e;
+                ++d
+              )
+                (w = t[d][h]),
+                  (v = t[d][n]),
+                  (t[d][h] = w * g + v * y),
+                  (t[d][n] = v * g - w * y);
+            }
+            (S[l] = 0), (S[c] = m), (i[c] = p);
+          }
+        return !0;
+      }
+      static pythag(t, e) {
+        let r,
+          i = Math.abs(t),
+          s = Math.abs(e);
+        return i > s
+          ? ((r = s / i), i * Math.sqrt(1 + r * r))
+          : 0 === s
+          ? 0
+          : ((r = i / s), s * Math.sqrt(1 + r * r));
+      }
+      static sign(t, e) {
+        return e >= 0 ? Math.abs(t) : -Math.abs(t);
+      }
+    }
+    class g {
+      v;
+      constructor(t, e, r) {
+        this.v = [t || 0, e || 0, r || 0];
+      }
+      copy(t) {
+        let e = this.v;
+        const r = t.v;
+        return (e[0] = r[0]), (e[1] = r[1]), (e[2] = r[2]), this;
+      }
+      static add(t, e) {
+        const r = new g(),
+          i = r.v,
+          s = t.v,
+          o = e.v;
+        return (
+          (i[0] = s[0] + o[0]), (i[1] = s[1] + o[1]), (i[2] = s[2] + o[2]), r
+        );
+      }
+      static sub(t, e) {
+        const r = new g(),
+          i = r.v,
+          s = t.v,
+          o = e.v;
+        return (
+          (i[0] = s[0] - o[0]), (i[1] = s[1] - o[1]), (i[2] = s[2] - o[2]), r
+        );
+      }
+      static mult(t, e) {
+        const r = new g(),
+          i = r.v,
+          s = t.v,
+          o = e.v;
+        return (
+          (i[0] = s[0] * o[0]), (i[1] = s[1] * o[1]), (i[2] = s[2] * o[2]), r
+        );
+      }
+      static addScalar(t, e) {
+        const r = new g(),
+          i = r.v,
+          s = t.v;
+        return (i[0] = s[0] + e), (i[1] = s[1] + e), (i[2] = s[2] + e), r;
+      }
+      static multScalar(t, e) {
+        const r = new g(),
+          i = r.v,
+          s = t.v;
+        return (i[0] = s[0] * e), (i[1] = s[1] * e), (i[2] = s[2] * e), r;
+      }
+      static dot(t, e) {
+        const r = t.v,
+          i = e.v;
+        return r[0] * i[0] + r[1] * i[1] + r[2] * i[2];
+      }
+      static cross(t, e) {
+        const r = t.v,
+          i = e.v;
+        return new g(
+          r[1] * i[2] - r[2] * i[1],
+          r[2] * i[0] - r[0] * i[2],
+          r[0] * i[1] - r[1] * i[0]
+        );
+      }
+      normalize() {
+        const t = this.v,
+          e = Math.sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]);
+        return e > 0 && ((t[0] /= e), (t[1] /= e), (t[2] /= e)), e;
+      }
+      static inverse(t) {
+        const e = new g(),
+          r = e.v,
+          i = t.v;
+        return (
+          0 !== i[0] && (r[0] = 1 / i[0]),
+          0 !== i[1] && (r[1] = 1 / i[1]),
+          0 !== i[2] && (r[2] = 1 / i[2]),
+          e
+        );
+      }
+      square() {
+        const t = this.v;
+        return t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
+      }
+      minIndex() {
+        const t = this.v;
+        return t[0] < t[1] ? (t[0] < t[2] ? 0 : 2) : t[1] < t[2] ? 1 : 2;
+      }
+    }
+    class m {
+      m;
+      constructor() {
+        this.m = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+        ];
+      }
+      static clone(t) {
+        const e = new m(),
+          r = e.m,
+          i = t.m;
+        return (
+          (r[0][0] = i[0][0]),
+          (r[0][1] = i[0][1]),
+          (r[0][2] = i[0][2]),
+          (r[1][0] = i[1][0]),
+          (r[1][1] = i[1][1]),
+          (r[1][2] = i[1][2]),
+          (r[2][0] = i[2][0]),
+          (r[2][1] = i[2][1]),
+          (r[2][2] = i[2][2]),
+          e
+        );
+      }
+      copy(t) {
+        const e = this.m,
+          r = t.m;
+        return (
+          (e[0][0] = r[0][0]),
+          (e[0][1] = r[0][1]),
+          (e[0][2] = r[0][2]),
+          (e[1][0] = r[1][0]),
+          (e[1][1] = r[1][1]),
+          (e[1][2] = r[1][2]),
+          (e[2][0] = r[2][0]),
+          (e[2][1] = r[2][1]),
+          (e[2][2] = r[2][2]),
+          this
+        );
+      }
+      static fromRows(t, e, r) {
+        const i = new m(),
+          s = i.m,
+          o = t.v,
+          n = e.v,
+          a = r.v;
+        return (
+          (s[0][0] = o[0]),
+          (s[0][1] = o[1]),
+          (s[0][2] = o[2]),
+          (s[1][0] = n[0]),
+          (s[1][1] = n[1]),
+          (s[1][2] = n[2]),
+          (s[2][0] = a[0]),
+          (s[2][1] = a[1]),
+          (s[2][2] = a[2]),
+          i
+        );
+      }
+      static fromDiagonal(t) {
+        const e = new m(),
+          r = e.m,
+          i = t.v;
+        return (r[0][0] = i[0]), (r[1][1] = i[1]), (r[2][2] = i[2]), e;
+      }
+      static transpose(t) {
+        const e = new m(),
+          r = e.m,
+          i = t.m;
+        return (
+          (r[0][0] = i[0][0]),
+          (r[0][1] = i[1][0]),
+          (r[0][2] = i[2][0]),
+          (r[1][0] = i[0][1]),
+          (r[1][1] = i[1][1]),
+          (r[1][2] = i[2][1]),
+          (r[2][0] = i[0][2]),
+          (r[2][1] = i[1][2]),
+          (r[2][2] = i[2][2]),
+          e
+        );
+      }
+      static mult(t, e) {
+        const r = new m(),
+          i = r.m,
+          s = t.m,
+          o = e.m;
+        return (
+          (i[0][0] = s[0][0] * o[0][0] + s[0][1] * o[1][0] + s[0][2] * o[2][0]),
+          (i[0][1] = s[0][0] * o[0][1] + s[0][1] * o[1][1] + s[0][2] * o[2][1]),
+          (i[0][2] = s[0][0] * o[0][2] + s[0][1] * o[1][2] + s[0][2] * o[2][2]),
+          (i[1][0] = s[1][0] * o[0][0] + s[1][1] * o[1][0] + s[1][2] * o[2][0]),
+          (i[1][1] = s[1][0] * o[0][1] + s[1][1] * o[1][1] + s[1][2] * o[2][1]),
+          (i[1][2] = s[1][0] * o[0][2] + s[1][1] * o[1][2] + s[1][2] * o[2][2]),
+          (i[2][0] = s[2][0] * o[0][0] + s[2][1] * o[1][0] + s[2][2] * o[2][0]),
+          (i[2][1] = s[2][0] * o[0][1] + s[2][1] * o[1][1] + s[2][2] * o[2][1]),
+          (i[2][2] = s[2][0] * o[0][2] + s[2][1] * o[1][2] + s[2][2] * o[2][2]),
+          r
+        );
+      }
+      static multVector(t, e) {
+        const r = t.m,
+          i = e.v;
+        return new g(
+          r[0][0] * i[0] + r[0][1] * i[1] + r[0][2] * i[2],
+          r[1][0] * i[0] + r[1][1] * i[1] + r[1][2] * i[2],
+          r[2][0] * i[0] + r[2][1] * i[1] + r[2][2] * i[2]
+        );
+      }
+      column(t) {
+        const e = this.m;
+        return new g(e[0][t], e[1][t], e[2][t]);
+      }
+      row(t) {
+        const e = this.m;
+        return new g(e[t][0], e[t][1], e[t][2]);
+      }
+    }
+    class x {
+      model;
+      focalLength;
+      modelVectors;
+      modelNormal;
+      modelPseudoInverse;
+      constructor(t, e) {
+        (this.model = this.buildModel(t)), (this.focalLength = e), this.init();
+      }
+      buildModel(t) {
+        const e = t / 2;
+        return [
+          new g(-e, e, 0),
+          new g(e, e, 0),
+          new g(e, -e, 0),
+          new g(-e, -e, 0),
+        ];
+      }
+      init() {
+        let t,
+          e = new g(),
+          r = new m();
+        (this.modelVectors = m.fromRows(
+          g.sub(this.model[1], this.model[0]),
+          g.sub(this.model[2], this.model[0]),
+          g.sub(this.model[3], this.model[0])
+        )),
+          (t = m.clone(this.modelVectors)),
+          f.svdcmp(t.m, 3, 3, e.v, r.m),
+          (this.modelPseudoInverse = m.mult(
+            m.mult(r, m.fromDiagonal(g.inverse(e))),
+            m.transpose(t)
+          )),
+          (this.modelNormal = r.column(e.minIndex()));
+      }
+      pose(t) {
+        let e,
+          r,
+          i = new g(1, 1, 1),
+          s = new m(),
+          o = new m(),
+          n = new g(),
+          a = new g();
+        return (
+          this.pos(t, i, s, o, n, a),
+          (e = this.iterate(t, s, n)),
+          (r = this.iterate(t, o, a)),
+          e < r
+            ? new y(e, s.m, n.v, r, o.m, a.v)
+            : new y(r, o.m, a.v, e, s.m, n.v)
+        );
+      }
+      pos(t, e, r, i, s, o) {
+        let n,
+          a,
+          h,
+          d,
+          c,
+          l,
+          u,
+          f,
+          x,
+          y = new g(t[1].x, t[2].x, t[3].x),
+          p = new g(t[1].y, t[2].y, t[3].y),
+          w = g.addScalar(g.mult(y, e), -t[0].x),
+          v = g.addScalar(g.mult(p, e), -t[0].y),
+          b = m.multVector(this.modelPseudoInverse, w),
+          M = m.multVector(this.modelPseudoInverse, v),
+          _ = M.square() - b.square(),
+          S = g.dot(b, M),
+          C = 0,
+          k = 0;
+        0 === _
+          ? ((C = Math.sqrt(Math.abs(2 * S))),
+            (k = (-Math.PI / 2) * (S < 0 ? -1 : S > 0 ? 1 : 0)))
+          : ((C = Math.sqrt(Math.sqrt(_ * _ + 4 * S * S))),
+            (k = Math.atan((-2 * S) / _)),
+            _ < 0 && (k += Math.PI),
+            (k /= 2)),
+          (f = C * Math.cos(k)),
+          (x = C * Math.sin(k)),
+          (n = g.add(b, g.multScalar(this.modelNormal, f))),
+          (a = g.add(M, g.multScalar(this.modelNormal, x))),
+          (d = n.normalize()),
+          (c = a.normalize()),
+          (h = g.cross(n, a)),
+          r.copy(m.fromRows(n, a, h)),
+          (l = (d + c) / 2),
+          (u = m.multVector(r, this.model[0])),
+          (s.v = [
+            t[0].x / l - u.v[0],
+            t[0].y / l - u.v[1],
+            this.focalLength / l,
+          ]),
+          (n = g.sub(b, g.multScalar(this.modelNormal, f))),
+          (a = g.sub(M, g.multScalar(this.modelNormal, x))),
+          (d = n.normalize()),
+          (c = a.normalize()),
+          (h = g.cross(n, a)),
+          i.copy(m.fromRows(n, a, h)),
+          (l = (d + c) / 2),
+          (u = m.multVector(i, this.model[0])),
+          (o.v = [
+            t[0].x / l - u.v[0],
+            t[0].y / l - u.v[1],
+            this.focalLength / l,
+          ]);
+      }
+      iterate(t, e, r) {
+        let i,
+          s,
+          o,
+          n,
+          a = 1 / 0,
+          h = new m(),
+          d = new m(),
+          c = new g(),
+          l = new g(),
+          u = 0;
+        for (
+          ;
+          u < 100 &&
+          ((i = g.addScalar(
+            g.multScalar(m.multVector(this.modelVectors, e.row(2)), 1 / r.v[2]),
+            1
+          )),
+          this.pos(t, i, h, d, c, l),
+          (o = this.getError(t, h, c)),
+          (n = this.getError(t, d, l)),
+          o < n
+            ? (e.copy(h), r.copy(c), (s = o))
+            : (e.copy(d), r.copy(l), (s = n)),
+          !(s <= 2 || s > a));
+          ++u
+        )
+          a = s;
+        return s;
+      }
+      getError(t, e, r) {
+        let i,
+          s,
+          o,
+          n,
+          a,
+          h,
+          d,
+          c,
+          l,
+          u = g.add(m.multVector(e, this.model[0]), r),
+          f = g.add(m.multVector(e, this.model[1]), r),
+          x = g.add(m.multVector(e, this.model[2]), r),
+          y = g.add(m.multVector(e, this.model[3]), r);
+        return (
+          (i = [
+            {
+              x: (u.v[0] * this.focalLength) / u.v[2],
+              y: (u.v[1] * this.focalLength) / u.v[2],
+            },
+            {
+              x: (f.v[0] * this.focalLength) / f.v[2],
+              y: (f.v[1] * this.focalLength) / f.v[2],
+            },
+            {
+              x: (x.v[0] * this.focalLength) / x.v[2],
+              y: (x.v[1] * this.focalLength) / x.v[2],
+            },
+            {
+              x: (y.v[0] * this.focalLength) / y.v[2],
+              y: (y.v[1] * this.focalLength) / y.v[2],
+            },
+          ]),
+          (s = this.angle(t[0], t[1], t[3])),
+          (o = this.angle(t[1], t[2], t[0])),
+          (n = this.angle(t[2], t[3], t[1])),
+          (a = this.angle(t[3], t[0], t[2])),
+          (h = this.angle(i[0], i[1], i[3])),
+          (d = this.angle(i[1], i[2], i[0])),
+          (c = this.angle(i[2], i[3], i[1])),
+          (l = this.angle(i[3], i[0], i[2])),
+          (Math.abs(s - h) +
+            Math.abs(o - d) +
+            Math.abs(n - c) +
+            Math.abs(a - l)) /
+            4
+        );
+      }
+      angle(t, e, r) {
+        const i = e.x - t.x,
+          s = e.y - t.y,
+          o = r.x - t.x,
+          n = r.y - t.y;
+        return (
+          (180 *
+            Math.acos(
+              (i * o + s * n) /
+                (Math.sqrt(i * i + s * s) * Math.sqrt(o * o + n * n))
+            )) /
+          Math.PI
+        );
+      }
+    }
+    class y {
+      bestError;
+      bestRotation;
+      bestTranslation;
+      alternativeError;
+      alternativeRotation;
+      alternativeTranslation;
+      constructor(t, e, r, i, s, o) {
+        (this.bestError = t),
+          (this.bestRotation = e),
+          (this.bestTranslation = r),
+          (this.alternativeError = i),
+          (this.alternativeRotation = s),
+          (this.alternativeTranslation = o);
+      }
+    }
+    return (
+      (function (t) {
+        (t.Image = n),
+          (t.grayscale = h.grayscale),
+          (t.threshold = h.threshold),
+          (t.adaptiveThreshold = h.adaptiveThreshold),
+          (t.otsu = h.otsu),
+          (t.stackBoxBlur = h.stackBoxBlur),
+          (t.gaussianBlur = h.gaussianBlur),
+          (t.findContours = h.findContours),
+          (t.approxPolyDP = h.approxPolyDP),
+          (t.warp = h.warp),
+          (t.getPerspectiveTransform = h.getPerspectiveTransform),
+          (t.isContourConvex = h.isContourConvex),
+          (t.perimeter = h.perimeter),
+          (t.minEdgeLength = h.minEdgeLength),
+          (t.countNonZero = h.countNonZero);
+      })(t || (t = {})),
+      (function (t) {
+        t.Detector = u;
+      })(e || (e = {})),
+      (function (t) {
+        (t.svdcmp = f.svdcmp), (t.pythag = f.pythag), (t.sign = f.sign);
+      })(r || (r = {})),
+      (function (t) {
+        (t.Pose = y), (t.Posit = x);
+      })(i || (i = {})),
+      o
+    );
+  })()
+);
