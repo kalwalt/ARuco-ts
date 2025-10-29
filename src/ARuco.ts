@@ -440,7 +440,7 @@ export class Detector {
   private candidates: any[];
   private streamConfig: any;
   private mjpeg: any;
-  static mjpeg: any;
+  static readonly mjpeg: any;
 
   constructor(config: IConfig) {
     this.config = config;
