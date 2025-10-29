@@ -23,6 +23,7 @@
         console.log("init ARuco app...");
         initCamera()
           .then((video) => {
+            let sourceVideo;
             // start camera playback
             sourceVideo = video;
             sourceVideo.width = 640;
