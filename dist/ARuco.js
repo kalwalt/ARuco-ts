@@ -596,7 +596,7 @@
         return e;
       }
     }
-    const o = "0.1.0";
+    const o = "0.2.0";
     class n {
       static ARUCO = {
         nBits: 25,
