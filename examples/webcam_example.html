@@ -1,120 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1">
-    <link rel="stylesheet" href="css/nft-style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1"
+    />
+    <link rel="stylesheet" href="css/nft-style.css" />
     <title>Title</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="app">
-        <video loop autoplay muted playsinline id="video">
-        </video>
-        <canvas id="canvas"></canvas>
+      <video loop autoplay muted playsinline id="video"></video>
+      <canvas id="canvas"></canvas>
     </div>
     <script src="../dist/ARuco.js"></script>
     <script src="initApp.js"></script>
 
     <script>
+      window.addEventListener("load", () => {
+        console.log("init ARuco app...");
+        initCamera()
+          .then((video) => {
+            // start camera playback
+            sourceVideo = video;
+            sourceVideo.width = 640;
+            sourceVideo.height = 480;
+            sourceVideo.play();
 
-        window.addEventListener('load', () => {
-            console.log('init ARuco app...');
-            initCamera()
-                .then(video => {
+            // init target canvas
+            initTargetCanvas();
 
-                    // start camera playback
-                    sourceVideo = video;
-                    sourceVideo.width = 640;
-                    sourceVideo.height = 480;
-                    sourceVideo.play();
+            return new Promise((resolve) => {
+              sourceVideo.addEventListener("loadeddata", (event) => {
+                console.log("Camera is ready", event);
+                resolve(sourceVideo);
+              });
+            });
+          })
+          .then((_) => {
+            let imageData;
+            console.log(ARuco);
+            const detector = new ARuco.Detector({
+              dictionaryName: "ARUCO",
+            });
 
-                    // init target canvas
-                    initTargetCanvas();
-
-                    return new Promise(resolve => {
-                        sourceVideo.addEventListener("loadeddata", event => {
-                            console.log("Camera is ready", event);
-                            resolve(sourceVideo);
-                        });
-                    });
-                })
-                .then(_ => {
-                    var imageData;
-                    console.log(ARuco)
-                    const detector = new ARuco.Detector({
-                        dictionaryName: 'ARUCO'
-                    });
-
-                    function update() {
-                        const ctx = targetCanvas.getContext('2d');
-                        ctx.drawImage(video, 0, 0);
-                        imageData = ctx.getImageData(0, 0, video.width, video.height);
-                        var markers = detector.detect(imageData);
-                        console.log(markers)
-                        drawCorners(ctx, markers);
-                        drawId(ctx, markers);
-                        requestAnimationFrame(update);
-                    }
-
-                    update();
-
-                });
-
-        })
-
-        function drawCorners(ctx, markers) {
-            var corners, corner, i, j;
-
-            ctx.lineWidth = 3;
-
-            for (i = 0; i !== markers.length; ++i) {
-                corners = markers[i].corners;
-
-                ctx.strokeStyle = "red";
-                ctx.beginPath();
-
-                for (j = 0; j !== corners.length; ++j) {
-                    corner = corners[j];
-                    ctx.moveTo(corner.x, corner.y);
-                    corner = corners[(j + 1) % corners.length];
-                    ctx.lineTo(corner.x, corner.y);
-                }
-
-                ctx.stroke();
-                ctx.closePath();
-
-                ctx.strokeStyle = "green";
-                ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+            function update() {
+              const ctx = targetCanvas.getContext("2d", {
+                willReadFrequently: true,
+              });
+              ctx.drawImage(video, 0, 0);
+              imageData = ctx.getImageData(0, 0, video.width, video.height);
+              const markers = detector.detect(imageData);
+              console.log(markers);
+              drawCorners(ctx, markers);
+              drawId(ctx, markers);
+              requestAnimationFrame(update);
             }
 
+            update();
+          });
+      });
+
+      function drawCorners(ctx, markers) {
+        let corners, corner, i, j;
+
+        ctx.lineWidth = 3;
+
+        for (i = 0; i !== markers.length; ++i) {
+          corners = markers[i].corners;
+
+          ctx.strokeStyle = "red";
+          ctx.beginPath();
+
+          for (j = 0; j !== corners.length; ++j) {
+            corner = corners[j];
+            ctx.moveTo(corner.x, corner.y);
+            corner = corners[(j + 1) % corners.length];
+            ctx.lineTo(corner.x, corner.y);
+          }
+
+          ctx.stroke();
+          ctx.closePath();
+
+          ctx.strokeStyle = "green";
+          ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
         }
+      }
 
-        function drawId(ctx, markers) {
-            var corners, corner, x, y, i, j;
+      function drawId(ctx, markers) {
+        let corners, corner, x, y, i, j;
 
-            ctx.strokeStyle = "blue";
-            ctx.lineWidth = 1;
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 1;
 
-            for (i = 0; i !== markers.length; ++i) {
-                corners = markers[i].corners;
+        for (i = 0; i !== markers.length; ++i) {
+          corners = markers[i].corners;
 
-                x = Infinity;
-                y = Infinity;
+          x = Infinity;
+          y = Infinity;
 
-                for (j = 0; j !== corners.length; ++j) {
-                    corner = corners[j];
+          for (j = 0; j !== corners.length; ++j) {
+            corner = corners[j];
 
-                    x = Math.min(x, corner.x);
-                    y = Math.min(y, corner.y);
-                }
+            x = Math.min(x, corner.x);
+            y = Math.min(y, corner.y);
+          }
 
-                ctx.strokeText(markers[i].id, x, y)
-            }
+          ctx.strokeText(markers[i].id, x, y);
         }
+      }
     </script>
-
-</body>
-
+  </body>
 </html>

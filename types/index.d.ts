@@ -1,9 +1,9 @@
-import { Image as _Image } from './CV';
-import { CV as _CV } from './CV';
-import { Detector as _Detector } from './ARuco';
-import { SVD as _SVD } from './svd';
-import { Pose as _Pose } from './posit';
-import { Posit as _Posit } from './posit';
+import { Image as _Image } from "./CV";
+import { CV as _CV } from "./CV";
+import { Detector as _Detector } from "./ARuco";
+import { SVD as _SVD } from "./svd";
+import { Pose as _Pose } from "./posit";
+import { Posit as _Posit } from "./posit";
 export declare namespace CV {
     const Image: typeof _Image;
     const grayscale: typeof _CV.grayscale;

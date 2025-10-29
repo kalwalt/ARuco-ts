@@ -1,62 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Title</title>
-</head>
-<body>
-<canvas id="gray"></canvas>
-<img id='img' src="pinball.jpg">
-<script src="../dist/ARuco.js"></script>
+  </head>
+  <body>
+    <canvas id="gray"></canvas>
+    <img id="img" src="pinball.jpg" alt="pinball image" />
+    <script src="../dist/ARuco.js"></script>
 
-<script>
-
-    function getImgData(img, canvas, width = img.width, height = img.height) {
-
-        const ctx = canvas.getContext('2d')
+    <script>
+      function getImgData(img, canvas, width = img.width, height = img.height) {
+        const ctx = canvas.getContext("2d", {
+          willReadFrequently: true,
+        });
 
         ctx.drawImage(img, 0, 0, width, height);
         //let data = ctx.getImageData(0, 0, width, height);
 
         return ctx.getImageData(0, 0, width, height);
+      }
 
-    }
-
-    function setupCanvas(id, width, height, title = '') {
+      function setupCanvas(id, width, height, title = "") {
         const canvas = document.getElementById(id);
 
         if (canvas) {
-            canvas.width = width;
-            canvas.height = height;
-            canvas.title = title;
+          canvas.width = width;
+          canvas.height = height;
+          canvas.title = title;
         }
 
         return canvas;
-    }
+      }
 
-    let canvas = setupCanvas('gray', 1637, 2048);
-    let img = document.getElementById('img')
-    const imgSize = (img.width * img.height * 4);
-    const imgData = getImgData(img, canvas, canvas.width, canvas.height)
+      let canvas = setupCanvas("gray", 1637, 2048);
+      let img = document.getElementById("img");
+      const imgSize = img.width * img.height * 4;
+      const imgData = getImgData(img, canvas, canvas.width, canvas.height);
 
-    const arr = new Uint8ClampedArray(imgSize);
-    const grayImage = new CV.Image(img.width, img.height, arr);
+      const arr = new Uint8ClampedArray(imgSize);
+      const grayImage = new CV.Image(img.width, img.height, arr);
 
-    const gray = CV.grayscale(imgData, grayImage);
+      const gray = CV.grayscale(imgData, grayImage);
 
-    const grayCanvas = document.createElement('canvas');
-    grayCanvas.width = gray.width / 4;
-    grayCanvas.height = gray.height / 4;
-    const ctx = grayCanvas.getContext('2d');
+      const grayCanvas = document.createElement("canvas");
+      grayCanvas.width = gray.width / 4;
+      grayCanvas.height = gray.height / 4;
+      const ctx = grayCanvas.getContext("2d");
 
-    let grayData = ctx.createImageData(1637, 2048)
-    grayData.data.set(gray.data);
-    ctx.fillStyle = 'grey'
-    ctx.fillRect(0, 0, gray.width / 4, gray.height / 4)
-    ctx.putImageData(grayData, 0, 0);
+      let grayData = ctx.createImageData(1637, 2048);
+      grayData.data.set(gray.data);
+      ctx.fillStyle = "grey";
+      ctx.fillRect(0, 0, gray.width / 4, gray.height / 4);
+      ctx.putImageData(grayData, 0, 0);
 
-    document.body.appendChild(grayCanvas)
-</script>
-
-</body>
+      document.body.appendChild(grayCanvas);
+    </script>
+  </body>
 </html>

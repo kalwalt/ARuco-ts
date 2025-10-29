@@ -5,9 +5,11 @@
   "main": "dist/ARuco.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-ts": "webpack --mode production",
     "dev-ts": "webpack --mode development --progress --watch",
-    "build-ts": "webpack --mode production"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "ARuco",
@@ -18,10 +20,12 @@
   ],
   "author": "Walter Perdan <github@kalwaltart.it>",
   "license": "LGPL-3.0-or-later",
-  "dependencies": {
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
-    "webpack": "^5.99.5",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^2.8.8",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
   }
 }

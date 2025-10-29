@@ -9,7 +9,6 @@ html {
 }
 
 #loading {
-  width: 100%;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -22,10 +21,10 @@ html {
 }
 
 #loading img {
-    height: 5em;
+  height: 5em;
 }
 
-#loading span{
+#loading span {
   color: black;
   font-weight: bold;
 }
@@ -35,7 +34,7 @@ html {
 
   margin: 0.5rem;
 
-  background-color: rgba( 255,255,255,0.6 );
+  background-color: rgba(255, 255, 255, 0.6);
   border-radius: 6px;
 }
 
@@ -49,7 +48,6 @@ html {
 
 .stats-item {
   margin: 0 0 0.5rem;
-
 }
 
 .stats-item-title {
@@ -113,7 +111,7 @@ html {
   z-index: 80;
 
   display: block;
-  width: 1280px;;
+  width: 1280px;
   height: 720px;
   object-fit: cover;
 }
@@ -124,7 +122,7 @@ html {
 
 #status {
   position: absolute;
-  left:10px;
+  left: 10px;
   top: 180px;
   background: lightslategrey;
   border-radius: 6px;

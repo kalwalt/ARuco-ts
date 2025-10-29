@@ -1,5 +1,5 @@
-import { IImage } from './CV';
-import { IPoint } from './math-types';
+import { IImage } from "./CV";
+import { IPoint } from "./math-types";
 interface IDictionaries {
     nBits: number;
     tau: number;
