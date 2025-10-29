@@ -2,12 +2,6 @@ import { IImage, Image } from "./CV";
 import { IPoint } from "./math-types";
 import { CV } from "./CV";
 
-interface IDictionaries {
-  nBits: number;
-  tau: number;
-  codeList: number[];
-}
-
 interface DictionaryConfig {
   nBits: number;
   tau: number;
@@ -256,16 +250,9 @@ export class DICTIONARIES {
     throw new Error(`The dictionary "${name}" is not recognized.`);
   }
 }
-interface IDictionary {
-  codes: number | string | number[];
-  tau: number;
-  nBits: number;
-  dicName: IDictionaries;
-  markSize: number;
-}
 
 interface IConfig {
-  dictionaryName: IDictionaries;
+  dictionaryName: string;
   maxHammingDistance: number;
 }
 
@@ -464,7 +451,7 @@ export class Detector {
     this.contours = [];
     this.polys = [];
     this.candidates = [];
-    this.dictionary = new Dictionary(config.dictionaryName.toString());
+    this.dictionary = new Dictionary(config.dictionaryName);
     this.dictionary.tau =
       config.maxHammingDistance != null
         ? config.maxHammingDistance
