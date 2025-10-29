@@ -1,4 +1,4 @@
-import { IPoint, Vec3, Mat3 } from './math-types';
+import { IPoint, Vec3, Mat3 } from "./math-types";
 export declare class Posit {
     model: Vec3[];
     focalLength: number;

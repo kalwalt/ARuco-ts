@@ -1,408 +1,482 @@
-<html>
+<html lang="en">
+  <head>
+    <title>Augmented Reality with ARuco-ts</title>
 
-<head>
-  <title>Augmented Reality with ARuco-ts</title>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@v0.152.0/build/three.module.js"
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@v0.152.0/build/three.module.js"
+        }
       }
-    }
-  </script>
+    </script>
 
-  <script src="../dist/ARuco.js"></script>
-</head>
-<body style="text-align: center; font-family: monospace;">
-  <script type="module">
-    import * as THREE from 'three';
-    var video, canvas, context, imageData, detector, posit;
-    var renderer1, renderer2, renderer3;
-    var scene1, scene2, scene3, scene4;
-    var camera1, camera2, camera3, camera4;
-    var plane1, plane2, model, texture;
-    var step = 0.0;
+    <script src="../dist/ARuco.js"></script>
+  </head>
+  <body style="text-align: center; font-family: monospace">
+    <script type="module">
+      import * as THREE from "three";
 
-    var modelSize = 35.0; //millimeters
+      let video, canvas, context, imageData, detector, posit;
+      let renderer1, renderer2, renderer3;
+      let scene1, scene2, scene3, scene4;
+      let camera1, camera2, camera3, camera4;
+      let plane1, plane2, model, texture;
+      let step = 0.0;
 
-    function onLoad(){
-      video = document.getElementById("video");
-      canvas = document.getElementById("canvas");
-      context = canvas.getContext("2d", {
-        willReadFrequently: true,
-      });
-    
-      canvas.width = parseInt(canvas.style.width);
-      canvas.height = parseInt(canvas.style.height);
-      
-      if (navigator.mediaDevices === undefined) {
-        navigator.mediaDevices = {};
-      }
-      
-      if (navigator.mediaDevices.getUserMedia === undefined) {
-        navigator.mediaDevices.getUserMedia = function(constraints) {
-          var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-          
-          if (!getUserMedia) {
-            return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-          }
+      const modelSize = 35.0; //millimeters
 
-          return new Promise(function(resolve, reject) {
-            getUserMedia.call(navigator, constraints, resolve, reject);
+      function onLoad() {
+        video = document.getElementById("video");
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d", {
+          willReadFrequently: true,
+        });
+
+        canvas.width = parseInt(canvas.style.width);
+        canvas.height = parseInt(canvas.style.height);
+
+        if (navigator.mediaDevices === undefined) {
+          navigator.mediaDevices = {};
+        }
+
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+          navigator.mediaDevices.getUserMedia = function (constraints) {
+            const getUserMedia =
+              navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+            if (!getUserMedia) {
+              return Promise.reject(
+                new Error("getUserMedia is not implemented in this browser")
+              );
+            }
+
+            return new Promise(function (resolve, reject) {
+              getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+          };
+        }
+
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(function (stream) {
+            if ("srcObject" in video) {
+              video.srcObject = stream;
+            } else {
+              video.src = window.URL.createObjectURL(stream);
+            }
+          })
+          .catch(function (err) {
+            console.log(err.name + ": " + err.message);
           });
+
+        console.log(ARuco);
+        console.log(CV);
+        console.log(POS);
+        detector = new ARuco.Detector({
+          dictionaryName: "ARUCO",
+        });
+        posit = new POS.Posit(modelSize, canvas.width);
+
+        createRenderers();
+        createScenes();
+
+        requestAnimationFrame(tick);
+      }
+
+      function tick() {
+        requestAnimationFrame(tick);
+
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          snapshot();
+
+          // Remove this line - VideoTexture handles updates automatically
+          // texture.children[0].material.map.needsUpdate = true;
+
+          const markers = detector.detect(imageData);
+          drawCorners(markers);
+          updateScenes(markers);
+
+          render();
         }
       }
-      
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(function(stream) {
-          if ("srcObject" in video) {
-            video.srcObject = stream;
-          } else {
-            video.src = window.URL.createObjectURL(stream);
+
+      function snapshot() {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      }
+
+      function drawCorners(markers) {
+        let corners, corner, i, j;
+
+        context.lineWidth = 3;
+
+        for (i = 0; i < markers.length; ++i) {
+          corners = markers[i].corners;
+
+          context.strokeStyle = "red";
+          context.beginPath();
+
+          for (j = 0; j < corners.length; ++j) {
+            corner = corners[j];
+            context.moveTo(corner.x, corner.y);
+            corner = corners[(j + 1) % corners.length];
+            context.lineTo(corner.x, corner.y);
           }
-        })
-        .catch(function(err) {
-          console.log(err.name + ": " + err.message);
+
+          context.stroke();
+          context.closePath();
+
+          context.strokeStyle = "green";
+          context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
         }
-      );
-
-      console.log(ARuco)
-      console.log(CV)
-      console.log(POS)
-      detector =  new ARuco.Detector({
-                        dictionaryName: 'ARUCO'
-                    });
-      posit = new POS.Posit(modelSize, canvas.width);
-
-      createRenderers();
-      createScenes();
-
-      requestAnimationFrame(tick);
-    };
-
-    function tick(){
-      requestAnimationFrame(tick);
-      
-      if (video.readyState === video.HAVE_ENOUGH_DATA){
-        snapshot();
-        
-        // Remove this line - VideoTexture handles updates automatically
-        // texture.children[0].material.map.needsUpdate = true;
-        
-        var markers = detector.detect(imageData);
-        drawCorners(markers);
-        updateScenes(markers);
-        
-        render();
       }
-    };
 
-    function snapshot(){
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    };
-    
-    function drawCorners(markers){
-      var corners, corner, i, j;
-    
-      context.lineWidth = 3;
+      function createRenderers() {
+        renderer1 = new THREE.WebGLRenderer();
+        renderer1.setClearColor(0xffff00, 1);
+        renderer1.setSize(canvas.width, canvas.height);
+        document.getElementById("container1").appendChild(renderer1.domElement);
+        scene1 = new THREE.Scene();
+        camera1 = new THREE.PerspectiveCamera(
+          40,
+          canvas.width / canvas.height,
+          1,
+          1000
+        );
+        scene1.add(camera1);
 
-      for (i = 0; i < markers.length; ++ i){
-        corners = markers[i].corners;
-        
-        context.strokeStyle = "red";
-        context.beginPath();
-        
-        for (j = 0; j < corners.length; ++ j){
-          corner = corners[j];
-          context.moveTo(corner.x, corner.y);
-          corner = corners[(j + 1) % corners.length];
-          context.lineTo(corner.x, corner.y);
-        }
+        renderer2 = new THREE.WebGLRenderer();
+        renderer2.setClearColor(0xffff00, 1);
+        renderer2.setSize(canvas.width, canvas.height);
+        document.getElementById("container2").appendChild(renderer2.domElement);
+        scene2 = new THREE.Scene();
+        camera2 = new THREE.PerspectiveCamera(
+          40,
+          canvas.width / canvas.height,
+          1,
+          1000
+        );
+        scene2.add(camera2);
 
-        context.stroke();
-        context.closePath();
-        
-        context.strokeStyle = "green";
-        context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+        renderer3 = new THREE.WebGLRenderer();
+        renderer3.setClearColor(0xffffff, 1);
+        renderer3.setSize(canvas.width, canvas.height);
+        document.getElementById("container").appendChild(renderer3.domElement);
+
+        scene3 = new THREE.Scene();
+        camera3 = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5);
+        scene3.add(camera3);
+
+        scene4 = new THREE.Scene();
+        camera4 = new THREE.PerspectiveCamera(
+          40,
+          canvas.width / canvas.height,
+          1,
+          1000
+        );
+        scene4.add(camera4);
       }
-    };
 
-    function createRenderers(){
-      renderer1 = new THREE.WebGLRenderer();
-      renderer1.setClearColor(0xffff00, 1);
-      renderer1.setSize(canvas.width, canvas.height);
-      document.getElementById("container1").appendChild(renderer1.domElement);
-      scene1 = new THREE.Scene();
-      camera1 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
-      scene1.add(camera1);
+      function render() {
+        // Validate all scene objects before rendering
+        validateSceneObjects(scene1);
+        validateSceneObjects(scene2);
+        validateSceneObjects(scene3);
+        validateSceneObjects(scene4);
 
-      renderer2 = new THREE.WebGLRenderer();
-      renderer2.setClearColor(0xffff00, 1);
-      renderer2.setSize(canvas.width, canvas.height);
-      document.getElementById("container2").appendChild(renderer2.domElement);
-      scene2 = new THREE.Scene();
-      camera2 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
-      scene2.add(camera2);
+        renderer1.clear();
+        renderer1.render(scene1, camera1);
 
-      renderer3 = new THREE.WebGLRenderer();
-      renderer3.setClearColor(0xffffff, 1);
-      renderer3.setSize(canvas.width, canvas.height);
-      document.getElementById("container").appendChild(renderer3.domElement);
-      
-      scene3 = new THREE.Scene();
-      camera3 = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5);
-      scene3.add(camera3);
-      
-      scene4 = new THREE.Scene();
-      camera4 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
-      scene4.add(camera4);
-    };
+        renderer2.clear();
+        renderer2.render(scene2, camera2);
 
-    function render(){
-      // Validate all scene objects before rendering
-      validateSceneObjects(scene1);
-      validateSceneObjects(scene2);
-      validateSceneObjects(scene3);
-      validateSceneObjects(scene4);
-      
-      renderer1.clear();
-      renderer1.render(scene1, camera1);
-      
-      renderer2.clear();
-      renderer2.render(scene2, camera2);
+        renderer3.autoClear = false;
+        renderer3.clear();
+        renderer3.render(scene3, camera3);
+        renderer3.render(scene4, camera4);
+      }
 
-      renderer3.autoClear = false;
-      renderer3.clear();
-      renderer3.render(scene3, camera3);
-      renderer3.render(scene4, camera4);
-    };
+      function createScenes() {
+        plane1 = createPlane();
+        scene1.add(plane1);
 
-    function createScenes(){
-      plane1 = createPlane();
-      scene1.add(plane1);
+        plane2 = createPlane();
+        scene2.add(plane2);
 
-      plane2 = createPlane();
-      scene2.add(plane2);
-      
-      texture = createTexture();
-      scene3.add(texture);
-    
-      model = createModel();
-      scene4.add(model);
-    };
-    
-    function createPlane(){
-      var object = new THREE.Object3D(),
+        texture = createTexture();
+        scene3.add(texture);
+
+        model = createModel();
+        scene4.add(model);
+      }
+
+      function createPlane() {
+        const object = new THREE.Object3D(),
           geometry = new THREE.PlaneGeometry(1.0, 1.0, 1.0),
           material = new THREE.MeshNormalMaterial(),
           mesh = new THREE.Mesh(geometry, material);
-      
-      object.eulerOrder = 'YXZ';
-      
-      object.add(mesh);
-      
-      return object;
-    };
-    
-    function createTexture(){
-      // Use VideoTexture instead of regular Texture
-      var videoTexture = new THREE.VideoTexture(video);
-      videoTexture.minFilter = THREE.LinearFilter;
-      videoTexture.magFilter = THREE.LinearFilter;
-      
-      var object = new THREE.Object3D(),
+
+        object.eulerOrder = "YXZ";
+
+        object.add(mesh);
+
+        return object;
+      }
+
+      function createTexture() {
+        // Use VideoTexture instead of regular Texture
+        const videoTexture = new THREE.VideoTexture(video);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+
+        const object = new THREE.Object3D(),
           geometry = new THREE.PlaneGeometry(1.0, 1.0, 1.0),
           material = new THREE.MeshBasicMaterial({
-            map: videoTexture, 
-            depthTest: false, 
-            depthWrite: false
+            map: videoTexture,
+            depthTest: false,
+            depthWrite: false,
           }),
           mesh = new THREE.Mesh(geometry, material);
-      
-      object.position.z = -1;
-      object.add(mesh);
-      
-      return object;
-    };
-    
-    function createModel(){
-      const loader = new THREE.TextureLoader();
-      var object = new THREE.Object3D();
-      var geometry = new THREE.SphereGeometry(0.5, 15, 15, Math.PI);
-      var material = new THREE.MeshBasicMaterial({ color: 0xcccccc }); // Default material
-      var mesh = new THREE.Mesh(geometry, material);
-      
-      object.add(mesh);
-      
-      // Load texture with proper error handling
-      loader.load(
-        "textures/earth.jpg",
-        function(texture) {
-          // Success - texture loaded
-          texture.minFilter = THREE.LinearFilter; // Prevent mipmap issues
-          mesh.material.map = texture;
-          mesh.material.needsUpdate = true;
-        },
-        undefined,
-        function(err) {
-          console.error("Error loading earth texture:", err);
-        }
-      );
-      
-      return object;
-    };
 
-    function updateScenes(markers){
-      var corners, corner, pose, i;
-      
-      if (markers.length > 0){
-        corners = markers[0].corners;
-        
-        for (i = 0; i < corners.length; ++ i){
-          corner = corners[i];
-          
-          corner.x = corner.x - (canvas.width / 2);
-          corner.y = (canvas.height / 2) - corner.y;
-          if (isNaN(corner.x) || isNaN(corner.y)) {
-            console.error("Invalid corner values:", corner);
+        object.position.z = -1;
+        object.add(mesh);
+
+        return object;
+      }
+
+      function createModel() {
+        const loader = new THREE.TextureLoader();
+        const object = new THREE.Object3D();
+        const geometry = new THREE.SphereGeometry(0.5, 15, 15, Math.PI);
+        const material = new THREE.MeshBasicMaterial({ color: 0xcccccc }); // Default material
+        const mesh = new THREE.Mesh(geometry, material);
+
+        object.add(mesh);
+
+        // Load texture with proper error handling
+        loader.load(
+          "textures/earth.jpg",
+          function (texture) {
+            // Success - texture loaded
+            texture.minFilter = THREE.LinearFilter; // Prevent mipmap issues
+            mesh.material.map = texture;
+            mesh.material.needsUpdate = true;
+          },
+          undefined,
+          function (err) {
+            console.error("Error loading earth texture:", err);
+          }
+        );
+
+        return object;
+      }
+
+      function updateScenes(markers) {
+        let corners, corner, pose, i;
+
+        if (markers.length > 0) {
+          corners = markers[0].corners;
+
+          for (i = 0; i < corners.length; ++i) {
+            corner = corners[i];
+
+            corner.x = corner.x - canvas.width / 2;
+            corner.y = canvas.height / 2 - corner.y;
+            if (isNaN(corner.x) || isNaN(corner.y)) {
+              console.error("Invalid corner values:", corner);
+              return;
+            }
+          }
+
+          pose = posit.pose(corners);
+
+          if (!pose || !pose.bestRotation || !pose.bestTranslation) {
+            console.error("Invalid pose:", pose);
             return;
           }
-        }
-        
-        pose = posit.pose(corners);
 
-        if (!pose || !pose.bestRotation || !pose.bestTranslation) {
-          console.error("Invalid pose:", pose);
-          return;
-        }
-        
-        updateObject(plane1, pose.bestRotation, pose.bestTranslation);
-        updateObject(plane2, pose.alternativeRotation, pose.alternativeTranslation);
-        updateObject(model, pose.bestRotation, pose.bestTranslation);
+          updateObject(plane1, pose.bestRotation, pose.bestTranslation);
+          updateObject(
+            plane2,
+            pose.alternativeRotation,
+            pose.alternativeTranslation
+          );
+          updateObject(model, pose.bestRotation, pose.bestTranslation);
 
-        updatePose("pose1", pose.bestError, pose.bestRotation, pose.bestTranslation);
-        updatePose("pose2", pose.alternativeError, pose.alternativeRotation, pose.alternativeTranslation);
-        
-        step += 0.025;
-        
-        model.rotation.z -= step;
-      }
-    };
-    
-    function updateObject(object, rotation, translation){
-      if (!rotation || !translation) return;
+          updatePose(
+            "pose1",
+            pose.bestError,
+            pose.bestRotation,
+            pose.bestTranslation
+          );
+          updatePose(
+            "pose2",
+            pose.alternativeError,
+            pose.alternativeRotation,
+            pose.alternativeTranslation
+          );
 
-      // Ensure valid scaling
-      object.scale.set(modelSize, modelSize, modelSize);
+          step += 0.025;
 
-      // Enhanced NaN checking for rotation values
-      let validRotation = true;
-      for(let i = 0; i < 3; i++) {
-        for(let j = 0; j < 3; j++) {
-          if(isNaN(rotation[i][j]) || !isFinite(rotation[i][j])) {
-            validRotation = false;
-            break;
-          }
-        }
-      }
-      
-      if (validRotation) {
-        try {
-          // Safely calculate rotations with boundary checking
-          const sinVal = -rotation[1][2];
-          // Clamp asin input to avoid domain errors
-          const clampedSinVal = Math.max(-1, Math.min(1, sinVal));
-          
-          object.rotation.x = -Math.asin(clampedSinVal);
-          object.rotation.y = -Math.atan2(rotation[0][2], rotation[2][2]);
-          object.rotation.z = Math.atan2(rotation[1][0], rotation[1][1]);
-        } catch(e) {
-          console.error("Error in rotation calculation:", e);
+          model.rotation.z -= step;
         }
       }
 
-      // Enhanced NaN checking for translation values
-      if (!isNaN(translation[0]) && !isNaN(translation[1]) && !isNaN(translation[2]) &&
-          isFinite(translation[0]) && isFinite(translation[1]) && isFinite(translation[2])) {
-        object.position.set(translation[0], translation[1], -translation[2]);
-      }
-    };
-    
-    function updatePose(id, error, rotation, translation){
-      var yaw = -Math.atan2(rotation[0][2], rotation[2][2]);
-      var pitch = -Math.asin(-rotation[1][2]);
-      var roll = Math.atan2(rotation[1][0], rotation[1][1]);
-      
-      var d = document.getElementById(id);
-      d.innerHTML = " error: " + error
-                  + "<br/>"
-                  + " x: " + (translation[0] | 0)
-                  + " y: " + (translation[1] | 0)
-                  + " z: " + (translation[2] | 0)
-                  + "<br/>"
-                  + " yaw: " + Math.round(-yaw * 180.0/Math.PI)
-                  + " pitch: " + Math.round(-pitch * 180.0/Math.PI)
-                  + " roll: " + Math.round(roll * 180.0/Math.PI);
-    };
+      function updateObject(object, rotation, translation) {
+        if (!rotation || !translation) return;
 
-    // Add this utility function to validate scene objects
-    function validateSceneObjects(scene) {
-      scene.traverse(function(object) {
-        if (object.isMesh) {
-          // Check for NaN in matrix elements
-          const matrix = object.matrixWorld.elements;
-          let hasNaN = false;
-          
-          for (let i = 0; i < matrix.length; i++) {
-            if (isNaN(matrix[i]) || !isFinite(matrix[i])) {
-              hasNaN = true;
+        // Ensure valid scaling
+        object.scale.set(modelSize, modelSize, modelSize);
+
+        // Enhanced NaN checking for rotation values
+        let validRotation = true;
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (isNaN(rotation[i][j]) || !isFinite(rotation[i][j])) {
+              validRotation = false;
               break;
             }
           }
-          
-          if (hasNaN) {
-            // Reset problematic transforms to identity
-            object.position.set(0, 0, 0);
-            object.rotation.set(0, 0, 0);
-            object.scale.set(1, 1, 1);
-            object.updateMatrix();
-            object.updateMatrixWorld(true);
-            console.warn("Fixed NaN values in object matrix", object);
+        }
+
+        if (validRotation) {
+          try {
+            // Safely calculate rotations with boundary checking
+            const sinVal = -rotation[1][2];
+            // Clamp asin input to avoid domain errors
+            const clampedSinVal = Math.max(-1, Math.min(1, sinVal));
+
+            object.rotation.x = -Math.asin(clampedSinVal);
+            object.rotation.y = -Math.atan2(rotation[0][2], rotation[2][2]);
+            object.rotation.z = Math.atan2(rotation[1][0], rotation[1][1]);
+          } catch (e) {
+            console.error("Error in rotation calculation:", e);
           }
         }
-      });
-    }
 
-    window.onload = onLoad;
-  </script>
+        // Enhanced NaN checking for translation values
+        if (
+          !isNaN(translation[0]) &&
+          !isNaN(translation[1]) &&
+          !isNaN(translation[2]) &&
+          isFinite(translation[0]) &&
+          isFinite(translation[1]) &&
+          isFinite(translation[2])
+        ) {
+          object.position.set(translation[0], translation[1], -translation[2]);
+        }
+      }
 
+      function updatePose(id, error, rotation, translation) {
+        const yaw = -Math.atan2(rotation[0][2], rotation[2][2]);
+        const pitch = -Math.asin(-rotation[1][2]);
+        const roll = Math.atan2(rotation[1][0], rotation[1][1]);
 
+        const d = document.getElementById(id);
+        d.innerHTML =
+          " error: " +
+          error +
+          "<br/>" +
+          " x: " +
+          (translation[0] | 0) +
+          " y: " +
+          (translation[1] | 0) +
+          " z: " +
+          (translation[2] | 0) +
+          "<br/>" +
+          " yaw: " +
+          Math.round((-yaw * 180.0) / Math.PI) +
+          " pitch: " +
+          Math.round((-pitch * 180.0) / Math.PI) +
+          " roll: " +
+          Math.round((roll * 180.0) / Math.PI);
+      }
 
+      // Add this utility function to validate scene objects
+      function validateSceneObjects(scene) {
+        scene.traverse(function (object) {
+          if (object.isMesh) {
+            // Check for NaN in matrix elements
+            const matrix = object.matrixWorld.elements;
+            let hasNaN = false;
 
+            for (let i = 0; i < matrix.length; i++) {
+              if (isNaN(matrix[i]) || !isFinite(matrix[i])) {
+                hasNaN = true;
+                break;
+              }
+            }
 
-  <video id="video" width=320 height=240 autoplay="true" style="display:none;"></video>
-  
-  <div style="margin: 10px;"><strong>-= Augmented Reality =-</strong></div>
-  <div style="width: 100%;">
-    <div style="width: 650px; margin-left:auto; margin-right:auto;">
-      <canvas id="canvas" style="width: 320px; height: 240px; float: left; border: solid 1px black;"></canvas>
-      <div id="container" style="width: 320px; height: 240px; float: left; border: solid 1px black; background: green;"></div>
-      <div style="clear: both;"></div>
-      <div style="float: left; border: solid 1px black;">
-        <div id="container1" style="width: 320px; height: 240px; background: red;"></div>
-        <div id="pose1"></div>
-      </div>
-      <div style="float: left; border: solid 1px black;">
-        <div id="container2" style="width: 320px; height: 240px; background: blue;"></div>
-        <div id="pose2"></div>
+            if (hasNaN) {
+              // Reset problematic transforms to identity
+              object.position.set(0, 0, 0);
+              object.rotation.set(0, 0, 0);
+              object.scale.set(1, 1, 1);
+              object.updateMatrix();
+              object.updateMatrixWorld(true);
+              console.warn("Fixed NaN values in object matrix", object);
+            }
+          }
+        });
+      }
+
+      window.onload = onLoad;
+    </script>
+
+    <video
+      id="video"
+      width="320"
+      height="240"
+      autoplay
+      style="display: none"
+    ></video>
+
+    <div style="margin: 10px"><strong>-= Augmented Reality =-</strong></div>
+    <div style="width: 100%">
+      <div style="width: 650px; margin-left: auto; margin-right: auto">
+        <canvas
+          id="canvas"
+          style="
+            width: 320px;
+            height: 240px;
+            float: left;
+            border: solid 1px black;
+          "
+        ></canvas>
+        <div
+          id="container"
+          style="
+            width: 320px;
+            height: 240px;
+            float: left;
+            border: solid 1px black;
+            background: green;
+          "
+        ></div>
+        <div style="clear: both"></div>
+        <div style="float: left; border: solid 1px black">
+          <div
+            id="container1"
+            style="width: 320px; height: 240px; background: red"
+          ></div>
+          <div id="pose1"></div>
+        </div>
+        <div style="float: left; border: solid 1px black">
+          <div
+            id="container2"
+            style="width: 320px; height: 240px; background: blue"
+          ></div>
+          <div id="pose2"></div>
+        </div>
       </div>
     </div>
-  </div>
-  <div style="clear: both;"></div>
-  <div style="margin: 15px;"><strong>Powered by <a href="https://github.com/kalwalt/ARuco-ts">ARuco-ts</a> and <a href="https://github.com/mrdoob/three.js">Three.js</a></strong></div>
-
-</body>
-  
+    <div style="clear: both"></div>
+    <div style="margin: 15px">
+      <strong
+        >Powered by
+        <a href="https://github.com/kalwalt/ARuco-ts">ARuco-ts</a> and
+        <a href="https://github.com/mrdoob/three.js">Three.js</a></strong
+      >
+    </div>
+  </body>
 </html>
