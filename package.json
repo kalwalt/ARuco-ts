@@ -1,6 +1,6 @@
 {
   "name": "aruco-ts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A TypeScript implementation of js-aruco, designed for developers interested in augmented reality and computer vision, providing tools for marker detection and tracking in WebAR applications.",
   "main": "dist/ARuco.js",
   "types": "types/index.d.ts",
