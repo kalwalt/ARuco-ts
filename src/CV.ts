@@ -427,8 +427,7 @@ export class CV {
       pos3,
       pos4,
       s,
-      s_end,
-      s_prev;
+      s_end;
 
     contour.hole = hole;
 
@@ -446,7 +445,6 @@ export class CV {
       contour.push({ x: point.x, y: point.y });
     } else {
       pos3 = pos;
-      s_prev = s ^ 4;
 
       while (true) {
         s_end = s;
@@ -464,8 +462,6 @@ export class CV {
         }
 
         contour.push({ x: point.x, y: point.y });
-
-        s_prev = s;
 
         point.x += CV.neighborhood[s][0];
         point.y += CV.neighborhood[s][1];
