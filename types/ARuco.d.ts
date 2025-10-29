@@ -1,10 +1,5 @@
 import { IImage } from "./CV";
 import { IPoint } from "./math-types";
-interface IDictionaries {
-  nBits: number;
-  tau: number;
-  codeList: number[];
-}
 interface DictionaryConfig {
   nBits: number;
   tau: number;
@@ -16,7 +11,7 @@ export declare class DICTIONARIES {
   static getDictionary(name: keyof typeof DICTIONARIES): DictionaryConfig;
 }
 interface IConfig {
-  dictionaryName: IDictionaries;
+  dictionaryName: string;
   maxHammingDistance: number;
 }
 export declare class Dictionary {

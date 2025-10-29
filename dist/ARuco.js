@@ -969,7 +969,7 @@
           (this.contours = []),
           (this.polys = []),
           (this.candidates = []),
-          (this.dictionary = new c(t.dictionaryName.toString())),
+          (this.dictionary = new c(t.dictionaryName)),
           (this.dictionary.tau =
             null != t.maxHammingDistance
               ? t.maxHammingDistance
