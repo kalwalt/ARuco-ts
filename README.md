@@ -39,14 +39,15 @@ If you make changes to the code, you'll need to rebuild the project:
    ```
 
 2. Build the TypeScript code:
+
    ```
    npm run build-ts
    ```
 
 3. Build the TypeScript code in development mode.
-    ```
-    npm run dev-ts
-    ```
+   ```
+   npm run dev-ts
+   ```
 
 This will generate the JavaScript files needed for the library to work.
 
