@@ -1,6 +1,7 @@
 import { IImage, Image } from "./CV";
 import { IPoint } from "./math-types";
 import { CV } from "./CV";
+import { version } from "../package.json";
 
 interface DictionaryConfig {
   nBits: number;
@@ -443,6 +444,7 @@ export class Detector {
   static readonly mjpeg: any;
 
   constructor(config: IConfig) {
+    console.log(`aruco-ts v${version} initialized`);
     this.config = config;
     this.grey = new Image();
     this.thres = new Image();

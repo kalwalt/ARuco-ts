@@ -9,16 +9,12 @@
 })(this, () =>
   (() => {
     "use strict";
-    var t,
-      e,
-      r,
-      i,
-      s = {
-        d: (t, e) => {
-          for (var r in e)
-            s.o(e, r) &&
-              !s.o(t, r) &&
-              Object.defineProperty(t, r, { enumerable: !0, get: e[r] });
+    var t = {
+        d: (e, r) => {
+          for (var i in r)
+            t.o(r, i) &&
+              !t.o(e, i) &&
+              Object.defineProperty(e, i, { enumerable: !0, get: r[i] });
         },
         o: (t, e) => Object.prototype.hasOwnProperty.call(t, e),
         r: (t) => {
@@ -28,9 +24,9 @@
             Object.defineProperty(t, "__esModule", { value: !0 });
         },
       },
-      o = {};
-    s.r(o), s.d(o, { ARuco: () => e, CV: () => t, POS: () => i, SVD: () => r });
-    class n {
+      e = {};
+    t.r(e), t.d(e, { ARuco: () => m, CV: () => g, POS: () => y, SVD: () => x });
+    class r {
       width;
       height;
       data;
@@ -38,25 +34,25 @@
         (this.width = t), (this.height = e), (this.data = r);
       }
     }
-    class a {
+    class i {
       color;
       next;
       constructor() {
         (this.color = 0), (this.next = null);
       }
     }
-    class h {
+    class s {
       static grayscale(t) {
         let e = t.data,
-          r = [],
-          i = new n(),
-          s = e.length,
-          o = 0,
+          i = [],
+          s = new r(),
+          o = e.length,
+          n = 0,
           a = 0;
-        for (; o < s; o += 4)
-          r[a++] =
-            (0.299 * e[o] + 0.587 * e[o + 1] + 0.114 * e[o + 2] + 0.5) & 255;
-        return (i.width = t.width), (i.height = t.height), (i.data = r), i;
+        for (; n < o; n += 4)
+          i[a++] =
+            (0.299 * e[n] + 0.587 * e[n + 1] + 0.114 * e[n + 2] + 0.5) & 255;
+        return (s.width = t.width), (s.height = t.height), (s.data = i), s;
       }
       static threshold(t, e, r) {
         let i,
@@ -69,14 +65,14 @@
         return (e.width = t.width), (e.height = t.height), e;
       }
       static adaptiveThreshold(t, e, r, i) {
-        let s,
-          o = t.data,
-          n = e.data,
-          a = o.length,
+        let o,
+          n = t.data,
+          a = e.data,
+          h = n.length,
           d = [];
-        for (h.stackBoxBlur(t, e, r), s = 0; s < 768; ++s)
-          d[s] = s - 255 <= -i ? 255 : 0;
-        for (s = 0; s < a; ++s) n[s] = d[o[s] - n[s] + 255];
+        for (s.stackBoxBlur(t, e, r), o = 0; o < 768; ++o)
+          d[o] = o - 255 <= -i ? 255 : 0;
+        for (o = 0; o < h; ++o) a[o] = d[n[o] - a[o] + 255];
         return (e.width = t.width), (e.height = t.height), e;
       }
       static otsu(t) {
@@ -89,18 +85,18 @@
           a = 0,
           h = 0,
           d = 0,
-          c = 0,
           l = 0,
+          c = 0,
           u = 0;
         for (i = 0; i < 256; ++i) n[i] = 0;
         for (i = 0; i < o; ++i) n[s[i]]++;
         for (i = 0; i < 256; ++i) h += n[i] * i;
         for (i = 0; i < 256; ++i)
-          if (((c += n[i]), 0 !== c)) {
-            if (((l = o - c), 0 === l)) break;
+          if (((l += n[i]), 0 !== l)) {
+            if (((c = o - l), 0 === c)) break;
             (d += n[i] * i),
-              (e = d / c - (h - d) / l),
-              (r = c * l * e * e),
+              (e = d / l - (h - d) / c),
+              (r = l * c * e * e),
               r > u && ((u = r), (a = i));
           }
         return a;
@@ -112,13 +108,13 @@
         0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13,
       ];
       static stackBoxBlur(t, e, r) {
-        let i,
-          s,
-          o,
+        let o,
           n,
+          a,
+          h,
           d,
-          c,
           l,
+          c,
           u,
           f,
           g,
@@ -130,47 +126,47 @@
           v = p - 1,
           b = r + r + 1,
           M = r + 1,
-          _ = h.stackBoxBlurMult[r],
-          S = h.stackBoxBlurShift[r];
-        for (i = s = new a(), g = 1; g < b; ++g) i = i.next = new a();
-        for (i.next = s, d = 0, f = 0; f < y; ++f) {
-          for (c = d, o = m[d], n = M * o, i = s, g = 0; g < M; ++g)
-            (i.color = o), (i = i.next);
+          _ = s.stackBoxBlurMult[r],
+          S = s.stackBoxBlurShift[r];
+        for (o = n = new i(), g = 1; g < b; ++g) o = o.next = new i();
+        for (o.next = n, d = 0, f = 0; f < y; ++f) {
+          for (l = d, a = m[d], h = M * a, o = n, g = 0; g < M; ++g)
+            (o.color = a), (o = o.next);
           for (g = 1; g < M; ++g)
-            (i.color = m[d + g]), (n += i.color), (i = i.next);
-          for (i = s, u = 0; u < p; ++u)
-            (x[d++] = (n * _) >>> S),
-              (l = u + M),
-              (l = c + (l < v ? l : v)),
-              (n -= i.color - m[l]),
-              (i.color = m[l]),
-              (i = i.next);
+            (o.color = m[d + g]), (h += o.color), (o = o.next);
+          for (o = n, u = 0; u < p; ++u)
+            (x[d++] = (h * _) >>> S),
+              (c = u + M),
+              (c = l + (c < v ? c : v)),
+              (h -= o.color - m[c]),
+              (o.color = m[c]),
+              (o = o.next);
         }
         for (u = 0; u < p; ++u) {
-          for (d = u, c = d + p, o = x[d], n = M * o, i = s, g = 0; g < M; ++g)
-            (i.color = o), (i = i.next);
+          for (d = u, l = d + p, a = x[d], h = M * a, o = n, g = 0; g < M; ++g)
+            (o.color = a), (o = o.next);
           for (g = 1; g < M; ++g)
-            (i.color = x[c]), (n += i.color), (i = i.next), (c += p);
-          for (i = s, f = 0; f < y; ++f)
-            (x[d] = (n * _) >>> S),
-              (l = f + M),
-              (l = u + (l < w ? l : w) * p),
-              (n -= i.color - x[l]),
-              (i.color = x[l]),
-              (i = i.next),
+            (o.color = x[l]), (h += o.color), (o = o.next), (l += p);
+          for (o = n, f = 0; f < y; ++f)
+            (x[d] = (h * _) >>> S),
+              (c = f + M),
+              (c = u + (c < w ? c : w) * p),
+              (h -= o.color - x[c]),
+              (o.color = x[c]),
+              (o = o.next),
               (d += p);
         }
         return e;
       }
       static gaussianBlur(t, e, r, i) {
-        var s = h.gaussianKernel(i);
+        var o = s.gaussianKernel(i);
         return (
           (e.width = t.width),
           (e.height = t.height),
           (r.width = t.width),
           (r.height = t.height),
-          h.gaussianBlurFilter(t, r, s, !0),
-          h.gaussianBlurFilter(r, e, s, !1),
+          s.gaussianBlurFilter(t, r, o, !0),
+          s.gaussianBlurFilter(r, e, o, !1),
           e
         );
       }
@@ -181,19 +177,19 @@
           a,
           h,
           d = t.data,
-          c = e.data,
-          l = t.height,
+          l = e.data,
+          c = t.height,
           u = t.width,
           f = 0,
           g = r.length >> 1;
-        for (n = 0; n < l; ++n)
+        for (n = 0; n < c; ++n)
           for (a = 0; a < u; ++a) {
             for (o = 0, h = -g; h <= g; ++h)
               i
                 ? ((s = f + h), (a + h < 0 || a + h >= u) && (s = f))
-                : ((s = f + h * u), (n + h < 0 || n + h >= l) && (s = f)),
+                : ((s = f + h * u), (n + h < 0 || n + h >= c) && (s = f)),
                 (o += r[g + h] * d[s]);
-            c[f++] = i ? o : (o + 0.5) & 255;
+            l[f++] = i ? o : (o + 0.5) & 255;
           }
         return e;
       }
@@ -230,65 +226,65 @@
       static findContours(t, e) {
         let r,
           i,
-          s,
           o,
           n,
           a,
+          h,
           d,
-          c,
           l,
+          c,
           u = t.width,
           f = t.height,
           g = [];
         for (
-          r = h.binaryBorder(t, e),
-            i = h.neighborhoodDeltas(u + 2),
-            s = u + 3,
-            n = 1,
-            c = 0;
-          c < f;
-          ++c, s += 2
+          r = s.binaryBorder(t, e),
+            i = s.neighborhoodDeltas(u + 2),
+            o = u + 3,
+            a = 1,
+            l = 0;
+          l < f;
+          ++l, o += 2
         )
-          for (l = 0; l < u; ++l, ++s)
-            (o = r[s]),
-              0 !== o &&
-                ((a = d = !1),
-                1 === o && 0 === r[s - 1]
-                  ? (a = !0)
-                  : o >= 1 && 0 === r[s + 1] && (d = !0),
-                (a || d) &&
-                  (++n,
-                  g.push(h.borderFollowing(r, s, n, { x: l, y: c }, d, i))));
+          for (c = 0; c < u; ++c, ++o)
+            (n = r[o]),
+              0 !== n &&
+                ((h = d = !1),
+                1 === n && 0 === r[o - 1]
+                  ? (h = !0)
+                  : n >= 1 && 0 === r[o + 1] && (d = !0),
+                (h || d) &&
+                  (++a,
+                  g.push(s.borderFollowing(r, o, a, { x: c, y: l }, d, i))));
         return g;
       }
-      static borderFollowing(t, e, r, i, s, o) {
-        let n,
-          a,
+      static borderFollowing(t, e, r, i, o, n) {
+        let a,
+          h,
           d,
-          c,
           l,
+          c,
           u = [];
-        (u.hole = s), (c = l = s ? 0 : 4);
+        (u.hole = o), (l = c = o ? 0 : 4);
         do {
-          if (((c = (c - 1) & 7), (n = e + o[c]), 0 !== t[n])) break;
-        } while (c !== l);
-        if (c === l) (t[e] = -r), u.push({ x: i.x, y: i.y });
+          if (((l = (l - 1) & 7), (a = e + n[l]), 0 !== t[a])) break;
+        } while (l !== c);
+        if (l === c) (t[e] = -r), u.push({ x: i.x, y: i.y });
         else
-          for (a = e; ; ) {
-            l = c;
+          for (h = e; ; ) {
+            c = l;
             do {
-              d = a + o[++c];
+              d = h + n[++l];
             } while (0 === t[d]);
             if (
-              ((c &= 7),
-              (c - 1) >>> 0 < l >>> 0 ? (t[a] = -r) : 1 === t[a] && (t[a] = r),
+              ((l &= 7),
+              (l - 1) >>> 0 < c >>> 0 ? (t[h] = -r) : 1 === t[h] && (t[h] = r),
               u.push({ x: i.x, y: i.y }),
-              (i.x += h.neighborhood[c][0]),
-              (i.y += h.neighborhood[c][1]),
-              d === e && a === n)
+              (i.x += s.neighborhood[l][0]),
+              (i.y += s.neighborhood[l][1]),
+              d === e && h === a)
             )
               break;
-            (a = d), (c = (c + 4) & 7);
+            (h = d), (l = (l + 4) & 7);
           }
         return u;
       }
@@ -304,10 +300,10 @@
       ];
       static neighborhoodDeltas(t) {
         let e = [],
-          r = h.neighborhood.length,
+          r = s.neighborhood.length,
           i = 0;
         for (; i < r; ++i)
-          e[i] = h.neighborhood[i][0] + h.neighborhood[i][1] * t;
+          e[i] = s.neighborhood[i][0] + s.neighborhood[i][1] * t;
         return e.concat(e);
       }
       static approxPolyDP(t, e) {
@@ -319,30 +315,30 @@
           a,
           h,
           d,
-          c,
           l,
+          c,
           u,
           f = { start_index: 0, end_index: 0 },
           g = { start_index: 0, end_index: 0 },
           m = [],
           x = [],
           y = t.length;
-        for (e *= e, u = 0, c = 0; c < 3; ++c)
+        for (e *= e, u = 0, l = 0; l < 3; ++l)
           for (
             n = 0,
               u = (u + g.start_index) % y,
               i = t[u],
               ++u === y && (u = 0),
-              l = 1;
-            l < y;
-            ++l
+              c = 1;
+            c < y;
+            ++c
           )
             (r = t[u]),
               ++u === y && (u = 0),
               (h = r.x - i.x),
               (d = r.y - i.y),
               (o = h * h + d * d),
-              o > n && ((n = o), (g.start_index = l));
+              o > n && ((n = o), (g.start_index = c));
         for (
           n <= e
             ? m.push({ x: i.x, y: i.y })
@@ -366,14 +362,14 @@
             a = !0;
           else {
             for (
-              n = 0, h = s.x - i.x, d = s.y - i.y, c = f.start_index + 1;
-              c < f.end_index;
-              ++c
+              n = 0, h = s.x - i.x, d = s.y - i.y, l = f.start_index + 1;
+              l < f.end_index;
+              ++l
             )
               (r = t[u]),
                 ++u === y && (u = 0),
                 (o = Math.abs((r.y - i.y) * h - (r.x - i.x) * d)),
-                o > n && ((n = o), (g.start_index = c));
+                o > n && ((n = o), (g.start_index = l));
             a = n * n <= e * (h * h + d * d);
           }
           a
@@ -386,13 +382,13 @@
         return m;
       }
       static warp(t, e, r, i) {
-        let s,
-          o,
+        let o,
           n,
           a,
+          h,
           d,
-          c,
           l,
+          c,
           u,
           f,
           g,
@@ -415,7 +411,7 @@
           j = t.height,
           D = 0;
         for (
-          y = h.getPerspectiveTransform(r, i - 1),
+          y = s.getPerspectiveTransform(r, i - 1),
             p = y[8],
             w = y[2],
             v = y[5],
@@ -433,24 +429,24 @@
               (_ += y[3]),
               (S = M / b),
               (C = _ / b),
-              (s = S >>> 0),
-              (o = s === I - 1 ? s : s + 1),
-              (n = S - s),
-              (a = 1 - n),
+              (o = S >>> 0),
+              (n = o === I - 1 ? o : o + 1),
+              (a = S - o),
+              (h = 1 - a),
               (d = C >>> 0),
-              (c = d === j - 1 ? d : d + 1),
-              (l = C - d),
-              (u = 1 - l),
+              (l = d === j - 1 ? d : d + 1),
+              (c = C - d),
+              (u = 1 - c),
               (f = g = d * I),
-              (m = x = c * I),
+              (m = x = l * I),
               (P[D++] =
-                (u * (a * L[f + s] + n * L[g + o]) +
-                  l * (a * L[m + s] + n * L[x + o])) &
+                (u * (h * L[f + o] + a * L[g + n]) +
+                  c * (h * L[m + o] + a * L[x + n])) &
                 255);
         return (e.width = i), (e.height = i), e;
       }
       static getPerspectiveTransform(t, e) {
-        let r = h.square2quad(t);
+        let r = s.square2quad(t);
         return (
           (r[0] /= e),
           (r[1] /= e),
@@ -510,13 +506,13 @@
           a,
           h,
           d = 0,
-          c = !0,
-          l = t.length,
+          l = !0,
+          c = t.length,
           u = 0,
           f = 0;
-        for (r = t[l - 1], e = t[0], o = e.x - r.x, n = e.y - r.y; u < l; ++u) {
+        for (r = t[c - 1], e = t[0], o = e.x - r.x, n = e.y - r.y; u < c; ++u) {
           if (
-            (++f === l && (f = 0),
+            (++f === c && (f = 0),
             (r = e),
             (e = t[f]),
             (a = e.x - r.x),
@@ -526,12 +522,12 @@
             (d |= s > i ? 1 : s < i ? 2 : 3),
             3 === d)
           ) {
-            c = !1;
+            l = !1;
             break;
           }
           (o = a), (n = h);
         }
-        return c;
+        return l;
       }
       static perimeter(t) {
         let e,
@@ -593,7 +589,7 @@
         return e;
       }
     }
-    class d {
+    class o {
       static ARUCO = {
         nBits: 25,
         tau: 3,
@@ -804,7 +800,7 @@
         ],
       };
       static getDictionary(t) {
-        const e = d[t];
+        const e = o[t];
         if (
           e &&
           "object" == typeof e &&
@@ -816,7 +812,7 @@
         throw new Error(`The dictionary "${t}" is not recognized.`);
       }
     }
-    class c {
+    class n {
       codes = {};
       codeList = [];
       tau = 0;
@@ -837,7 +833,7 @@
           (this.nBits = 0),
           (this.markSize = 0),
           (this.dicName = t);
-        const e = d.getDictionary(t);
+        const e = o.getDictionary(t);
         if (!e)
           throw new Error('The dictionary "' + t + '" is not recognized.');
         (this.nBits = e.nBits), (this.markSize = Math.sqrt(e.nBits) + 2);
@@ -937,7 +933,7 @@
         return (i += "</svg>"), i;
       }
     }
-    class l {
+    class a {
       id;
       corners;
       hammingDistance;
@@ -945,7 +941,7 @@
         (this.id = t), (this.corners = e), (this.hammingDistance = r);
       }
     }
-    class u {
+    class h {
       config;
       dictionary;
       grey;
@@ -959,15 +955,16 @@
       mjpeg;
       static mjpeg;
       constructor(t) {
-        (this.config = t),
-          (this.grey = new n()),
-          (this.thres = new n()),
-          (this.homography = new n()),
+        console.log("aruco-ts v0.1.0 initialized"),
+          (this.config = t),
+          (this.grey = new r()),
+          (this.thres = new r()),
+          (this.homography = new r()),
           (this.binary = []),
           (this.contours = []),
           (this.polys = []),
           (this.candidates = []),
-          (this.dictionary = new c(t.dictionaryName)),
+          (this.dictionary = new n(t.dictionaryName)),
           (this.dictionary.tau =
             null != t.maxHammingDistance
               ? t.maxHammingDistance
@@ -1016,16 +1013,16 @@
       detectMJPEGStream(t) {
         const e = t.findIndex(function (t, e, r) {
             return (
-              u.mjpeg.EOI[0] == t &&
+              h.mjpeg.EOI[0] == t &&
               r.length > e + 1 &&
-              u.mjpeg.EOI[1] == r[e + 1]
+              h.mjpeg.EOI[1] == r[e + 1]
             );
           }),
           r = t.findIndex(function (t, e, r) {
             return (
-              u.mjpeg.SOI[0] == t &&
+              h.mjpeg.SOI[0] == t &&
               r.length > e + 1 &&
-              u.mjpeg.SOI[1] == r[e + 1]
+              h.mjpeg.SOI[1] == r[e + 1]
             );
           });
         if (-1 === e) this.mjpeg.chunks.push(t);
@@ -1045,9 +1042,9 @@
       }
       detect(t) {
         return (
-          (this.grey = h.grayscale(t)),
-          h.adaptiveThreshold(this.grey, this.thres, 2, 7),
-          (this.contours = h.findContours(this.thres, this.binary)),
+          (this.grey = s.grayscale(t)),
+          s.adaptiveThreshold(this.grey, this.thres, 2, 7),
+          (this.contours = s.findContours(this.thres, this.binary)),
           (this.candidates = this.findCandidates(
             this.contours,
             0.01 * t.width,
@@ -1060,21 +1057,21 @@
         );
       }
       findCandidates(t, e, r, i) {
-        let s,
-          o,
+        let o,
           n,
-          a = [],
+          a,
+          h = [],
           d = t.length;
-        for (this.polys = [], n = 0; n < d; ++n)
-          (s = t[n]),
-            s.length >= e &&
-              ((o = h.approxPolyDP(s, s.length * r)),
-              this.polys.push(o),
-              4 === o.length &&
-                h.isContourConvex(o) &&
-                h.minEdgeLength(o) >= i &&
-                a.push(o));
-        return a;
+        for (this.polys = [], a = 0; a < d; ++a)
+          (o = t[a]),
+            o.length >= e &&
+              ((n = s.approxPolyDP(o, o.length * r)),
+              this.polys.push(n),
+              4 === n.length &&
+                s.isContourConvex(n) &&
+                s.minEdgeLength(n) >= i &&
+                h.push(n));
+        return h;
       }
       clockwiseCorners(t) {
         let e,
@@ -1095,78 +1092,78 @@
       notTooNear(t, e) {
         let r,
           i,
-          s,
           o,
           n,
           a,
+          h,
           d = [],
-          c = t.length;
-        for (o = 0; o < c; ++o)
-          for (n = o + 1; n < c; ++n) {
-            for (r = 0, a = 0; a < 4; ++a)
-              (i = t[o][a].x - t[n][a].x),
-                (s = t[o][a].y - t[n][a].y),
-                (r += i * i + s * s);
+          l = t.length;
+        for (n = 0; n < l; ++n)
+          for (a = n + 1; a < l; ++a) {
+            for (r = 0, h = 0; h < 4; ++h)
+              (i = t[n][h].x - t[a][h].x),
+                (o = t[n][h].y - t[a][h].y),
+                (r += i * i + o * o);
             r / 4 < e * e &&
-              (h.perimeter(t[o]) < h.perimeter(t[n])
-                ? (t[o].tooNear = !0)
-                : (t[n].tooNear = !0));
+              (s.perimeter(t[n]) < s.perimeter(t[a])
+                ? (t[n].tooNear = !0)
+                : (t[a].tooNear = !0));
           }
-        for (o = 0; o < c; ++o) t[o].tooNear || d.push(t[o]);
+        for (n = 0; n < l; ++n) t[n].tooNear || d.push(t[n]);
         return d;
       }
       findMarkers(t, e, r) {
         let i,
-          s,
-          o = [],
-          n = e.length;
-        for (let a = 0; a < n; ++a)
-          (i = e[a]),
-            h.warp(t, this.homography, i, r),
-            h.threshold(
+          o,
+          n = [],
+          a = e.length;
+        for (let h = 0; h < a; ++h)
+          (i = e[h]),
+            s.warp(t, this.homography, i, r),
+            s.threshold(
               this.homography,
               this.homography,
-              h.otsu(this.homography)
+              s.otsu(this.homography)
             ),
-            (s = this.getMarker(this.homography, i)),
-            s && o.push(s);
-        return o;
+            (o = this.getMarker(this.homography, i)),
+            o && n.push(o);
+        return n;
       }
       getMarker(t, e) {
         let r,
           i,
-          s,
           o,
-          n = this.dictionary.markSize,
-          a = (t.width / n) >>> 0,
-          d = (a * a) >> 1,
+          n,
+          h = this.dictionary.markSize,
+          d = (t.width / h) >>> 0,
+          l = (d * d) >> 1,
           c = [],
           u = [];
-        for (s = 0; s < n; ++s)
-          for (i = 0 === s || n - 1 === s ? 1 : n - 1, o = 0; o < n; o += i)
+        for (o = 0; o < h; ++o)
+          for (i = 0 === o || h - 1 === o ? 1 : h - 1, n = 0; n < h; n += i)
             if (
-              ((r = { x: o * a, y: s * a, width: a, height: a }),
-              h.countNonZero(t, r) > d)
+              ((r = { x: n * d, y: o * d, width: d, height: d }),
+              s.countNonZero(t, r) > l)
             )
               return null;
-        for (s = 0; s < n - 2; ++s)
-          for (c[s] = [], o = 0; o < n - 2; ++o)
-            (r = { x: (o + 1) * a, y: (s + 1) * a, width: a, height: a }),
-              (c[s][o] = h.countNonZero(t, r) > d ? 1 : 0);
+        for (o = 0; o < h - 2; ++o)
+          for (c[o] = [], n = 0; n < h - 2; ++n)
+            (r = { x: (n + 1) * d, y: (o + 1) * d, width: d, height: d }),
+              (c[o][n] = s.countNonZero(t, r) > l ? 1 : 0);
         u[0] = c;
         let f = null,
           g = 0;
-        for (s = 0; s < 4; s++) {
-          const t = this.dictionary.find(u[s]);
+        for (o = 0; o < 4; o++) {
+          const t = this.dictionary.find(u[o]);
           if (
             t &&
             (null === f || t.distance < f.distance) &&
-            ((f = t), (g = s), 0 === f.distance)
+            ((f = t), (g = o), 0 === f.distance)
           )
             break;
-          u[s + 1] = this.rotate(u[s]);
+          u[o + 1] = this.rotate(u[o]);
         }
-        return f ? new l(f.id, this.rotate2(e, 4 - g), f.distance) : null;
+        return f ? new a(f.id, this.rotate2(e, 4 - g), f.distance) : null;
       }
       hammingDistance(t) {
         let e,
@@ -1214,16 +1211,16 @@
         return r;
       };
     }
-    class f {
+    class d {
       static svdcmp(t, e, r, i, s) {
         let o,
           n,
           a,
           h,
-          d,
-          c,
           l,
+          c,
           u,
+          f,
           g,
           m,
           x,
@@ -1236,16 +1233,16 @@
           _ = 0,
           S = [];
         for (n = 0; n < r; ++n) {
-          if (((l = n + 1), (S[n] = _ * M), (M = y = _ = 0), n < e)) {
+          if (((u = n + 1), (S[n] = _ * M), (M = y = _ = 0), n < e)) {
             for (c = n; c < e; ++c) _ += Math.abs(t[c][n]);
             if (0 !== _) {
               for (c = n; c < e; ++c) (t[c][n] /= _), (y += t[c][n] * t[c][n]);
               for (
                 m = t[n][n],
-                  M = -f.sign(Math.sqrt(y), m),
+                  M = -d.sign(Math.sqrt(y), m),
                   x = m * M - y,
                   t[n][n] = m - M,
-                  h = l;
+                  h = u;
                 h < r;
                 ++h
               ) {
@@ -1256,24 +1253,24 @@
             }
           }
           if (((i[n] = _ * M), (M = y = _ = 0), n < e && n !== r - 1)) {
-            for (c = l; c < r; ++c) _ += Math.abs(t[n][c]);
+            for (c = u; c < r; ++c) _ += Math.abs(t[n][c]);
             if (0 !== _) {
-              for (c = l; c < r; ++c) (t[n][c] /= _), (y += t[n][c] * t[n][c]);
+              for (c = u; c < r; ++c) (t[n][c] /= _), (y += t[n][c] * t[n][c]);
               for (
-                m = t[n][l],
-                  M = -f.sign(Math.sqrt(y), m),
+                m = t[n][u],
+                  M = -d.sign(Math.sqrt(y), m),
                   x = m * M - y,
-                  t[n][l] = m - M,
-                  c = l;
+                  t[n][u] = m - M,
+                  c = u;
                 c < r;
                 ++c
               )
                 S[c] = t[n][c] / x;
-              for (h = l; h < e; ++h) {
-                for (y = 0, c = l; c < r; ++c) y += t[h][c] * t[n][c];
-                for (c = l; c < r; ++c) t[h][c] += y * S[c];
+              for (h = u; h < e; ++h) {
+                for (y = 0, c = u; c < r; ++c) y += t[h][c] * t[n][c];
+                for (c = u; c < r; ++c) t[h][c] += y * S[c];
               }
-              for (c = l; c < r; ++c) t[n][c] *= _;
+              for (c = u; c < r; ++c) t[n][c] *= _;
             }
           }
           b = Math.max(b, Math.abs(i[n]) + Math.abs(S[n]));
@@ -1281,21 +1278,21 @@
         for (n = r - 1; n >= 0; --n) {
           if (n < r - 1) {
             if (0 !== M) {
-              for (h = l; h < r; ++h) s[h][n] = t[n][h] / t[n][l] / M;
-              for (h = l; h < r; ++h) {
-                for (y = 0, c = l; c < r; ++c) y += t[n][c] * s[c][h];
-                for (c = l; c < r; ++c) s[c][h] += y * s[c][n];
+              for (h = u; h < r; ++h) s[h][n] = t[n][h] / t[n][u] / M;
+              for (h = u; h < r; ++h) {
+                for (y = 0, c = u; c < r; ++c) y += t[n][c] * s[c][h];
+                for (c = u; c < r; ++c) s[c][h] += y * s[c][n];
               }
             }
-            for (h = l; h < r; ++h) s[n][h] = s[h][n] = 0;
+            for (h = u; h < r; ++h) s[n][h] = s[h][n] = 0;
           }
-          (s[n][n] = 1), (M = S[n]), (l = n);
+          (s[n][n] = 1), (M = S[n]), (u = n);
         }
         for (n = Math.min(r, e) - 1; n >= 0; --n) {
-          for (l = n + 1, M = i[n], h = l; h < r; ++h) t[n][h] = 0;
+          for (u = n + 1, M = i[n], h = u; h < r; ++h) t[n][h] = 0;
           if (0 !== M) {
-            for (M = 1 / M, h = l; h < r; ++h) {
-              for (y = 0, c = l; c < e; ++c) y += t[c][n] * t[c][h];
+            for (M = 1 / M, h = u; h < r; ++h) {
+              for (y = 0, c = u; c < e; ++c) y += t[c][n] * t[c][h];
               for (m = (y / t[n][n]) * M, c = n; c < e; ++c)
                 t[c][h] += m * t[c][n];
             }
@@ -1305,22 +1302,22 @@
         }
         for (c = r - 1; c >= 0; --c)
           for (a = 1; a <= 30; ++a) {
-            for (o = !0, l = c; l >= 0; --l) {
-              if (((u = l - 1), Math.abs(S[l]) + b === b)) {
+            for (o = !0, u = c; u >= 0; --u) {
+              if (((f = u - 1), Math.abs(S[u]) + b === b)) {
                 o = !1;
                 break;
               }
-              if (Math.abs(i[u]) + b === b) break;
+              if (Math.abs(i[f]) + b === b) break;
             }
             if (o)
               for (
-                g = 0, y = 1, n = l;
+                g = 0, y = 1, n = u;
                 n <= c && ((m = y * S[n]), Math.abs(m) + b !== b);
                 ++n
               )
                 for (
                   M = i[n],
-                    x = f.pythag(m, M),
+                    x = d.pythag(m, M),
                     i[n] = x,
                     x = 1 / x,
                     g = M * x,
@@ -1329,27 +1326,27 @@
                   h < e;
                   ++h
                 )
-                  (w = t[h][u]),
+                  (w = t[h][f]),
                     (v = t[h][n]),
-                    (t[h][u] = w * g + v * y),
+                    (t[h][f] = w * g + v * y),
                     (t[h][n] = v * g - w * y);
-            if (((v = i[c]), l === c)) {
+            if (((v = i[c]), u === c)) {
               if (v < 0) for (i[c] = -v, h = 0; h < r; ++h) s[h][c] = -s[h][c];
               break;
             }
             if (30 === a) return !1;
             for (
-              p = i[l],
-                u = c - 1,
-                w = i[u],
-                M = S[u],
+              p = i[u],
+                f = c - 1,
+                w = i[f],
+                M = S[f],
                 x = S[c],
                 m = ((w - v) * (w + v) + (M - x) * (M + x)) / (2 * x * w),
-                M = f.pythag(m, 1),
-                m = ((p - v) * (p + v) + x * (w / (m + f.sign(M, m)) - x)) / p,
+                M = d.pythag(m, 1),
+                m = ((p - v) * (p + v) + x * (w / (m + d.sign(M, m)) - x)) / p,
                 g = y = 1,
-                h = l;
-              h <= u;
+                h = u;
+              h <= f;
               ++h
             ) {
               for (
@@ -1358,7 +1355,7 @@
                   w = i[n],
                   x = y * M,
                   M *= g,
-                  v = f.pythag(m, x),
+                  v = d.pythag(m, x),
                   S[h] = v,
                   g = m / v,
                   y = x / v,
@@ -1366,30 +1363,30 @@
                   M = M * g - p * y,
                   x = w * y,
                   w *= g,
-                  d = 0;
-                d < r;
-                ++d
+                  l = 0;
+                l < r;
+                ++l
               )
-                (p = s[d][h]),
-                  (v = s[d][n]),
-                  (s[d][h] = p * g + v * y),
-                  (s[d][n] = v * g - p * y);
+                (p = s[l][h]),
+                  (v = s[l][n]),
+                  (s[l][h] = p * g + v * y),
+                  (s[l][n] = v * g - p * y);
               for (
-                v = f.pythag(m, x),
+                v = d.pythag(m, x),
                   i[h] = v,
                   0 !== v && ((v = 1 / v), (g = m * v), (y = x * v)),
                   m = g * M + y * w,
                   p = g * w - y * M,
-                  d = 0;
-                d < e;
-                ++d
+                  l = 0;
+                l < e;
+                ++l
               )
-                (w = t[d][h]),
-                  (v = t[d][n]),
-                  (t[d][h] = w * g + v * y),
-                  (t[d][n] = v * g - w * y);
+                (w = t[l][h]),
+                  (v = t[l][n]),
+                  (t[l][h] = w * g + v * y),
+                  (t[l][n] = v * g - w * y);
             }
-            (S[l] = 0), (S[c] = m), (i[c] = p);
+            (S[u] = 0), (S[c] = m), (i[c] = p);
           }
         return !0;
       }
@@ -1407,7 +1404,7 @@
         return e >= 0 ? Math.abs(t) : -Math.abs(t);
       }
     }
-    class g {
+    class l {
       v;
       constructor(t, e, r) {
         this.v = [t || 0, e || 0, r || 0];
@@ -1418,7 +1415,7 @@
         return (e[0] = r[0]), (e[1] = r[1]), (e[2] = r[2]), this;
       }
       static add(t, e) {
-        const r = new g(),
+        const r = new l(),
           i = r.v,
           s = t.v,
           o = e.v;
@@ -1427,7 +1424,7 @@
         );
       }
       static sub(t, e) {
-        const r = new g(),
+        const r = new l(),
           i = r.v,
           s = t.v,
           o = e.v;
@@ -1436,7 +1433,7 @@
         );
       }
       static mult(t, e) {
-        const r = new g(),
+        const r = new l(),
           i = r.v,
           s = t.v,
           o = e.v;
@@ -1445,13 +1442,13 @@
         );
       }
       static addScalar(t, e) {
-        const r = new g(),
+        const r = new l(),
           i = r.v,
           s = t.v;
         return (i[0] = s[0] + e), (i[1] = s[1] + e), (i[2] = s[2] + e), r;
       }
       static multScalar(t, e) {
-        const r = new g(),
+        const r = new l(),
           i = r.v,
           s = t.v;
         return (i[0] = s[0] * e), (i[1] = s[1] * e), (i[2] = s[2] * e), r;
@@ -1464,7 +1461,7 @@
       static cross(t, e) {
         const r = t.v,
           i = e.v;
-        return new g(
+        return new l(
           r[1] * i[2] - r[2] * i[1],
           r[2] * i[0] - r[0] * i[2],
           r[0] * i[1] - r[1] * i[0]
@@ -1476,7 +1473,7 @@
         return e > 0 && ((t[0] /= e), (t[1] /= e), (t[2] /= e)), e;
       }
       static inverse(t) {
-        const e = new g(),
+        const e = new l(),
           r = e.v,
           i = t.v;
         return (
@@ -1495,7 +1492,7 @@
         return t[0] < t[1] ? (t[0] < t[2] ? 0 : 2) : t[1] < t[2] ? 1 : 2;
       }
     }
-    class m {
+    class c {
       m;
       constructor() {
         this.m = [
@@ -1505,7 +1502,7 @@
         ];
       }
       static clone(t) {
-        const e = new m(),
+        const e = new c(),
           r = e.m,
           i = t.m;
         return (
@@ -1538,7 +1535,7 @@
         );
       }
       static fromRows(t, e, r) {
-        const i = new m(),
+        const i = new c(),
           s = i.m,
           o = t.v,
           n = e.v,
@@ -1557,13 +1554,13 @@
         );
       }
       static fromDiagonal(t) {
-        const e = new m(),
+        const e = new c(),
           r = e.m,
           i = t.v;
         return (r[0][0] = i[0]), (r[1][1] = i[1]), (r[2][2] = i[2]), e;
       }
       static transpose(t) {
-        const e = new m(),
+        const e = new c(),
           r = e.m,
           i = t.m;
         return (
@@ -1580,7 +1577,7 @@
         );
       }
       static mult(t, e) {
-        const r = new m(),
+        const r = new c(),
           i = r.m,
           s = t.m,
           o = e.m;
@@ -1600,7 +1597,7 @@
       static multVector(t, e) {
         const r = t.m,
           i = e.v;
-        return new g(
+        return new l(
           r[0][0] * i[0] + r[0][1] * i[1] + r[0][2] * i[2],
           r[1][0] * i[0] + r[1][1] * i[1] + r[1][2] * i[2],
           r[2][0] * i[0] + r[2][1] * i[1] + r[2][2] * i[2]
@@ -1608,14 +1605,14 @@
       }
       column(t) {
         const e = this.m;
-        return new g(e[0][t], e[1][t], e[2][t]);
+        return new l(e[0][t], e[1][t], e[2][t]);
       }
       row(t) {
         const e = this.m;
-        return new g(e[t][0], e[t][1], e[t][2]);
+        return new l(e[t][0], e[t][1], e[t][2]);
       }
     }
-    class x {
+    class u {
       model;
       focalLength;
       modelVectors;
@@ -1627,44 +1624,44 @@
       buildModel(t) {
         const e = t / 2;
         return [
-          new g(-e, e, 0),
-          new g(e, e, 0),
-          new g(e, -e, 0),
-          new g(-e, -e, 0),
+          new l(-e, e, 0),
+          new l(e, e, 0),
+          new l(e, -e, 0),
+          new l(-e, -e, 0),
         ];
       }
       init() {
         let t,
-          e = new g(),
-          r = new m();
-        (this.modelVectors = m.fromRows(
-          g.sub(this.model[1], this.model[0]),
-          g.sub(this.model[2], this.model[0]),
-          g.sub(this.model[3], this.model[0])
+          e = new l(),
+          r = new c();
+        (this.modelVectors = c.fromRows(
+          l.sub(this.model[1], this.model[0]),
+          l.sub(this.model[2], this.model[0]),
+          l.sub(this.model[3], this.model[0])
         )),
-          (t = m.clone(this.modelVectors)),
-          f.svdcmp(t.m, 3, 3, e.v, r.m),
-          (this.modelPseudoInverse = m.mult(
-            m.mult(r, m.fromDiagonal(g.inverse(e))),
-            m.transpose(t)
+          (t = c.clone(this.modelVectors)),
+          d.svdcmp(t.m, 3, 3, e.v, r.m),
+          (this.modelPseudoInverse = c.mult(
+            c.mult(r, c.fromDiagonal(l.inverse(e))),
+            c.transpose(t)
           )),
           (this.modelNormal = r.column(e.minIndex()));
       }
       pose(t) {
         let e,
           r,
-          i = new g(1, 1, 1),
-          s = new m(),
-          o = new m(),
-          n = new g(),
-          a = new g();
+          i = new l(1, 1, 1),
+          s = new c(),
+          o = new c(),
+          n = new l(),
+          a = new l();
         return (
           this.pos(t, i, s, o, n, a),
           (e = this.iterate(t, s, n)),
           (r = this.iterate(t, o, a)),
           e < r
-            ? new y(e, s.m, n.v, r, o.m, a.v)
-            : new y(r, o.m, a.v, e, s.m, n.v)
+            ? new f(e, s.m, n.v, r, o.m, a.v)
+            : new f(r, o.m, a.v, e, s.m, n.v)
         );
       }
       pos(t, e, r, i, s, o) {
@@ -1672,19 +1669,19 @@
           a,
           h,
           d,
-          c,
-          l,
           u,
           f,
+          g,
+          m,
           x,
-          y = new g(t[1].x, t[2].x, t[3].x),
-          p = new g(t[1].y, t[2].y, t[3].y),
-          w = g.addScalar(g.mult(y, e), -t[0].x),
-          v = g.addScalar(g.mult(p, e), -t[0].y),
-          b = m.multVector(this.modelPseudoInverse, w),
-          M = m.multVector(this.modelPseudoInverse, v),
+          y = new l(t[1].x, t[2].x, t[3].x),
+          p = new l(t[1].y, t[2].y, t[3].y),
+          w = l.addScalar(l.mult(y, e), -t[0].x),
+          v = l.addScalar(l.mult(p, e), -t[0].y),
+          b = c.multVector(this.modelPseudoInverse, w),
+          M = c.multVector(this.modelPseudoInverse, v),
           _ = M.square() - b.square(),
-          S = g.dot(b, M),
+          S = l.dot(b, M),
           C = 0,
           k = 0;
         0 === _
@@ -1694,33 +1691,33 @@
             (k = Math.atan((-2 * S) / _)),
             _ < 0 && (k += Math.PI),
             (k /= 2)),
-          (f = C * Math.cos(k)),
+          (m = C * Math.cos(k)),
           (x = C * Math.sin(k)),
-          (n = g.add(b, g.multScalar(this.modelNormal, f))),
-          (a = g.add(M, g.multScalar(this.modelNormal, x))),
+          (n = l.add(b, l.multScalar(this.modelNormal, m))),
+          (a = l.add(M, l.multScalar(this.modelNormal, x))),
           (d = n.normalize()),
-          (c = a.normalize()),
-          (h = g.cross(n, a)),
-          r.copy(m.fromRows(n, a, h)),
-          (l = (d + c) / 2),
-          (u = m.multVector(r, this.model[0])),
+          (u = a.normalize()),
+          (h = l.cross(n, a)),
+          r.copy(c.fromRows(n, a, h)),
+          (f = (d + u) / 2),
+          (g = c.multVector(r, this.model[0])),
           (s.v = [
-            t[0].x / l - u.v[0],
-            t[0].y / l - u.v[1],
-            this.focalLength / l,
+            t[0].x / f - g.v[0],
+            t[0].y / f - g.v[1],
+            this.focalLength / f,
           ]),
-          (n = g.sub(b, g.multScalar(this.modelNormal, f))),
-          (a = g.sub(M, g.multScalar(this.modelNormal, x))),
+          (n = l.sub(b, l.multScalar(this.modelNormal, m))),
+          (a = l.sub(M, l.multScalar(this.modelNormal, x))),
           (d = n.normalize()),
-          (c = a.normalize()),
-          (h = g.cross(n, a)),
-          i.copy(m.fromRows(n, a, h)),
-          (l = (d + c) / 2),
-          (u = m.multVector(i, this.model[0])),
+          (u = a.normalize()),
+          (h = l.cross(n, a)),
+          i.copy(c.fromRows(n, a, h)),
+          (f = (d + u) / 2),
+          (g = c.multVector(i, this.model[0])),
           (o.v = [
-            t[0].x / l - u.v[0],
-            t[0].y / l - u.v[1],
-            this.focalLength / l,
+            t[0].x / f - g.v[0],
+            t[0].y / f - g.v[1],
+            this.focalLength / f,
           ]);
       }
       iterate(t, e, r) {
@@ -1729,26 +1726,26 @@
           o,
           n,
           a = 1 / 0,
-          h = new m(),
-          d = new m(),
-          c = new g(),
-          l = new g(),
-          u = 0;
+          h = new c(),
+          d = new c(),
+          u = new l(),
+          f = new l(),
+          g = 0;
         for (
           ;
-          u < 100 &&
-          ((i = g.addScalar(
-            g.multScalar(m.multVector(this.modelVectors, e.row(2)), 1 / r.v[2]),
+          g < 100 &&
+          ((i = l.addScalar(
+            l.multScalar(c.multVector(this.modelVectors, e.row(2)), 1 / r.v[2]),
             1
           )),
-          this.pos(t, i, h, d, c, l),
-          (o = this.getError(t, h, c)),
-          (n = this.getError(t, d, l)),
+          this.pos(t, i, h, d, u, f),
+          (o = this.getError(t, h, u)),
+          (n = this.getError(t, d, f)),
           o < n
-            ? (e.copy(h), r.copy(c), (s = o))
-            : (e.copy(d), r.copy(l), (s = n)),
+            ? (e.copy(h), r.copy(u), (s = o))
+            : (e.copy(d), r.copy(f), (s = n)),
           !(s <= 2 || s > a));
-          ++u
+          ++g
         )
           a = s;
         return s;
@@ -1761,21 +1758,21 @@
           a,
           h,
           d,
-          c,
-          l,
-          u = g.add(m.multVector(e, this.model[0]), r),
-          f = g.add(m.multVector(e, this.model[1]), r),
-          x = g.add(m.multVector(e, this.model[2]), r),
-          y = g.add(m.multVector(e, this.model[3]), r);
+          u,
+          f,
+          g = l.add(c.multVector(e, this.model[0]), r),
+          m = l.add(c.multVector(e, this.model[1]), r),
+          x = l.add(c.multVector(e, this.model[2]), r),
+          y = l.add(c.multVector(e, this.model[3]), r);
         return (
           (i = [
             {
-              x: (u.v[0] * this.focalLength) / u.v[2],
-              y: (u.v[1] * this.focalLength) / u.v[2],
+              x: (g.v[0] * this.focalLength) / g.v[2],
+              y: (g.v[1] * this.focalLength) / g.v[2],
             },
             {
-              x: (f.v[0] * this.focalLength) / f.v[2],
-              y: (f.v[1] * this.focalLength) / f.v[2],
+              x: (m.v[0] * this.focalLength) / m.v[2],
+              y: (m.v[1] * this.focalLength) / m.v[2],
             },
             {
               x: (x.v[0] * this.focalLength) / x.v[2],
@@ -1792,12 +1789,12 @@
           (a = this.angle(t[3], t[0], t[2])),
           (h = this.angle(i[0], i[1], i[3])),
           (d = this.angle(i[1], i[2], i[0])),
-          (c = this.angle(i[2], i[3], i[1])),
-          (l = this.angle(i[3], i[0], i[2])),
+          (u = this.angle(i[2], i[3], i[1])),
+          (f = this.angle(i[3], i[0], i[2])),
           (Math.abs(s - h) +
             Math.abs(o - d) +
-            Math.abs(n - c) +
-            Math.abs(a - l)) /
+            Math.abs(n - u) +
+            Math.abs(a - f)) /
             4
         );
       }
@@ -1816,7 +1813,7 @@
         );
       }
     }
-    class y {
+    class f {
       bestError;
       bestRotation;
       bestTranslation;
@@ -1832,34 +1829,35 @@
           (this.alternativeTranslation = o);
       }
     }
+    var g, m, x, y;
     return (
       (function (t) {
-        (t.Image = n),
-          (t.grayscale = h.grayscale),
-          (t.threshold = h.threshold),
-          (t.adaptiveThreshold = h.adaptiveThreshold),
-          (t.otsu = h.otsu),
-          (t.stackBoxBlur = h.stackBoxBlur),
-          (t.gaussianBlur = h.gaussianBlur),
-          (t.findContours = h.findContours),
-          (t.approxPolyDP = h.approxPolyDP),
-          (t.warp = h.warp),
-          (t.getPerspectiveTransform = h.getPerspectiveTransform),
-          (t.isContourConvex = h.isContourConvex),
-          (t.perimeter = h.perimeter),
-          (t.minEdgeLength = h.minEdgeLength),
-          (t.countNonZero = h.countNonZero);
-      })(t || (t = {})),
+        (t.Image = r),
+          (t.grayscale = s.grayscale),
+          (t.threshold = s.threshold),
+          (t.adaptiveThreshold = s.adaptiveThreshold),
+          (t.otsu = s.otsu),
+          (t.stackBoxBlur = s.stackBoxBlur),
+          (t.gaussianBlur = s.gaussianBlur),
+          (t.findContours = s.findContours),
+          (t.approxPolyDP = s.approxPolyDP),
+          (t.warp = s.warp),
+          (t.getPerspectiveTransform = s.getPerspectiveTransform),
+          (t.isContourConvex = s.isContourConvex),
+          (t.perimeter = s.perimeter),
+          (t.minEdgeLength = s.minEdgeLength),
+          (t.countNonZero = s.countNonZero);
+      })(g || (g = {})),
       (function (t) {
-        t.Detector = u;
-      })(e || (e = {})),
+        t.Detector = h;
+      })(m || (m = {})),
       (function (t) {
-        (t.svdcmp = f.svdcmp), (t.pythag = f.pythag), (t.sign = f.sign);
-      })(r || (r = {})),
+        (t.svdcmp = d.svdcmp), (t.pythag = d.pythag), (t.sign = d.sign);
+      })(x || (x = {})),
       (function (t) {
-        (t.Pose = y), (t.Posit = x);
-      })(i || (i = {})),
-      o
+        (t.Pose = f), (t.Posit = u);
+      })(y || (y = {})),
+      e
     );
   })()
 );
