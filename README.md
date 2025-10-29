@@ -1,3 +1,5 @@
+[![CI](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml) [![GitHub stars](https://img.shields.io/github/stars/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/stargazers) [![GitHub forks](https://img.shields.io/github/forks/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/network)
+
 # 📊 ARuco-ts
 
 A TypeScript version of the [js-aruco](https://github.com/jcmellado/js-aruco) library. It implements all the features and is now in a stable release stage.
