@@ -1,8 +1,8 @@
-[![CI](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml) [![GitHub stars](https://img.shields.io/github/stars/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/stargazers) [![GitHub forks](https://img.shields.io/github/forks/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/network)
+[![codecov](https://codecov.io/github/kalwalt/ARuco-ts/graph/badge.svg?token=HCHI5UYYYY)](https://codecov.io/github/kalwalt/ARuco-ts) [![CI](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/kalwalt/ARuco-ts/actions/workflows/ci.yml) [![Build](https://github.com/kalwalt/ARuco-ts/actions/workflows/build.yml/badge.svg)](https://github.com/kalwalt/ARuco-ts/actions/workflows/build.yml) [![GitHub stars](https://img.shields.io/github/stars/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/stargazers) [![GitHub forks](https://img.shields.io/github/forks/kalwalt/ARuco-ts)](https://github.com/kalwalt/ARuco-ts/network)
 
 # 📊 ARuco-ts
 
-A TypeScript version of the [js-aruco](https://github.com/jcmellado/js-aruco) library. It implements all the features and is now in a stable release stage.
+A TypeScript version of the [js-aruco](https://github.com/jcmellado/js-aruco) library. It implements all the features and is now in a stable release stage. 
 Actually, it only supports 5x5 markers; more types will be added soon.
 
 ## 🔍 Examples
