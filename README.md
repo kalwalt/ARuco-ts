@@ -2,7 +2,7 @@
 
 # 📊 ARuco-ts
 
-A TypeScript version of the [js-aruco](https://github.com/jcmellado/js-aruco) library. It implements all the features and is now in a stable release stage. 
+A TypeScript version of the [js-aruco](https://github.com/jcmellado/js-aruco) library. It implements all the features and is now in a stable release stage.
 Actually, it only supports 5x5 markers; more types will be added soon.
 
 ## 🔍 Examples
