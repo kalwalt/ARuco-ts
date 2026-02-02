@@ -12,7 +12,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "bench": "tsc benchmarks/math-performance.bench.ts --outDir /tmp/bench --module commonjs --target ES2020 --esModuleInterop --resolveJsonModule && node /tmp/bench/benchmarks/math-performance.bench.js"
+    "bench": "tsc benchmarks/math-performance.bench.ts --outDir .bench --module commonjs --target ES2020 --esModuleInterop --resolveJsonModule && node .bench/benchmarks/math-performance.bench.js && rm -rf .bench"
   },
   "keywords": [
     "ARuco",
