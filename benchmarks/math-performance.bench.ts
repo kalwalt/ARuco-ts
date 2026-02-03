@@ -27,9 +27,12 @@ const addNew = benchmark("Optimized (with output, reused)", () => {
   Vec3.add(v1_new, v2_new, out_new);
 });
 
+const v_inplace = new Vec3(1, 2, 3);
 const addInPlace = benchmark("Optimized (in-place)", () => {
-  const v = new Vec3(1, 2, 3);
-  v.addInPlace(v2_new);
+  v_inplace.data[0] = 1;
+  v_inplace.data[1] = 2;
+  v_inplace.data[2] = 3;
+  v_inplace.addInPlace(v2_new);
 });
 
 const addOld = benchmark("Legacy (allocating)", () => {
@@ -75,17 +78,16 @@ console.log(`Speedup: ${speedupNorm.toFixed(2)}x\n`);
 
 // Complex operation chain
 console.log("--- Complex Chain (10,000 iterations) ---");
+const a_new = new Vec3(1, 2, 3);
+const b_new = new Vec3(4, 5, 6);
+const c_new = new Vec3(7, 8, 9);
 const temp1 = new Vec3();
 const temp2 = new Vec3();
-const result = new Vec3();
+const result_new = new Vec3();
 const chainNew = benchmark("Optimized (reusing objects)", () => {
-  const a = new Vec3(1, 2, 3);
-  const b = new Vec3(4, 5, 6);
-  const c = new Vec3(7, 8, 9);
-
-  Vec3.add(a, b, temp1);
+  Vec3.add(a_new, b_new, temp1);
   Vec3.multScalar(temp1, 2, temp2);
-  Vec3.cross(temp2, c, result);
+  Vec3.cross(temp2, c_new, result_new);
 });
 
 const chainOld = benchmark("Legacy (many allocations)", () => {
