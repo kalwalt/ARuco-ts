@@ -26,10 +26,10 @@
 
 ### Test 1: Memory Footprint
 
-| Implementation | Memory Usage | Reduction |
-|----------------|--------------|-----------|
-| **Legacy (Array)** | 28.91 MB | - |
-| **Optimized (Uint8ClampedArray)** | ~0.00 MB | **6,191.6x** less |
+| Implementation                    | Memory Usage | Reduction         |
+| --------------------------------- | ------------ | ----------------- |
+| **Legacy (Array)**                | 28.91 MB     | -                 |
+| **Optimized (Uint8ClampedArray)** | ~0.00 MB     | **6,191.6x** less |
 
 > 💾 **Memory reduction**: The optimized version uses 6,191x less memory for storing image data!
 
@@ -37,19 +37,19 @@
 
 ### Test 2: Grayscale Conversion (RGBA → Gray)
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy** | 2,581.43ms | 25.814ms | - |
-| **Optimized** | 1,203.85ms | 12.039ms | **2.14x** ⚡ |
+| Implementation | Total Time | Avg per Iteration | Speedup      |
+| -------------- | ---------- | ----------------- | ------------ |
+| **Legacy**     | 2,581.43ms | 25.814ms          | -            |
+| **Optimized**  | 1,203.85ms | 12.039ms          | **2.14x** ⚡ |
 
 ---
 
 ### Test 3: Binary Threshold
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy** | 360.31ms | 3.603ms | - |
-| **Optimized** | 397.62ms | 3.976ms | **0.91x** |
+| Implementation | Total Time | Avg per Iteration | Speedup   |
+| -------------- | ---------- | ----------------- | --------- |
+| **Legacy**     | 360.31ms   | 3.603ms           | -         |
+| **Optimized**  | 397.62ms   | 3.976ms           | **0.91x** |
 
 > ⚠️ Note: Threshold performance is comparable. The lookup table optimization in the legacy code compensates for the array overhead.
 
@@ -57,19 +57,19 @@
 
 ### Test 4: Box Blur (kernel size = 3)
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy** | 937.03ms | 46.851ms | - |
-| **Optimized** | 283.61ms | 14.181ms | **3.30x** ⚡ |
+| Implementation | Total Time | Avg per Iteration | Speedup      |
+| -------------- | ---------- | ----------------- | ------------ |
+| **Legacy**     | 937.03ms   | 46.851ms          | -            |
+| **Optimized**  | 283.61ms   | 14.181ms          | **3.30x** ⚡ |
 
 ---
 
 ### Test 5: Canvas Integration (Zero-Copy)
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy (with Array copy)** | 2,754.28ms | 275.428ms | - |
-| **Optimized (zero-copy)** | 80.55ms | 8.055ms | **34.19x** 🔥 |
+| Implementation               | Total Time | Avg per Iteration | Speedup       |
+| ---------------------------- | ---------- | ----------------- | ------------- |
+| **Legacy (with Array copy)** | 2,754.28ms | 275.428ms         | -             |
+| **Optimized (zero-copy)**    | 80.55ms    | 8.055ms           | **34.19x** 🔥 |
 
 > ✨ **Note**: In real browser usage, zero-copy with Canvas `ImageData` eliminates ALL copying overhead completely. This test demonstrates the massive performance gain from avoiding array conversions.
 
@@ -79,10 +79,10 @@
 
 **Pipeline**: Grayscale → Blur → Threshold
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy** | 103,193.32ms | 2,063.866ms | - |
-| **Optimized** | 1,411.66ms | 28.233ms | **73.10x** 🔥🔥🔥 |
+| Implementation | Total Time   | Avg per Iteration | Speedup           |
+| -------------- | ------------ | ----------------- | ----------------- |
+| **Legacy**     | 103,193.32ms | 2,063.866ms       | -                 |
+| **Optimized**  | 1,411.66ms   | 28.233ms          | **73.10x** 🔥🔥🔥 |
 
 > 🎯 **Real-World Impact**: This is the **most important metric** for marker detection!
 >
@@ -93,10 +93,10 @@
 
 ### Test 7: Count Non-Zero Pixels (in region)
 
-| Implementation | Total Time | Avg per Iteration | Speedup |
-|----------------|------------|-------------------|---------|
-| **Legacy** | 403.70ms | 4.037ms | - |
-| **Optimized** | 379.92ms | 3.799ms | **1.06x** ⚡ |
+| Implementation | Total Time | Avg per Iteration | Speedup      |
+| -------------- | ---------- | ----------------- | ------------ |
+| **Legacy**     | 403.70ms   | 4.037ms           | -            |
+| **Optimized**  | 379.92ms   | 3.799ms           | **1.06x** ⚡ |
 
 ---
 
@@ -104,15 +104,15 @@
 
 ### Speedup by Operation
 
-| Operation | Speedup | Status |
-|-----------|---------|--------|
-| **Grayscale** | 2.14x | ⚡ Good |
-| **Threshold** | 0.91x | ⚠️ Comparable |
-| **Blur** | 3.30x | ✅ Excellent |
-| **Canvas I/O** | 34.19x | 🔥 Outstanding |
+| Operation         | Speedup    | Status                 |
+| ----------------- | ---------- | ---------------------- |
+| **Grayscale**     | 2.14x      | ⚡ Good                |
+| **Threshold**     | 0.91x      | ⚠️ Comparable          |
+| **Blur**          | 3.30x      | ✅ Excellent           |
+| **Canvas I/O**    | 34.19x     | 🔥 Outstanding         |
 | **Full Pipeline** | **73.10x** | 🔥🔥🔥 **EXCEPTIONAL** |
-| **Count Pixels** | 1.06x | ⚡ Good |
-| **Average** | **19.12x** | 🚀 **EXCELLENT** |
+| **Count Pixels**  | 1.06x      | ⚡ Good                |
+| **Average**       | **19.12x** | 🚀 **EXCELLENT**       |
 
 ---
 
@@ -163,14 +163,17 @@ Beyond raw performance improvements:
 ### Why These Results?
 
 **Outstanding (>30x):**
+
 - **Canvas I/O** (34.19x): Eliminating array conversion overhead
 - **Full Pipeline** (73.10x): Cumulative effect of reduced allocations + zero-copy operations
 
 **Good (2-3x):**
+
 - **Grayscale** (2.14x): TypedArray operations + less GC pressure
 - **Blur** (3.30x): Efficient memory access patterns
 
 **Comparable (~1x):**
+
 - **Threshold** (0.91x): Lookup table dominates performance (both versions benefit equally)
 - **Count Pixels** (1.06x): Simple loop, minimal overhead in both
 
@@ -212,10 +215,11 @@ npm run bench:image
 ```
 
 **Requirements:**
+
 - Node.js v20+ (for `--expose-gc` flag)
 - ~4GB RAM available
 - 5-10 minutes for full benchmark suite
 
 ---
 
-*Generated by ARuco-ts benchmark suite v0.2.0*
+_Generated by ARuco-ts benchmark suite v0.2.0_
