@@ -281,7 +281,7 @@ export class Dictionary {
     this.markSize = 0;
     this.dicName = dicName;
     const dictionary = DICTIONARIES.getDictionary(
-      dicName as keyof typeof DICTIONARIES,
+      dicName as keyof typeof DICTIONARIES
     );
     // console.log('dicName', dicName);
 
@@ -303,7 +303,7 @@ export class Dictionary {
 
   private parseCode(
     rawCode: number | string | number[],
-    nBits: number,
+    nBits: number
   ): string {
     if (typeof rawCode === "number") {
       return rawCode.toString(2).padStart(nBits, "0");
@@ -363,7 +363,7 @@ export class Dictionary {
       for (let j = i + 1; j < this.codeList.length; j++) {
         const distance = this.hammingDistance(
           this.codeList[i],
-          this.codeList[j],
+          this.codeList[j]
         );
         tau = distance < tau ? distance : tau;
       }
@@ -380,7 +380,7 @@ export class Dictionary {
           this.dicName +
           '". ID must be between 0 and ' +
           (this.codeList.length - 1) +
-          " included.",
+          " included."
       );
     const size = this.markSize - 2;
     let svg =
@@ -475,7 +475,7 @@ export class Detector {
     this.streamConfig.imageSize = width * height * 4; //provided image must be a sequence of rgba bytes (4 bytes represent a pixel)
     this.streamConfig.index = 0;
     this.streamConfig.imageData = new Uint8ClampedArray(
-      this.streamConfig.imageSize,
+      this.streamConfig.imageSize
     );
     this.streamConfig.callback =
       callback || function (image: any, markerList: any) {};
@@ -503,7 +503,7 @@ export class Detector {
     width: number,
     height: number,
     callback: any,
-    decoderFn: any,
+    decoderFn: any
   ) {
     this.mjpeg = {
       decoderFn: decoderFn,
@@ -518,7 +518,7 @@ export class Detector {
     const eoiPos = chunk.findIndex(function (
       element: any,
       index: any,
-      array: any,
+      array: any
     ) {
       return (
         Detector.mjpeg.EOI[0] == element &&
@@ -529,7 +529,7 @@ export class Detector {
     const soiPos = chunk.findIndex(function (
       element: any,
       index: any,
-      array: any,
+      array: any
     ) {
       return (
         Detector.mjpeg.SOI[0] == element &&
@@ -570,7 +570,7 @@ export class Detector {
       this.contours,
       image.width * 0.01,
       0.05,
-      10,
+      10
     );
     this.candidates = this.clockwiseCorners(this.candidates);
     this.candidates = this.notTooNear(this.candidates, 10);
@@ -582,7 +582,7 @@ export class Detector {
     contours: any,
     minSize: number,
     epsilon: number,
-    minLength: number,
+    minLength: number
   ): IPoint[][] {
     let candidates = [],
       len = contours.length,
@@ -757,7 +757,7 @@ export class Detector {
       return new Marker(
         foundMin.id,
         this.rotate2(candidate, 4 - rot),
-        foundMin.distance,
+        foundMin.distance
       );
 
     return null;

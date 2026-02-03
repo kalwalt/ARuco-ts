@@ -80,7 +80,7 @@ describe("Image with Uint8ClampedArray", () => {
         expect(img.width).toBe(10);
         expect(img.height).toBe(10);
         expect(img.data).toBe(imageData.data); // Zero-copy!
-      },
+      }
     );
 
     (isNode ? it.skip : it)("toImageData creates ImageData", () => {
@@ -106,7 +106,7 @@ describe("Image with Uint8ClampedArray", () => {
         expect(restored.width).toBe(original.width);
         expect(restored.height).toBe(original.height);
         expect(Array.from(restored.data)).toEqual(Array.from(original.data));
-      },
+      }
     );
   });
 
@@ -368,7 +368,7 @@ describe("Image with Uint8ClampedArray", () => {
       // Verify it's a real copy
       expect(img2.data).not.toBe(img1.data);
       expect(Array.from(img2.data.slice(0, 10))).toEqual(
-        Array.from(img1.data.slice(0, 10)),
+        Array.from(img1.data.slice(0, 10))
       );
     });
   });

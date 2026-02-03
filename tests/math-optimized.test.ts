@@ -409,7 +409,7 @@ describe("Mat3 Optimized", () => {
       const m = Mat3.fromRows(
         new Vec3(1, 2, 3),
         new Vec3(4, 5, 6),
-        new Vec3(7, 8, 9),
+        new Vec3(7, 8, 9)
       );
       expect(m.row(0).v).toEqual([1, 2, 3]);
       expect(m.row(1).v).toEqual([4, 5, 6]);
@@ -420,7 +420,7 @@ describe("Mat3 Optimized", () => {
       const m = Mat3.fromRows(
         new Vec3(1, 2, 3),
         new Vec3(4, 5, 6),
-        new Vec3(7, 8, 9),
+        new Vec3(7, 8, 9)
       );
       expect(m.column(0).v).toEqual([1, 4, 7]);
       expect(m.column(1).v).toEqual([2, 5, 8]);
@@ -433,12 +433,12 @@ describe("Mat3 Optimized", () => {
       const A = Mat3.fromRows(
         new Vec3(1, 2, 3),
         new Vec3(0, 1, 4),
-        new Vec3(5, 6, 0),
+        new Vec3(5, 6, 0)
       );
       const B = Mat3.fromRows(
         new Vec3(-2, 1, 0),
         new Vec3(3, 0, 0),
-        new Vec3(4, -1, 2),
+        new Vec3(4, -1, 2)
       );
       const out = new Mat3();
       Mat3.mult(A, B, out);
@@ -453,7 +453,7 @@ describe("Mat3 Optimized", () => {
       const M = Mat3.fromRows(
         new Vec3(1, 2, 3),
         new Vec3(0, 1, 4),
-        new Vec3(5, 6, 0),
+        new Vec3(5, 6, 0)
       );
       const v = new Vec3(1, 0.5, -2);
       const out = new Vec3();
@@ -477,7 +477,7 @@ describe("Backwards Compatibility", () => {
     const m1 = Mat3Legacy.fromRows(
       new Vec3Legacy(1, 0, 0),
       new Vec3Legacy(0, 1, 0),
-      new Vec3Legacy(0, 0, 1),
+      new Vec3Legacy(0, 0, 1)
     );
     const m2 = Mat3Legacy.clone(m1);
     expect(m2.m).toEqual(m1.m);

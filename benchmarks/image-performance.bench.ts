@@ -3,7 +3,7 @@ import { Image, CV } from "../src/CV";
 function generateRealisticImageData(
   width: number,
   height: number,
-  type: "rgba" | "grayscale" = "rgba",
+  type: "rgba" | "grayscale" = "rgba"
 ): Uint8ClampedArray {
   const size = type === "rgba" ? width * height * 4 : width * height;
   const data = new Uint8ClampedArray(size);
@@ -64,15 +64,15 @@ const memBefore = process.memoryUsage().heapUsed;
 const img = new Image(
   WIDTH,
   HEIGHT,
-  generateRealisticImageData(WIDTH, HEIGHT, "grayscale"),
+  generateRealisticImageData(WIDTH, HEIGHT, "grayscale")
 );
 const memAfter = process.memoryUsage().heapUsed;
 console.log(
-  `Image (1920×1080): ${((memAfter - memBefore) / 1024 / 1024).toFixed(2)} MB`,
+  `Image (1920×1080): ${((memAfter - memBefore) / 1024 / 1024).toFixed(2)} MB`
 );
 console.log(`Expected: ~2.07 MB (1920*1080 bytes)`);
 console.log(
-  `Actual data size: ${(img.data.byteLength / 1024 / 1024).toFixed(2)} MB\n`,
+  `Actual data size: ${(img.data.byteLength / 1024 / 1024).toFixed(2)} MB\n`
 );
 
 // Test 2: Grayscale
@@ -85,7 +85,7 @@ const grayTime = benchmark(
   () => {
     CV.grayscale(srcRgba);
   },
-  100,
+  100
 );
 
 // Test 3: Threshold
@@ -99,7 +99,7 @@ const threshTime = benchmark(
   () => {
     CV.threshold(srcGray, dstThresh, 128);
   },
-  100,
+  100
 );
 
 // Test 4: Blur
@@ -111,7 +111,7 @@ const blurTime = benchmark(
   () => {
     CV.stackBoxBlur(srcGray, dstBlur, 3);
   },
-  20,
+  20
 );
 
 // Test 5: Complete Pipeline
@@ -127,7 +127,7 @@ const pipelineTime = benchmark(
     const thresh = new Image(blurred.width, blurred.height);
     CV.threshold(blurred, thresh, 128);
   },
-  50,
+  50
 );
 
 // Test 6: Image Operations
@@ -138,7 +138,7 @@ const cloneTime = benchmark(
   () => {
     srcGray.clone();
   },
-  1000,
+  1000
 );
 
 const fillTime = benchmark(
@@ -147,7 +147,7 @@ const fillTime = benchmark(
     const tmp = new Image(WIDTH, HEIGHT);
     tmp.fill(128);
   },
-  1000,
+  1000
 );
 
 // Test 7: Pixel Access
@@ -162,7 +162,7 @@ const getPixelTime = benchmark(
       srcGray.getPixel(x, y);
     }
   },
-  100,
+  100
 );
 
 const setPixelTime = benchmark(
@@ -175,7 +175,7 @@ const setPixelTime = benchmark(
       tmp.setPixel(x, y, 255);
     }
   },
-  100,
+  100
 );
 
 // Summary
@@ -197,9 +197,11 @@ console.log("Real-time capability:");
 const avgPipelineTime = pipelineTime / 50;
 const fps = 1000 / avgPipelineTime;
 console.log(
-  `  Pipeline at ${fps.toFixed(1)} FPS (${avgPipelineTime.toFixed(2)}ms per frame)`,
+  `  Pipeline at ${fps.toFixed(1)} FPS (${avgPipelineTime.toFixed(
+    2
+  )}ms per frame)`
 );
 console.log(
-  `  ${fps >= 30 ? "✓" : "✗"} Suitable for real-time processing (>30 FPS)`,
+  `  ${fps >= 30 ? "✓" : "✗"} Suitable for real-time processing (>30 FPS)`
 );
 console.log(`  ${fps >= 60 ? "✓" : "✗"} Smooth real-time (>60 FPS)\n`);
