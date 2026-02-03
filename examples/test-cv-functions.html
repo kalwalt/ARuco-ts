@@ -22,7 +22,7 @@
 
   // Test 1: Grayscale
   print('Test 1: Grayscale');
-  const rgba = new Image(10, 10);
+  const rgba = new CV.Image(10, 10);
   console.log("RGBA is: ", rgba);
   for (let i = 0; i < rgba.data.length; i++) {
     rgba.data[i] = i % 4 === 3 ? 255 : 100; // Gray RGBA
@@ -69,12 +69,12 @@
 
   // Test 3: Adaptive Threshold
   print('Test 3: Adaptive Threshold');
-  const src2 = new Image(20, 20);
+  const src2 = new CV.Image(20, 20);
   for (let i = 0; i < 400; i++) {
     src2.data[i] = Math.floor(128 + Math.sin(i / 10) * 50); // Wavy pattern
   }
 
-  const dst2 = new Image(20, 20);
+  const dst2 = new CV.Image(20, 20);
 
   try {
     CV.adaptiveThreshold(src2, dst2, 2, 10);
@@ -100,7 +100,7 @@
 
   // Test 4: Otsu
   print('Test 4: Otsu threshold');
-  const src3 = new Image(20, 20);
+  const src3 = new CV.Image(20, 20);
   // Create bimodal distribution
   for (let i = 0; i < 200; i++) src3.data[i] = 50;  // Dark
   for (let i = 200; i < 400; i++) src3.data[i] = 200; // Bright
