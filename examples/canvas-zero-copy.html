@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -68,8 +68,8 @@
         <li><span class="highlight">✓</span> ~20x less memory</li>
         <li><span class="highlight">✓</span> 5-10x faster processing</li>
       </ul>
-      <p style="margin-top: 10px; font-size: 11px;">
-        This example demonstrates the performance benefits of using 
+      <p style="margin-top: 10px; font-size: 11px">
+        This example demonstrates the performance benefits of using
         Uint8ClampedArray with zero-copy Canvas integration.
       </p>
     </div>
@@ -118,8 +118,13 @@
               const start = performance.now();
 
               // ✅ Zero-copy: ImageData -> Image (no allocation!)
-              const imageData = ctx.getImageData(0, 0, video.width, video.height);
-              
+              const imageData = ctx.getImageData(
+                0,
+                0,
+                video.width,
+                video.height,
+              );
+
               // Detect markers using optimized Uint8ClampedArray
               const markers = detector.detect(imageData);
 
@@ -138,13 +143,14 @@
                 lastFpsUpdate = now;
 
                 document.getElementById("fps").textContent = fps.toFixed(1);
-                document.getElementById("time").textContent = 
-                  (totalTime / frameCount).toFixed(2);
+                document.getElementById("time").textContent = (
+                  totalTime / frameCount
+                ).toFixed(2);
                 document.getElementById("markers").textContent = markers.length;
 
                 // Memory usage (approximate)
                 const memoryMB = (video.width * video.height * 1) / 1024 / 1024;
-                document.getElementById("memory").textContent = 
+                document.getElementById("memory").textContent =
                   memoryMB.toFixed(2);
               }
 
@@ -209,10 +215,15 @@
           const text = `ID: ${markers[i].id}`;
           const metrics = ctx.measureText(text);
           const textHeight = 20;
-          
+
           ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-          ctx.fillRect(x - 5, y - textHeight - 5, metrics.width + 10, textHeight + 10);
-          
+          ctx.fillRect(
+            x - 5,
+            y - textHeight - 5,
+            metrics.width + 10,
+            textHeight + 10,
+          );
+
           ctx.fillStyle = "#0f0";
           ctx.fillText(text, x, y - 5);
         }

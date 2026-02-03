@@ -16,12 +16,12 @@ The `Image` class now uses `Uint8ClampedArray` for pixel data storage, providing
 
 Based on benchmarks with 1920×1080 images:
 
-| Operation | Time per Frame | FPS Capability |
-|-----------|---------------|----------------|
-| Grayscale | 7.86ms | 127 FPS |
-| Threshold | 4.65ms | 215 FPS |
-| Box Blur (kernel=3) | 15.18ms | 66 FPS |
-| Complete Pipeline | 27.17ms | 36.8 FPS |
+| Operation           | Time per Frame | FPS Capability |
+| ------------------- | -------------- | -------------- |
+| Grayscale           | 7.86ms         | 127 FPS        |
+| Threshold           | 4.65ms         | 215 FPS        |
+| Box Blur (kernel=3) | 15.18ms        | 66 FPS         |
+| Complete Pipeline   | 27.17ms        | 36.8 FPS       |
 
 **Memory**: 1.98 MB (exact allocation, no overhead)
 
@@ -30,7 +30,7 @@ Based on benchmarks with 1920×1080 images:
 ### Basic Usage (No Changes Needed)
 
 ```typescript
-import { Image, CV } from 'aruco-ts';
+import { Image, CV } from "aruco-ts";
 
 // Works exactly as before
 const img = new Image(640, 480);
@@ -41,8 +41,8 @@ const gray = CV.grayscale(img);
 
 ```typescript
 // Get canvas context
-const canvas = document.getElementById('video') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d')!;
+const canvas = document.getElementById("video") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d")!;
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 // ✅ NEW: Zero-copy, instant conversion
@@ -126,7 +126,7 @@ ctx.putImageData(imageData, 0, 0);
 const oldImg = {
   width: 1920,
   height: 1080,
-  data: new Array(1920 * 1080).fill(0) // ~40 MB
+  data: new Array(1920 * 1080).fill(0), // ~40 MB
 };
 
 // NEW: Uint8ClampedArray
@@ -159,7 +159,7 @@ Your existing code continues to work without modifications:
 
 ```typescript
 // ✅ Old code works unchanged
-const detector = new ARuco.Detector('ARUCO');
+const detector = new ARuco.Detector("ARUCO");
 const gray = CV.grayscale(videoFrame);
 const markers = detector.detect(gray);
 ```
@@ -183,32 +183,32 @@ const img = Image.fromImageData(imageData);
 ## Example: Real-time Marker Detection
 
 ```typescript
-import { CV, Image, ARuco } from 'aruco-ts';
+import { CV, Image, ARuco } from "aruco-ts";
 
-const video = document.getElementById('video') as HTMLVideoElement;
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d')!;
+const video = document.getElementById("video") as HTMLVideoElement;
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d")!;
 
-const detector = new ARuco.Detector('ARUCO');
+const detector = new ARuco.Detector("ARUCO");
 
 function processFrame() {
   // Draw video frame to canvas
   ctx.drawImage(video, 0, 0);
-  
+
   // ✅ Zero-copy: Canvas -> Image
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const image = Image.fromImageData(imageData);
-  
+
   // Process (fast typed array operations)
   const gray = CV.grayscale(image);
   const markers = detector.detect(gray);
-  
+
   // Display processed image
   ctx.putImageData(gray.toImageData(), 0, 0);
-  
+
   // Draw markers
-  markers.forEach(marker => {
-    ctx.strokeStyle = 'red';
+  markers.forEach((marker) => {
+    ctx.strokeStyle = "red";
     ctx.lineWidth = 3;
     ctx.beginPath();
     marker.corners.forEach((corner, i) => {
@@ -218,11 +218,11 @@ function processFrame() {
     ctx.closePath();
     ctx.stroke();
   });
-  
+
   requestAnimationFrame(processFrame);
 }
 
-video.addEventListener('play', processFrame);
+video.addEventListener("play", processFrame);
 ```
 
 ## Benchmarking
@@ -234,6 +234,7 @@ npm run bench:image
 ```
 
 This will output detailed performance metrics including:
+
 - Memory usage
 - Operation timings (grayscale, threshold, blur)
 - Complete pipeline performance
@@ -269,9 +270,9 @@ copy(other: Image): this
 #### Properties
 
 ```typescript
-width: number
-height: number
-data: Uint8ClampedArray
+width: number;
+height: number;
+data: Uint8ClampedArray;
 ```
 
 ## Best Practices
@@ -287,6 +288,7 @@ data: Uint8ClampedArray
 ### Q: Can I still use regular arrays?
 
 **A:** Yes! The Image class automatically converts:
+
 ```typescript
 const img = new Image(2, 2, [1, 2, 3, 4]); // ✅ Works
 console.log(img.data); // Uint8ClampedArray [1, 2, 3, 4]
@@ -295,6 +297,7 @@ console.log(img.data); // Uint8ClampedArray [1, 2, 3, 4]
 ### Q: How do I convert back to a regular array?
 
 **A:** Use `Array.from()`:
+
 ```typescript
 const regularArray = Array.from(img.data);
 ```

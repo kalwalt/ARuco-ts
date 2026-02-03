@@ -13,7 +13,7 @@ export class Image implements IImage {
   constructor(
     width: number = 0,
     height: number = 0,
-    data?: Uint8ClampedArray | Uint8Array | number[] | ArrayBuffer
+    data?: Uint8ClampedArray | Uint8Array | number[] | ArrayBuffer,
   ) {
     this.width = width;
     this.height = height;
@@ -110,7 +110,7 @@ export class CV {
   static threshold(
     imageSrc: IImage,
     imageDst: IImage,
-    threshold: number
+    threshold: number,
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
@@ -130,7 +130,7 @@ export class CV {
     imageSrc: IImage,
     imageDst: IImage,
     kernelSize: number,
-    threshold: number
+    threshold: number,
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
@@ -201,7 +201,7 @@ export class CV {
   static stackBoxBlur(
     imageSrc: IImage,
     imageDst: IImage,
-    kernelSize: number
+    kernelSize: number,
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
@@ -295,7 +295,7 @@ export class CV {
     imageSrc: IImage,
     imageDst: IImage,
     imageMean: IImage,
-    kernelSize: number
+    kernelSize: number,
   ): IImage {
     var kernel = CV.gaussianKernel(kernelSize);
 
@@ -315,7 +315,7 @@ export class CV {
     imageSrc: IImage,
     imageDst: IImage,
     kernel: any[],
-    horizontal: boolean
+    horizontal: boolean,
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
@@ -429,7 +429,7 @@ export class CV {
             ++nbd;
 
             contours.push(
-              CV.borderFollowing(src, pos, nbd, { x: j, y: i }, hole, deltas)
+              CV.borderFollowing(src, pos, nbd, { x: j, y: i }, hole, deltas),
             );
           }
         }
@@ -448,7 +448,7 @@ export class CV {
       y: any;
     },
     hole: boolean,
-    deltas: any[]
+    deltas: any[],
   ) {
     let contour: any = [],
       pos1,
@@ -657,7 +657,7 @@ export class CV {
     imageSrc: IImage,
     imageDst: IImage,
     contour: IPoint[],
-    warpSize: number
+    warpSize: number,
   ): IImage {
     const src = imageSrc.data;
     const width = imageSrc.width;
