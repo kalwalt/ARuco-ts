@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head><title>Threshold Test</title></head>
+<body>
+<canvas id="test" width="100" height="100"></canvas>
+<script src="../dist/ARuco.js"></script>
+<script>
+
+  // Test data: gradient from 0 to 255
+  const data = new Uint8ClampedArray(100 * 100);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = Math.floor((i / data.length) * 255);
+  }
+
+  const src = new CV.Image(100, 100, data);
+  const dst = new CV.Image(100, 100);
+
+  // Test threshold
+  CV.threshold(src, dst, 128);
+
+  console.log('Threshold test:');
+  console.log('Input first 10:', src.data.slice(0, 10));
+  console.log('Output first 10:', dst.data.slice(0, 10));
+  console.log('Expected: [0,0,0,0,0,0,0,0,0,0] (all < 128)');
+
+  console.log('Input last 10:', src.data.slice(-10));
+  console.log('Output last 10:', dst.data.slice(-10));
+  console.log('Expected: [255,255,255,255,255,255,255,255,255,255] (all > 128)');
+
+  // Test adaptive threshold
+  const dst2 = new CV.Image(100, 100);
+  CV.adaptiveThreshold(src, dst2, 2, 10);
+
+  console.log('Adaptive threshold test:');
+  console.log('Output sample:', dst2.data.slice(50, 60));
+  console.log('Should NOT be all 0 or all 255');
+
+  // Visual test
+  const canvas = document.getElementById('test');
+  const ctx = canvas.getContext('2d');
+  const imageData = new ImageData(100, 100);
+
+  // Show result
+  for (let i = 0; i < dst2.data.length; i++) {
+    const v = dst2.data[i];
+    imageData.data[i * 4] = v;
+    imageData.data[i * 4 + 1] = v;
+    imageData.data[i * 4 + 2] = v;
+    imageData.data[i * 4 + 3] = 255;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  console.log('✅ Check canvas - should see pattern, not solid black/white');
+</script>
+</body>
+</html>

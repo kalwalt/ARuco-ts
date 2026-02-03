@@ -115,12 +115,14 @@ export class CV {
     const src = imageSrc.data;
     const dst = imageDst.data;
     const len = src.length;
-    const tab = new Uint8Array(256);  // ✅ Usa TypedArray
+    const tab = new Uint8Array(256);
 
+    // Build lookup table (ottimizzato con TypedArray)
     for (let i = 0; i < 256; ++i) {
       tab[i] = i <= threshold ? 0 : 255;
     }
 
+    // Apply threshold using lookup
     for (let i = 0; i < len; ++i) {
       dst[i] = tab[src[i]];
     }
@@ -140,16 +142,20 @@ export class CV {
     const src = imageSrc.data;
     const dst = imageDst.data;
     const len = src.length;
-    const tab = new Uint8Array(768);  // ✅ 768 elementi come originale
+    const tab = new Uint8Array(768);
 
+    // First: blur the image
     CV.stackBoxBlur(imageSrc, imageDst, kernelSize);
 
+    // Build lookup table (768 = 3 * 256 per gestire range -255 to 510)
     for (let i = 0; i < 768; ++i) {
       tab[i] = i - 255 <= -threshold ? 255 : 0;
     }
 
+    // Apply adaptive threshold WITH CRITICAL +255 OFFSET
     for (let i = 0; i < len; ++i) {
-      dst[i] = tab[src[i] - dst[i] + 255];  // ✅ +255 è CRITICO!
+      // CRITICAL: +255 offset to handle negative values
+      dst[i] = tab[src[i] - dst[i] + 255];
     }
 
     imageDst.width = imageSrc.width;
