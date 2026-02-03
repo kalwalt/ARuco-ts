@@ -40,3 +40,6 @@ export namespace POS {
   export const Pose = _Pose;
   export const Posit = _Posit;
 }
+
+// Export optimized math classes
+export { Vec3, Mat3 } from "./math";

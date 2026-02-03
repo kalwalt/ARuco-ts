@@ -53,6 +53,16 @@ If you make changes to the code, you'll need to rebuild the project:
 
 This will generate the JavaScript files needed for the library to work.
 
+## ⚡ Performance
+
+ARuco-ts uses TypedArrays (`Float32Array`, `Uint8ClampedArray`) for optimal performance:
+
+- **Vec3/Mat3**: 1.1-1.7x speedup, ~80% reduction in garbage collection
+- **Image processing**: Coming soon (5-10x expected speedup)
+- **Real-time capable**: Smooth 60fps marker detection
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for detailed benchmarks.
+
 ## 🚀 Future development
 
 - SIMD support for the marker detection.
