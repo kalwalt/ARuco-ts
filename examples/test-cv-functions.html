@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CV Functions Test</title>
+</head>
+<body>
+<h1>Testing CV Functions</h1>
+<pre id="log"></pre>
+
+<script src="../dist/ARuco.js"></script>
+
+<script>
+
+  const log = document.getElementById('log');
+  function print(msg) {
+    log.textContent += msg + '\n';
+    console.log(msg);
+  }
+
+  print('=== Testing CV Functions ===\n');
+
+  // Test 1: Grayscale
+  print('Test 1: Grayscale');
+  const rgba = new Image(10, 10);
+  console.log("RGBA is: ", rgba);
+  for (let i = 0; i < rgba.data.length; i++) {
+    rgba.data[i] = i % 4 === 3 ? 255 : 100; // Gray RGBA
+  }
+
+  try {
+    const gray = CV.grayscale(rgba);
+    print(`  Input length: ${rgba.data.length}`);
+    print(`  Output length: ${gray.data.length}`);
+    print(`  Output type: ${gray.data.constructor.name}`);
+    print(`  First pixel: ${gray.data[0]}`);
+    print(gray.data.length === 10 * 10 ? '  ✅ PASS\n' : '  ❌ FAIL\n');
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}\n`);
+  }
+
+  // Test 2: Threshold
+  print('Test 2: Threshold');
+  const src = new CV.Image(10, 10);
+  for (let i = 0; i < 100; i++) src.data[i] = i * 2; // 0-198
+
+  const dst = new CV.Image(10, 10);
+
+  try {
+    CV.threshold(src, dst, 100);
+
+    const low = dst.data.slice(0, 50);
+    const high = dst.data.slice(51);
+
+    print(`  Low values (should be 0): [${low.slice(0, 3).join(', ')}, ...]`);
+    print(`  High values (should be 255): [${high.slice(0, 3).join(', ')}, ...]`);
+
+    const lowOk = low.every(v => v === 0);
+    const highOk = high.every(v => v === 255);
+
+    if (lowOk && highOk) {
+      print('  ✅ PASS\n');
+    } else {
+      print(`  ❌ FAIL - lowOk: ${lowOk}, highOk: ${highOk}\n`);
+    }
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}\n`);
+  }
+
+  // Test 3: Adaptive Threshold
+  print('Test 3: Adaptive Threshold');
+  const src2 = new Image(20, 20);
+  for (let i = 0; i < 400; i++) {
+    src2.data[i] = Math.floor(128 + Math.sin(i / 10) * 50); // Wavy pattern
+  }
+
+  const dst2 = new Image(20, 20);
+
+  try {
+    CV.adaptiveThreshold(src2, dst2, 2, 10);
+
+    print(`  Output type: ${dst2.data.constructor.name}`);
+    print(`  Output length: ${dst2.data.length}`);
+    print(`  Sample values: [${dst2.data.slice(0, 5).join(', ')}]`);
+
+    // Check not all 0 or all 255
+    const zeros = dst2.data.filter(v => v === 0).length;
+    const ones = dst2.data.filter(v => v === 255).length;
+
+    print(`  Zeros: ${zeros}, 255s: ${ones}`);
+
+    if (zeros > 0 && ones > 0 && zeros + ones === 400) {
+      print('  ✅ PASS (has both 0 and 255)\n');
+    } else {
+      print('  ❌ FAIL - should have both 0 and 255 values\n');
+    }
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}\n`);
+  }
+
+  // Test 4: Otsu
+  print('Test 4: Otsu threshold');
+  const src3 = new Image(20, 20);
+  // Create bimodal distribution
+  for (let i = 0; i < 200; i++) src3.data[i] = 50;  // Dark
+  for (let i = 200; i < 400; i++) src3.data[i] = 200; // Bright
+
+  try {
+    const threshold = CV.otsu(src3);
+    print(`  Otsu threshold: ${threshold}`);
+    print(threshold >= 50 && threshold <= 200 ? '  ✅ PASS (in expected range)\n' : '  ❌ FAIL\n');
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}\n`);
+  }
+
+  print('=== TESTS COMPLETE ===');
+</script>
+</body>
+</html>
