@@ -314,5 +314,5 @@ const regularArray = Array.from(img.data);
 
 - [PERFORMANCE.md](./PERFORMANCE.md) - Overall performance optimizations
 - [OPTIMIZATION.md](./OPTIMIZATION.md) - Code optimization strategies
-- [Benchmarks](../benchmarks/image-performance.bench.ts) - Performance measurement code
+- [Benchmarks](../benchmarks/image-comparison.bench.ts) - Performance measurement code
 - [Tests](../tests/image-optimized.test.ts) - Comprehensive test suite

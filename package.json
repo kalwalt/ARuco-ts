@@ -16,7 +16,9 @@
     "bench": "npm run bench:compile && npm run bench:run",
     "bench:compile": "tsc benchmarks/math-performance.bench.ts --outDir .bench --module commonjs --target ES2020 --esModuleInterop --resolveJsonModule",
     "bench:run": "node .bench/benchmarks/math-performance.bench.js && rimraf ./.bench",
-    "bench:image": "tsc benchmarks/image-performance.bench.ts --outDir .bench --module commonjs --target ES2020 --esModuleInterop --resolveJsonModule && node --expose-gc .bench/benchmarks/image-performance.bench.js && rimraf ./.bench"
+    "bench:image": "npm run bench:image:compile && npm run bench:image:run",
+    "bench:image:compile": "tsc benchmarks/image-comparison.bench.ts --outDir .bench --module commonjs --target ES2020 --esModuleInterop --resolveJsonModule",
+    "bench:image:run": "node --expose-gc .bench/benchmarks/image-comparison.bench.js && rimraf ./.bench"
   },
   "keywords": [
     "ARuco",
