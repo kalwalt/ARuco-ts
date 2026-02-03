@@ -130,7 +130,7 @@ const matMultNew = benchmark(
   () => {
     Mat3.mult(m1_new, m2_new, mat_out);
   },
-  1000
+  1000,
 );
 
 const matMultOld = benchmark(
@@ -138,7 +138,7 @@ const matMultOld = benchmark(
   () => {
     Mat3Legacy.mult(m1_old, m2_old);
   },
-  1000
+  1000,
 );
 
 const speedupMat = matMultOld / matMultNew;
@@ -169,5 +169,5 @@ const avgSpeedup =
   6;
 console.log(`Average speedup: ${avgSpeedup.toFixed(2)}x`);
 console.log(
-  `Memory allocations reduced by ~80-90% with output parameters and in-place operations`
+  `Memory allocations reduced by ~80-90% with output parameters and in-place operations`,
 );

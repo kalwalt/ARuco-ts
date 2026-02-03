@@ -67,7 +67,7 @@ export class Vec3 {
     const len = Math.sqrt(
       this.data[0] * this.data[0] +
         this.data[1] * this.data[1] +
-        this.data[2] * this.data[2]
+        this.data[2] * this.data[2],
     );
 
     if (len > 0.0) {
@@ -134,7 +134,7 @@ export class Vec3 {
     return new Vec3(
       a.data[0] + b.data[0],
       a.data[1] + b.data[1],
-      a.data[2] + b.data[2]
+      a.data[2] + b.data[2],
     );
   }
 
@@ -142,7 +142,7 @@ export class Vec3 {
     return new Vec3(
       a.data[0] - b.data[0],
       a.data[1] - b.data[1],
-      a.data[2] - b.data[2]
+      a.data[2] - b.data[2],
     );
   }
 
@@ -150,7 +150,7 @@ export class Vec3 {
     return new Vec3(
       a.data[0] * b.data[0],
       a.data[1] * b.data[1],
-      a.data[2] * b.data[2]
+      a.data[2] * b.data[2],
     );
   }
 
@@ -222,7 +222,7 @@ export class Vec3 {
     const len = Math.sqrt(
       this.data[0] * this.data[0] +
         this.data[1] * this.data[1] +
-        this.data[2] * this.data[2]
+        this.data[2] * this.data[2],
     );
 
     if (len > 0.0) {

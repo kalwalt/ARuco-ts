@@ -103,7 +103,7 @@ export class Vec3 {
     return new Vec3(
       aVector[1] * bVector[2] - aVector[2] * bVector[1],
       aVector[2] * bVector[0] - aVector[0] * bVector[2],
-      aVector[0] * bVector[1] - aVector[1] * bVector[0]
+      aVector[0] * bVector[1] - aVector[1] * bVector[0],
     );
   }
 
@@ -307,7 +307,7 @@ export class Mat3 {
         mMatrix[1][2] * aVector[2],
       mMatrix[2][0] * aVector[0] +
         mMatrix[2][1] * aVector[1] +
-        mMatrix[2][2] * aVector[2]
+        mMatrix[2][2] * aVector[2],
     );
   }
 

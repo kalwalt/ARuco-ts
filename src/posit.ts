@@ -34,7 +34,7 @@ export class Posit {
     this.modelVectors = Mat3.fromRows(
       Vec3.sub(this.model[1], this.model[0]),
       Vec3.sub(this.model[2], this.model[0]),
-      Vec3.sub(this.model[3], this.model[0])
+      Vec3.sub(this.model[3], this.model[0]),
     );
 
     u = Mat3.clone(this.modelVectors);
@@ -43,7 +43,7 @@ export class Posit {
 
     this.modelPseudoInverse = Mat3.mult(
       Mat3.mult(v, Mat3.fromDiagonal(Vec3.inverse(d))),
-      Mat3.transpose(u)
+      Mat3.transpose(u),
     );
 
     this.modelNormal = v.column(d.minIndex());
@@ -70,7 +70,7 @@ export class Posit {
           translation1.v,
           error2,
           rotation2.m,
-          translation2.v
+          translation2.v,
         )
       : new Pose(
           error2,
@@ -78,7 +78,7 @@ export class Posit {
           translation2.v,
           error1,
           rotation1.m,
-          translation1.v
+          translation1.v,
         );
   }
 
@@ -88,7 +88,7 @@ export class Posit {
     rotation1: Mat3,
     rotation2: Mat3,
     translation1: Vec3,
-    translation2: Vec3
+    translation2: Vec3,
   ): void {
     let xi = new Vec3(points[1].x, points[2].x, points[3].x),
       yi = new Vec3(points[1].y, points[2].y, points[3].y),
@@ -174,9 +174,9 @@ export class Posit {
       eps = Vec3.addScalar(
         Vec3.multScalar(
           Mat3.multVector(this.modelVectors, rotation.row(2)),
-          1.0 / translation.v[2]
+          1.0 / translation.v[2],
         ),
-        1.0
+        1.0,
       );
 
       this.pos(points, eps, rotation1, rotation2, translation1, translation2);
@@ -267,7 +267,7 @@ export class Posit {
     return (
       (Math.acos(
         (x1 * x2 + y1 * y2) /
-          (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2))
+          (Math.sqrt(x1 * x1 + y1 * y1) * Math.sqrt(x2 * x2 + y2 * y2)),
       ) *
         180.0) /
       Math.PI
@@ -289,7 +289,7 @@ export class Pose {
     translation1: number[],
     error2: number,
     rotation2: number[][],
-    translation2: number[]
+    translation2: number[],
   ) {
     this.bestError = error1;
     this.bestRotation = rotation1;

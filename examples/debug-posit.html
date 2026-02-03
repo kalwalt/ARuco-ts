@@ -46,7 +46,7 @@
 
             if (!getUserMedia) {
               return Promise.reject(
-                new Error("getUserMedia is not implemented in this browser")
+                new Error("getUserMedia is not implemented in this browser"),
               );
             }
 
@@ -141,7 +141,7 @@
           40,
           canvas.width / canvas.height,
           1,
-          1000
+          1000,
         );
         scene1.add(camera1);
 
@@ -154,7 +154,7 @@
           40,
           canvas.width / canvas.height,
           1,
-          1000
+          1000,
         );
         scene2.add(camera2);
 
@@ -172,7 +172,7 @@
           40,
           canvas.width / canvas.height,
           1,
-          1000
+          1000,
         );
         scene4.add(camera4);
       }
@@ -265,7 +265,7 @@
           undefined,
           function (err) {
             console.error("Error loading earth texture:", err);
-          }
+          },
         );
 
         return object;
@@ -299,7 +299,7 @@
           updateObject(
             plane2,
             pose.alternativeRotation,
-            pose.alternativeTranslation
+            pose.alternativeTranslation,
           );
           updateObject(model, pose.bestRotation, pose.bestTranslation);
 
@@ -307,13 +307,13 @@
             "pose1",
             pose.bestError,
             pose.bestRotation,
-            pose.bestTranslation
+            pose.bestTranslation,
           );
           updatePose(
             "pose2",
             pose.alternativeError,
             pose.alternativeRotation,
-            pose.alternativeTranslation
+            pose.alternativeTranslation,
           );
 
           step += 0.025;

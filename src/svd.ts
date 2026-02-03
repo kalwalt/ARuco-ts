@@ -4,7 +4,7 @@ export class SVD {
     m: number,
     n: number,
     w: number[],
-    v: number[][]
+    v: number[][],
   ) {
     let flag,
       i,

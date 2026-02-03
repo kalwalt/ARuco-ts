@@ -211,7 +211,7 @@ describe("CV.gaussianBlur", () => {
       [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0,
-      ]
+      ],
     );
     const dst = new Image(5, 5, new Array(25).fill(0));
     const mean = new Image(5, 5, new Array(25).fill(0));
@@ -264,7 +264,7 @@ describe("CV.warp and CV.getPerspectiveTransform", () => {
     const src = new Image(
       4,
       4,
-      Array.from({ length: 16 }, (_, i) => i * 16)
+      Array.from({ length: 16 }, (_, i) => i * 16),
     );
     const dst = new Image();
     const contour: IPoint[] = [
@@ -321,7 +321,7 @@ describe("CV.findContours", () => {
       [
         0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 255, 0, 255, 0, 0, 255, 255, 255,
         0, 0, 0, 0, 0, 0,
-      ]
+      ],
     );
     const binary: any[] = [];
 
