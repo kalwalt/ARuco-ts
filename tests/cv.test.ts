@@ -22,7 +22,7 @@ describe("CV.grayscale", () => {
     // Expected grayscale values using 0.299 R + 0.587 G + 0.114 B, rounded via +0.5 and & 0xff
     const redGray = (255 * 0.299 + 0 * 0.587 + 0 * 0.114 + 0.5) & 0xff; // ~76
     const blueGray = (0 * 0.299 + 0 * 0.587 + 255 * 0.114 + 0.5) & 0xff; // ~29
-    expect(gray.data).toEqual([redGray, blueGray]);
+    expect(Array.from(gray.data)).toEqual([redGray, blueGray]);
   });
 });
 
@@ -36,7 +36,7 @@ describe("CV.threshold", () => {
     expect(dst.width).toBe(3);
     expect(dst.height).toBe(1);
     // <= 100 -> 0; > 100 -> 255
-    expect(dst.data).toEqual([0, 0, 255]);
+    expect(Array.from(dst.data)).toEqual([0, 0, 255]);
   });
 });
 
@@ -143,7 +143,7 @@ describe("CV.binaryBorder and CV.countNonZero", () => {
       }
     }
     const bin = src.data.map((v) => (v === 0 ? 0 : 1));
-    expect(interior).toEqual(bin);
+    expect(interior).toEqual(Array.from(bin));
   });
 });
 

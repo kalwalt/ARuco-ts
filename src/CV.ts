@@ -2,17 +2,78 @@ import { IPoint } from "./math-types";
 export interface IImage {
   width: number;
   height: number;
-  data: Array<number>;
+  data: Uint8ClampedArray;
 }
 
 export class Image implements IImage {
   public width: number;
   public height: number;
-  public data: Array<number>;
-  constructor(width: number = 0, height: number = 0, data: Array<number> = []) {
+  public data: Uint8ClampedArray;
+
+  constructor(
+    width: number = 0,
+    height: number = 0,
+    data?: Uint8ClampedArray | Uint8Array | number[] | ArrayBuffer
+  ) {
     this.width = width;
     this.height = height;
-    this.data = data;
+
+    if (data instanceof Uint8ClampedArray) {
+      // Optimal: zero-copy
+      this.data = data;
+    } else if (data instanceof Uint8Array) {
+      // Convert from Uint8Array
+      this.data = new Uint8ClampedArray(data);
+    } else if (Array.isArray(data)) {
+      // Backwards compatibility: convert from Array
+      this.data = new Uint8ClampedArray(data);
+    } else if (data instanceof ArrayBuffer) {
+      // From raw buffer
+      this.data = new Uint8ClampedArray(data);
+    } else {
+      // Create empty
+      this.data = new Uint8ClampedArray(width * height);
+    }
+  }
+
+  // Canvas integration (zero-copy)
+  static fromImageData(imageData: ImageData): Image {
+    return new Image(imageData.width, imageData.height, imageData.data);
+  }
+
+  toImageData(): ImageData {
+    // Create ImageData using the proper constructor
+    // TypeScript may have issues with types, so we use a workaround
+    const imageData = new ImageData(this.width, this.height);
+    imageData.data.set(this.data);
+    return imageData;
+  }
+
+  // Helper methods
+  clone(): Image {
+    const img = new Image(this.width, this.height);
+    img.data.set(this.data);
+    return img;
+  }
+
+  fill(value: number): this {
+    this.data.fill(value);
+    return this;
+  }
+
+  getPixel(x: number, y: number): number {
+    return this.data[y * this.width + x];
+  }
+
+  setPixel(x: number, y: number, value: number): void {
+    this.data[y * this.width + x] = value;
+  }
+
+  copy(other: Image): this {
+    this.width = other.width;
+    this.height = other.height;
+    this.data = new Uint8ClampedArray(other.data);
+    return this;
   }
 }
 
@@ -26,24 +87,24 @@ class BlurStack {
 }
 
 export class CV {
-  static grayscale(imageSrc: IImage): IImage {
-    let src: Array<number> = imageSrc.data;
-    let dst: Array<number> = [];
-    let imageDst = new Image();
-    let len: number = src.length;
-    let i: number = 0;
-    let j: number = 0;
+  static grayscale(imageSrc: IImage): Image {
+    const src = imageSrc.data;
+    const dst = new Image(imageSrc.width, imageSrc.height);
+    const dstData = dst.data;
 
-    for (; i < len; i += 4) {
-      dst[j++] =
-        (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) & 0xff;
+    let i = 0;
+    let j = 0;
+    const len = src.length;
+
+    // Process RGBA to grayscale
+    while (i < len) {
+      // Weighted average: 0.299R + 0.587G + 0.114B
+      dstData[j++] =
+        (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) | 0;
+      i += 4;
     }
 
-    imageDst.width = imageSrc.width;
-    imageDst.height = imageSrc.height;
-    imageDst.data = dst;
-
-    return imageDst;
+    return dst;
   }
 
   static threshold(
@@ -51,18 +112,12 @@ export class CV {
     imageDst: IImage,
     threshold: number
   ): IImage {
-    let src = imageSrc.data,
-      dst = imageDst.data,
-      len = src.length,
-      tab = [],
-      i;
+    const src = imageSrc.data;
+    const dst = imageDst.data;
+    const len = src.length;
 
-    for (i = 0; i < 256; ++i) {
-      tab[i] = i <= threshold ? 0 : 255;
-    }
-
-    for (i = 0; i < len; ++i) {
-      dst[i] = tab[src[i]];
+    for (let i = 0; i < len; ++i) {
+      dst[i] = src[i] <= threshold ? 0 : 255;
     }
 
     imageDst.width = imageSrc.width;
@@ -77,20 +132,14 @@ export class CV {
     kernelSize: number,
     threshold: number
   ): IImage {
-    let src = imageSrc.data,
-      dst = imageDst.data,
-      len = src.length,
-      tab = [],
-      i;
+    const src = imageSrc.data;
+    const dst = imageDst.data;
+    const len = src.length;
 
     CV.stackBoxBlur(imageSrc, imageDst, kernelSize);
 
-    for (i = 0; i < 768; ++i) {
-      tab[i] = i - 255 <= -threshold ? 255 : 0;
-    }
-
-    for (i = 0; i < len; ++i) {
-      dst[i] = tab[src[i] - dst[i] + 255];
+    for (let i = 0; i < len; ++i) {
+      dst[i] = src[i] - dst[i] + 255 - 255 <= -threshold ? 255 : 0;
     }
 
     imageDst.width = imageSrc.width;
@@ -100,32 +149,25 @@ export class CV {
   }
 
   static otsu(imageSrc: IImage): number {
-    let src = imageSrc.data,
-      len = src.length,
-      hist = [],
-      threshold = 0,
-      sum = 0,
-      sumB = 0,
-      wB = 0,
-      wF = 0,
-      max = 0,
-      mu,
-      between,
-      i;
+    const src = imageSrc.data;
+    const len = src.length;
+    const hist = new Uint32Array(256);
+    let threshold = 0;
+    let sum = 0;
+    let sumB = 0;
+    let wB = 0;
+    let wF = 0;
+    let max = 0;
 
-    for (i = 0; i < 256; ++i) {
-      hist[i] = 0;
-    }
-
-    for (i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
       hist[src[i]]++;
     }
 
-    for (i = 0; i < 256; ++i) {
+    for (let i = 0; i < 256; ++i) {
       sum += hist[i] * i;
     }
 
-    for (i = 0; i < 256; ++i) {
+    for (let i = 0; i < 256; ++i) {
       wB += hist[i];
       if (0 !== wB) {
         wF = len - wB;
@@ -135,9 +177,8 @@ export class CV {
 
         sumB += hist[i] * i;
 
-        mu = sumB / wB - (sum - sumB) / wF;
-
-        between = wB * wF * mu * mu;
+        const mu = sumB / wB - (sum - sumB) / wF;
+        const between = wB * wF * mu * mu;
 
         if (between > max) {
           max = between;
@@ -162,57 +203,48 @@ export class CV {
     imageDst: IImage,
     kernelSize: number
   ): IImage {
-    let src = imageSrc.data,
-      dst = imageDst.data,
-      height = imageSrc.height,
-      width = imageSrc.width,
-      heightMinus1 = height - 1,
-      widthMinus1 = width - 1,
-      size = kernelSize + kernelSize + 1,
-      radius = kernelSize + 1,
-      mult = CV.stackBoxBlurMult[kernelSize],
-      shift = CV.stackBoxBlurShift[kernelSize],
-      stack,
-      stackStart,
-      color,
-      sum,
-      pos,
-      start,
-      p,
-      x,
-      y,
-      i;
+    const src = imageSrc.data;
+    const dst = imageDst.data;
+    const height = imageSrc.height;
+    const width = imageSrc.width;
+    const heightMinus1 = height - 1;
+    const widthMinus1 = width - 1;
+    const size = kernelSize + kernelSize + 1;
+    const radius = kernelSize + 1;
+    const mult = CV.stackBoxBlurMult[kernelSize];
+    const shift = CV.stackBoxBlurShift[kernelSize];
 
-    stack = stackStart = new BlurStack();
-    for (i = 1; i < size; ++i) {
+    let stack = new BlurStack();
+    const stackStart = stack;
+    for (let i = 1; i < size; ++i) {
       stack = stack.next = new BlurStack();
     }
     stack.next = stackStart;
 
-    pos = 0;
+    let pos = 0;
 
-    for (y = 0; y < height; ++y) {
-      start = pos;
+    for (let y = 0; y < height; ++y) {
+      const start = pos;
 
-      color = src[pos];
-      sum = radius * color;
+      let color = src[pos];
+      let sum = radius * color;
 
       stack = stackStart;
-      for (i = 0; i < radius; ++i) {
+      for (let i = 0; i < radius; ++i) {
         stack.color = color;
         stack = stack.next;
       }
-      for (i = 1; i < radius; ++i) {
+      for (let i = 1; i < radius; ++i) {
         stack.color = src[pos + i];
         sum += stack.color;
         stack = stack.next;
       }
 
       stack = stackStart;
-      for (x = 0; x < width; ++x) {
+      for (let x = 0; x < width; ++x) {
         dst[pos++] = (sum * mult) >>> shift;
 
-        p = x + radius;
+        let p = x + radius;
         p = start + (p < widthMinus1 ? p : widthMinus1);
         sum -= stack.color - src[p];
 
@@ -221,19 +253,19 @@ export class CV {
       }
     }
 
-    for (x = 0; x < width; ++x) {
+    for (let x = 0; x < width; ++x) {
       pos = x;
-      start = pos + width;
+      let start = pos + width;
 
-      color = dst[pos];
-      sum = radius * color;
+      let color = dst[pos];
+      let sum = radius * color;
 
       stack = stackStart;
-      for (i = 0; i < radius; ++i) {
+      for (let i = 0; i < radius; ++i) {
         stack.color = color;
         stack = stack.next;
       }
-      for (i = 1; i < radius; ++i) {
+      for (let i = 1; i < radius; ++i) {
         stack.color = dst[start];
         sum += stack.color;
         stack = stack.next;
@@ -242,10 +274,10 @@ export class CV {
       }
 
       stack = stackStart;
-      for (y = 0; y < height; ++y) {
+      for (let y = 0; y < height; ++y) {
         dst[pos] = (sum * mult) >>> shift;
 
-        p = y + radius;
+        let p = y + radius;
         p = x + (p < heightMinus1 ? p : heightMinus1) * width;
         sum -= stack.color - dst[p];
 
@@ -285,23 +317,19 @@ export class CV {
     kernel: any[],
     horizontal: boolean
   ): IImage {
-    let src = imageSrc.data,
-      dst = imageDst.data,
-      height = imageSrc.height,
-      width = imageSrc.width,
-      pos = 0,
-      limit = kernel.length >> 1,
-      cur,
-      value,
-      i,
-      j,
-      k;
+    const src = imageSrc.data;
+    const dst = imageDst.data;
+    const height = imageSrc.height;
+    const width = imageSrc.width;
+    let pos = 0;
+    const limit = kernel.length >> 1;
 
-    for (i = 0; i < height; ++i) {
-      for (j = 0; j < width; ++j) {
-        value = 0.0;
+    for (let i = 0; i < height; ++i) {
+      for (let j = 0; j < width; ++j) {
+        let value = 0.0;
 
-        for (k = -limit; k <= limit; ++k) {
+        for (let k = -limit; k <= limit; ++k) {
+          let cur;
           if (horizontal) {
             cur = pos + k;
             if (j + k < 0) {
@@ -321,7 +349,7 @@ export class CV {
           value += kernel[limit + k] * src[cur];
         }
 
-        dst[pos++] = horizontal ? value : (value + 0.5) & 0xff;
+        dst[pos++] = horizontal ? value : (value + 0.5) | 0;
       }
     }
 
@@ -631,80 +659,68 @@ export class CV {
     contour: IPoint[],
     warpSize: number
   ): IImage {
-    let src = imageSrc.data,
-      dst = imageDst.data,
-      width = imageSrc.width,
-      height = imageSrc.height,
-      pos = 0,
-      sx1,
-      sx2,
-      dx1,
-      dx2,
-      sy1,
-      sy2,
-      dy1,
-      dy2,
-      p1,
-      p2,
-      p3,
-      p4,
-      m,
-      r,
-      s,
-      t,
-      u,
-      v,
-      w,
-      x,
-      y,
-      i,
-      j;
+    const src = imageSrc.data;
+    const width = imageSrc.width;
+    const height = imageSrc.height;
 
-    m = CV.getPerspectiveTransform(contour, warpSize - 1);
+    // Ensure dst has enough space
+    if (
+      imageDst.data.length < warpSize * warpSize ||
+      imageDst.width !== warpSize ||
+      imageDst.height !== warpSize
+    ) {
+      imageDst.width = warpSize;
+      imageDst.height = warpSize;
+      imageDst.data = new Uint8ClampedArray(warpSize * warpSize);
+    }
 
-    r = m[8];
-    s = m[2];
-    t = m[5];
+    const dst = imageDst.data;
+    let pos = 0;
 
-    for (i = 0; i < warpSize; ++i) {
+    const m = CV.getPerspectiveTransform(contour, warpSize - 1);
+
+    let r = m[8];
+    let s = m[2];
+    let t = m[5];
+
+    for (let i = 0; i < warpSize; ++i) {
       r += m[7];
       s += m[1];
       t += m[4];
 
-      u = r;
-      v = s;
-      w = t;
+      let u = r;
+      let v = s;
+      let w = t;
 
-      for (j = 0; j < warpSize; ++j) {
+      for (let j = 0; j < warpSize; ++j) {
         u += m[6];
         v += m[0];
         w += m[3];
 
-        x = v / u;
-        y = w / u;
+        const x = v / u;
+        const y = w / u;
 
-        sx1 = x >>> 0;
-        sx2 = sx1 === width - 1 ? sx1 : sx1 + 1;
-        dx1 = x - sx1;
-        dx2 = 1.0 - dx1;
+        const sx1 = x >>> 0;
+        const sx2 = sx1 === width - 1 ? sx1 : sx1 + 1;
+        const dx1 = x - sx1;
+        const dx2 = 1.0 - dx1;
 
-        sy1 = y >>> 0;
-        sy2 = sy1 === height - 1 ? sy1 : sy1 + 1;
-        dy1 = y - sy1;
-        dy2 = 1.0 - dy1;
+        const sy1 = y >>> 0;
+        const sy2 = sy1 === height - 1 ? sy1 : sy1 + 1;
+        const dy1 = y - sy1;
+        const dy2 = 1.0 - dy1;
 
-        p1 = p2 = sy1 * width;
-        p3 = p4 = sy2 * width;
+        const p1 = sy1 * width;
+        const p2 = p1;
+        const p3 = sy2 * width;
+        const p4 = p3;
 
         dst[pos++] =
           (dy2 * (dx2 * src[p1 + sx1] + dx1 * src[p2 + sx2]) +
-            dy1 * (dx2 * src[p3 + sx1] + dx1 * src[p4 + sx2])) &
-          0xff;
+            dy1 * (dx2 * src[p3 + sx1] + dx1 * src[p4 + sx2])) |
+          0;
       }
     }
-
-    imageDst.width = warpSize;
-    imageDst.height = warpSize;
 
     return imageDst;
   }
@@ -856,17 +872,15 @@ export class CV {
   }
 
   static countNonZero(imageSrc: IImage, square: any): number {
-    let src = imageSrc.data,
-      height = square.height,
-      width = square.width,
-      pos = square.x + square.y * imageSrc.width,
-      span = imageSrc.width - width,
-      nz = 0,
-      i,
-      j;
+    const src = imageSrc.data;
+    const height = square.height;
+    const width = square.width;
+    let pos = square.x + square.y * imageSrc.width;
+    const span = imageSrc.width - width;
+    let nz = 0;
 
-    for (i = 0; i < height; ++i) {
-      for (j = 0; j < width; ++j) {
+    for (let i = 0; i < height; ++i) {
+      for (let j = 0; j < width; ++j) {
         if (0 !== src[pos++]) {
           ++nz;
         }
@@ -879,29 +893,27 @@ export class CV {
   }
 
   static binaryBorder(imageSrc: IImage, dst: number[]): number[] {
-    let src = imageSrc.data,
-      height = imageSrc.height,
-      width = imageSrc.width,
-      posSrc = 0,
-      posDst = 0,
-      i,
-      j;
+    const src = imageSrc.data;
+    const height = imageSrc.height;
+    const width = imageSrc.width;
+    let posSrc = 0;
+    let posDst = 0;
 
-    for (j = -2; j < width; ++j) {
+    for (let j = -2; j < width; ++j) {
       dst[posDst++] = 0;
     }
 
-    for (i = 0; i < height; ++i) {
+    for (let i = 0; i < height; ++i) {
       dst[posDst++] = 0;
 
-      for (j = 0; j < width; ++j) {
+      for (let j = 0; j < width; ++j) {
         dst[posDst++] = 0 === src[posSrc++] ? 0 : 1;
       }
 
       dst[posDst++] = 0;
     }
 
-    for (j = -2; j < width; ++j) {
+    for (let j = -2; j < width; ++j) {
       dst[posDst++] = 0;
     }
 
