@@ -247,6 +247,7 @@ For performance-critical sections:
    ```
 
 3. **Pre-allocate temporary objects**
+
    ```typescript
    class MyClass {
      private tempVec = new Vec3();
