@@ -15,12 +15,12 @@ The `Vec3` and `Mat3` classes have been optimized using TypedArrays (`Float32Arr
 
 ### Benchmark Results
 
-| Operation | Legacy | Optimized (Reused) | Speedup |
-|-----------|--------|-------------------|---------|
-| Vector Add (output) | 2.72ms | 2.46ms | 1.10x |
-| Vector Normalize | 2.05ms | 1.63ms | 1.26x |
-| Matrix Mult | 2.78ms | 1.09ms | **2.56x** |
-| Matrix-Vector Mult | 2.70ms | 2.55ms | 1.06x |
+| Operation           | Legacy | Optimized (Reused) | Speedup   |
+| ------------------- | ------ | ------------------ | --------- |
+| Vector Add (output) | 2.72ms | 2.46ms             | 1.10x     |
+| Vector Normalize    | 2.05ms | 1.63ms             | 1.26x     |
+| Matrix Mult         | 2.78ms | 1.09ms             | **2.56x** |
+| Matrix-Vector Mult  | 2.70ms | 2.55ms             | 1.06x     |
 
 **Average speedup**: 1.21x when objects are reused properly
 
@@ -177,7 +177,7 @@ Static methods that return new vectors (backwards compatible):
 #### Constructors and Properties
 
 ```typescript
-new Mat3()
+new Mat3();
 ```
 
 - `data: Float32Array` - Internal storage (9 elements, row-major)
@@ -229,6 +229,7 @@ Existing code continues to work without changes. The optimized classes maintain 
 For performance-critical sections:
 
 1. **Use output parameters in hot loops**
+
    ```typescript
    // Identify hot loops in your code
    const temp = new Vec3();
@@ -239,6 +240,7 @@ For performance-critical sections:
    ```
 
 2. **Use in-place operations when you don't need the original**
+
    ```typescript
    const v = new Vec3(1, 2, 3);
    v.normalizeInPlace(); // Faster than creating a new vector
@@ -249,7 +251,7 @@ For performance-critical sections:
    class MyClass {
      private tempVec = new Vec3();
      private tempMat = new Mat3();
-     
+
      process() {
        // Reuse temp objects across calls
        Vec3.add(a, b, this.tempVec);
@@ -262,7 +264,7 @@ For performance-critical sections:
 The original implementations are still available if needed:
 
 ```typescript
-import { Vec3Legacy, Mat3Legacy } from './math';
+import { Vec3Legacy, Mat3Legacy } from "./math";
 
 const v = new Vec3Legacy(1, 2, 3);
 ```

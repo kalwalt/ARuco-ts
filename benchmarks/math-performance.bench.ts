@@ -1,20 +1,14 @@
 import { Vec3, Mat3 } from "../src/math";
 import { Vec3 as Vec3Legacy, Mat3 as Mat3Legacy } from "../src/math-types";
 
-function benchmark(
-  name: string,
-  fn: () => void,
-  iterations = 10000
-): number {
+function benchmark(name: string, fn: () => void, iterations = 10000): number {
   const start = performance.now();
   for (let i = 0; i < iterations; i++) {
     fn();
   }
   const end = performance.now();
   const duration = end - start;
-  console.log(
-    `${name}: ${duration.toFixed(2)}ms (${iterations} iterations)`
-  );
+  console.log(`${name}: ${duration.toFixed(2)}ms (${iterations} iterations)`);
   return duration;
 }
 
@@ -164,7 +158,12 @@ console.log(`Speedup: ${speedupMV.toFixed(2)}x\n`);
 
 console.log("=== Summary ===");
 const avgSpeedup =
-  (speedupAdd + speedupCross + speedupNorm + speedupChain + speedupMat + speedupMV) /
+  (speedupAdd +
+    speedupCross +
+    speedupNorm +
+    speedupChain +
+    speedupMat +
+    speedupMV) /
   6;
 console.log(`Average speedup: ${avgSpeedup.toFixed(2)}x`);
 console.log(

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 function deleteFolderRecursive(directoryPath) {
   if (fs.existsSync(directoryPath)) {
@@ -16,5 +16,5 @@ function deleteFolderRecursive(directoryPath) {
   }
 }
 
-const benchDir = path.join(__dirname, '..', '.bench');
+const benchDir = path.join(__dirname, "..", ".bench");
 deleteFolderRecursive(benchDir);

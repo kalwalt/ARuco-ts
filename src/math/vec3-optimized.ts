@@ -166,19 +166,11 @@ export class Vec3 {
   }
 
   static multScalarNew(a: Vec3, scalar: number): Vec3 {
-    return new Vec3(
-      a.data[0] * scalar,
-      a.data[1] * scalar,
-      a.data[2] * scalar
-    );
+    return new Vec3(a.data[0] * scalar, a.data[1] * scalar, a.data[2] * scalar);
   }
 
   static addScalarNew(a: Vec3, scalar: number): Vec3 {
-    return new Vec3(
-      a.data[0] + scalar,
-      a.data[1] + scalar,
-      a.data[2] + scalar
-    );
+    return new Vec3(a.data[0] + scalar, a.data[1] + scalar, a.data[2] + scalar);
   }
 
   // Existing methods to maintain
