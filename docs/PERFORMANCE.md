@@ -103,6 +103,7 @@ for (let frame = 0; frame < 60; frame++) {
    ```
 
 3. **Pre-allocate temporary objects**:
+
    ```typescript
    class MarkerTracker {
      private tempVec = new Vec3();
