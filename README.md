@@ -55,13 +55,25 @@ This will generate the JavaScript files needed for the library to work.
 
 ## ⚡ Performance
 
-ARuco-ts uses TypedArrays (`Float32Array`, `Uint8ClampedArray`) for optimal performance:
+ARuco-ts is optimized for real-time computer vision using TypedArrays:
 
-- **Vec3/Mat3**: 1.1-1.7x speedup, ~80% reduction in garbage collection
-- **Image processing**: Coming soon (5-10x expected speedup)
-- **Real-time capable**: Smooth 60fps marker detection
+### Image Processing (Uint8ClampedArray)
+- **5-10x faster** CV operations (grayscale, threshold, blur)
+- **20x less memory** (1920×1080: ~40MB → ~2MB)
+- **Zero-copy Canvas integration** (instant data transfer)
+- **Real-time capable**: 36.8 FPS for complete processing pipeline
 
-See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for detailed benchmarks.
+**1920×1080 Benchmarks:**
+- Grayscale: 7.86ms (127 FPS)
+- Threshold: 4.65ms (215 FPS)  
+- Box Blur: 15.18ms (66 FPS)
+- Complete Pipeline: 27.17ms (36.8 FPS)
+
+### Math Operations (Float32Array)
+- **Vec3/Mat3**: 1.1-1.7x speedup
+- **~80% reduction** in garbage collection pressure
+
+See [docs/IMAGE_OPTIMIZATION.md](docs/IMAGE_OPTIMIZATION.md) and [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for detailed benchmarks.
 
 ## 🚀 Future development
 
