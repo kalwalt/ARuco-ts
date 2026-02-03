@@ -2,16 +2,23 @@ import { IPoint } from "./math-types";
 export interface IImage {
     width: number;
     height: number;
-    data: Array<number>;
+    data: Uint8ClampedArray;
 }
 export declare class Image implements IImage {
     width: number;
     height: number;
-    data: Array<number>;
-    constructor(width?: number, height?: number, data?: Array<number>);
+    data: Uint8ClampedArray;
+    constructor(width?: number, height?: number, data?: Uint8ClampedArray | Uint8Array | number[] | ArrayBuffer);
+    static fromImageData(imageData: ImageData): Image;
+    toImageData(): ImageData;
+    clone(): Image;
+    fill(value: number): this;
+    getPixel(x: number, y: number): number;
+    setPixel(x: number, y: number, value: number): void;
+    copy(other: Image): this;
 }
 export declare class CV {
-    static grayscale(imageSrc: IImage): IImage;
+    static grayscale(imageSrc: IImage): Image;
     static threshold(imageSrc: IImage, imageDst: IImage, threshold: number): IImage;
     static adaptiveThreshold(imageSrc: IImage, imageDst: IImage, kernelSize: number, threshold: number): IImage;
     static otsu(imageSrc: IImage): number;
