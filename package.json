@@ -5,6 +5,7 @@
   "main": "dist/ARuco.js",
   "types": "types/index.d.ts",
   "scripts": {
+    "clean": "rm -rf dist types/*.js types/**/*.js",
     "build-ts": "webpack --mode production",
     "dev-ts": "webpack --mode development --progress --watch",
     "format": "prettier --write .",
