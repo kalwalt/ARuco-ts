@@ -139,7 +139,7 @@ export class CV {
     CV.stackBoxBlur(imageSrc, imageDst, kernelSize);
 
     for (let i = 0; i < len; ++i) {
-      dst[i] = src[i] - dst[i] + 255 - 255 <= -threshold ? 255 : 0;
+      dst[i] = src[i] - dst[i] <= -threshold ? 255 : 0;
     }
 
     imageDst.width = imageSrc.width;
