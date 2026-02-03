@@ -100,6 +100,65 @@
 
 ---
 
+### Test 8: Multi-Resolution Performance
+
+Testing Grayscale performance across different resolutions:
+
+--- VGA (640×480) ---
+Legacy:
+Total: 160.31ms
+Average: 3.206ms per iteration
+Optimized:
+Total: 42.52ms
+Average: 0.850ms per iteration
+🚀 Speedup: 3.77x
+
+--- HD (1280×720) ---
+Legacy:
+Total: 543.16ms
+Average: 10.863ms per iteration
+Optimized:
+Total: 123.01ms
+Average: 2.460ms per iteration
+🚀 Speedup: 4.42x
+
+--- Full HD (1920×1080) ---
+Legacy:
+Total: 1277.87ms
+Average: 25.557ms per iteration
+Optimized:
+Total: 293.76ms
+Average: 5.875ms per iteration
+🚀 Speedup: 4.35x
+
+--- 4K (3840×2160) ---
+Legacy:
+Total: 4552.70ms
+Average: 91.054ms per iteration
+Optimized:
+Total: 1145.33ms
+Average: 22.907ms per iteration
+🚀 Speedup: 3.98x
+
+Multi-Resolution Summary:
+─────────────────────────────────────────────────────────────
+VGA (640×480):
+Legacy: 3.21ms | Optimized: 0.85ms | Speedup: 3.77x
+HD (1280×720):
+Legacy: 10.86ms | Optimized: 2.46ms | Speedup: 4.42x
+Full HD (1920×1080):
+Legacy: 25.56ms | Optimized: 5.88ms | Speedup: 4.35x
+4K (3840×2160):
+Legacy: 91.05ms | Optimized: 22.91ms | Speedup: 3.98x
+
+### Test 9: Real-World 60fps Detection Loop
+
+Simulating 10 seconds of marker detection at 60fps (600 frames)
+
+Testing Legacy implementation:
+
+
+
 ## Performance Summary
 
 ### Speedup by Operation

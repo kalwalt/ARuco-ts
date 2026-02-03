@@ -53,9 +53,15 @@ If you make changes to the code, you'll need to rebuild the project:
 
 This will generate the JavaScript files needed for the library to work.
 
-## ⚡ Performance
+## 🚀 Performance
 
-ARuco-ts is optimized for real-time computer vision using TypedArrays:
+ARuco-ts v0.2.0 introduces **massive performance improvements**:
+
+- **19x faster** on average
+- **73x faster** full detection pipeline
+- **6,000x less** memory usage
+
+See detailed [benchmark results](docs/BENCHMARK_RESULTS.md) for full analysis.
 
 ### Image Processing (Uint8ClampedArray)
 
