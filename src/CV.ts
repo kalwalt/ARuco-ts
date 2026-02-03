@@ -108,16 +108,21 @@ export class CV {
   }
 
   static threshold(
-    imageSrc: IImage,
-    imageDst: IImage,
-    threshold: number
+      imageSrc: IImage,
+      imageDst: IImage,
+      threshold: number
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
     const len = src.length;
+    const tab = new Uint8Array(256);  // ✅ Usa TypedArray
+
+    for (let i = 0; i < 256; ++i) {
+      tab[i] = i <= threshold ? 0 : 255;
+    }
 
     for (let i = 0; i < len; ++i) {
-      dst[i] = src[i] <= threshold ? 0 : 255;
+      dst[i] = tab[src[i]];
     }
 
     imageDst.width = imageSrc.width;
@@ -127,19 +132,24 @@ export class CV {
   }
 
   static adaptiveThreshold(
-    imageSrc: IImage,
-    imageDst: IImage,
-    kernelSize: number,
-    threshold: number
+      imageSrc: IImage,
+      imageDst: IImage,
+      kernelSize: number,
+      threshold: number
   ): IImage {
     const src = imageSrc.data;
     const dst = imageDst.data;
     const len = src.length;
+    const tab = new Uint8Array(768);  // ✅ 768 elementi come originale
 
     CV.stackBoxBlur(imageSrc, imageDst, kernelSize);
 
+    for (let i = 0; i < 768; ++i) {
+      tab[i] = i - 255 <= -threshold ? 255 : 0;
+    }
+
     for (let i = 0; i < len; ++i) {
-      dst[i] = src[i] - dst[i] <= -threshold ? 255 : 0;
+      dst[i] = tab[src[i] - dst[i] + 255];  // ✅ +255 è CRITICO!
     }
 
     imageDst.width = imageSrc.width;
