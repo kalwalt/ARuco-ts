@@ -62,7 +62,7 @@ export declare class Detector {
     detect(image: any): Marker[];
     findCandidates(contours: any, minSize: number, epsilon: number, minLength: number): IPoint[][];
     clockwiseCorners(candidates: any): any;
-    notTooNear(candidates: any, minDist: number): any[];
+    notTooNear(candidates: IPoint[][], minDist: number): IPoint[][];
     findMarkers(imageSrc: IImage, candidates: any, warpSize: number): Marker[];
     getMarker(imageSrc: IImage, candidate: any): Marker;
     hammingDistance(bits: any): number;
