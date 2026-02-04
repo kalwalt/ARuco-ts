@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ARuco-ts Image Optimization Benchmark Results</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <title>ARuco Image Optimization Benchmark Results</title>
     <style>
       * {
         margin: 0;
@@ -13,405 +12,462 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-          sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #333;
-        padding: 20px;
-        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #e0e0e0;
+        line-height: 1.6;
       }
 
-      .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding-bottom: 30px;
+        border-bottom: 3px solid #4fc3f7;
       }
 
       h1 {
-        text-align: center;
-        color: #667eea;
+        font-size: 3em;
+        color: #4fc3f7;
         margin-bottom: 10px;
-        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .subtitle {
-        text-align: center;
-        color: #666;
-        margin-bottom: 40px;
         font-size: 1.2em;
+        color: #81c784;
+        margin-top: 10px;
       }
 
-      .chart-container {
-        position: relative;
-        margin-bottom: 50px;
-        background: #f8f9fa;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      h2 {
+        color: #81c784;
+        margin: 40px 0 20px 0;
+        font-size: 2em;
+        border-left: 5px solid #81c784;
+        padding-left: 15px;
       }
 
-      .chart-title {
+      h3 {
+        color: #ffa726;
+        margin: 30px 0 15px 0;
         font-size: 1.5em;
-        color: #333;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
       }
 
-      .stats-grid {
+      .summary-box {
+        background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+        padding: 30px;
+        border-radius: 12px;
+        border-left: 6px solid #4fc3f7;
+        margin: 30px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .summary-box h2 {
+        margin-top: 0;
+        border: none;
+        padding: 0;
+      }
+
+      .metric-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
-        margin-bottom: 40px;
+        margin: 20px 0;
       }
 
-      .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 25px;
-        border-radius: 15px;
-        color: white;
+      .metric-card {
+        background: #333;
+        padding: 20px;
+        border-radius: 8px;
+        border-top: 3px solid #4fc3f7;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         transition: transform 0.3s ease;
       }
 
-      .stat-card:hover {
+      .metric-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(79, 195, 247, 0.3);
       }
 
-      .stat-value {
+      .metric-card .label {
+        color: #999;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      .metric-card .value {
+        color: #4fc3f7;
         font-size: 2.5em;
         font-weight: bold;
-        margin-bottom: 5px;
       }
 
-      .stat-label {
-        font-size: 1em;
-        opacity: 0.9;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 30px 0;
+        background: #2a2a2a;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       }
 
-      .highlight {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      th,
+      td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid #444;
       }
 
-      canvas {
-        max-height: 400px;
+      th {
+        background: linear-gradient(135deg, #333 0%, #444 100%);
+        color: #4fc3f7;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 0.5px;
       }
 
-      .footer {
+      tr:hover {
+        background: #333;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .metric {
+        font-weight: bold;
+        color: #81c784;
+      }
+
+      .speedup {
+        color: #ffa726;
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+
+      .bar-container {
+        display: inline-block;
+        width: 200px;
+        height: 30px;
+        background: #1a1a1a;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4fc3f7 0%, #81c784 100%);
+        border-radius: 15px;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.8em;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+      }
+
+      .status-pass {
+        background: rgba(129, 199, 132, 0.2);
+        color: #81c784;
+        border: 1px solid #81c784;
+      }
+
+      .status-warn {
+        background: rgba(255, 167, 38, 0.2);
+        color: #ffa726;
+        border: 1px solid #ffa726;
+      }
+
+      .status-fail {
+        background: rgba(239, 83, 80, 0.2);
+        color: #ef5350;
+        border: 1px solid #ef5350;
+      }
+
+      footer {
         text-align: center;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 2px solid #eee;
-        color: #666;
+        margin-top: 60px;
+        padding-top: 30px;
+        border-top: 2px solid #444;
+        color: #888;
+        font-size: 0.9em;
       }
 
-      .emoji {
-        font-size: 1.2em;
+      .chart-container {
+        background: #2a2a2a;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 30px 0;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2em;
+        }
+        .metric-grid {
+          grid-template-columns: 1fr;
+        }
+        table {
+          font-size: 0.9em;
+        }
+        th,
+        td {
+          padding: 10px;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>🚀 ARuco-ts Image Optimization</h1>
-      <div class="subtitle">Benchmark Results - Uint8ClampedArray vs Array</div>
+    <header>
+      <h1>🚀 ARuco Image Optimization</h1>
+      <div class="subtitle">Benchmark Results - Full HD (1920×1080)</div>
+    </header>
 
-      <!-- Key Stats -->
-      <div class="stats-grid">
-        <div class="stat-card highlight">
-          <div class="stat-value">73.10x</div>
-          <div class="stat-label">
-            <span class="emoji">🔥</span> Full Pipeline Speedup
-          </div>
+    <div class="summary-box">
+      <h2>📊 Executive Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="label">Average Speedup</div>
+          <div class="value">36.46×</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">19.12x</div>
-          <div class="stat-label">
-            <span class="emoji">⚡</span> Average Speedup
-          </div>
+        <div class="metric-card">
+          <div class="label">Memory Reduction</div>
+          <div class="value">6,352×</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">6,191x</div>
-          <div class="stat-label">
-            <span class="emoji">💾</span> Memory Reduction
-          </div>
+        <div class="metric-card">
+          <div class="label">Real-World FPS</div>
+          <div class="value">40.2</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">35 fps</div>
-          <div class="stat-label">
-            <span class="emoji">🎯</span> Real-Time Capable
-          </div>
+        <div class="metric-card">
+          <div class="label">Pipeline Speedup</div>
+          <div class="value">101.65×</div>
         </div>
-      </div>
-
-      <!-- Speedup Comparison Chart -->
-      <div class="chart-container">
-        <div class="chart-title">Performance Speedup by Operation</div>
-        <canvas id="speedupChart"></canvas>
-      </div>
-
-      <!-- Time Comparison Chart -->
-      <div class="chart-container">
-        <div class="chart-title">Processing Time Comparison (ms)</div>
-        <canvas id="timeChart"></canvas>
-      </div>
-
-      <!-- Multi-Resolution Performance -->
-      <div class="chart-container">
-        <div class="chart-title">Multi-Resolution Performance (Grayscale)</div>
-        <canvas id="resolutionChart"></canvas>
-      </div>
-
-      <!-- Real-World FPS -->
-      <div class="chart-container">
-        <div class="chart-title">Real-World Frame Rate (60fps target)</div>
-        <canvas id="fpsChart"></canvas>
-      </div>
-
-      <div class="footer">
-        <p>
-          <strong>Test Environment:</strong> Windows 11 | Node.js v22.21.1 |
-          Resolution: 1920×1080
-        </p>
-        <p><strong>Generated by:</strong> ARuco-ts benchmark suite v0.2.0</p>
       </div>
     </div>
 
-    <script>
-      // Color palette
-      const colors = {
-        primary: "rgba(102, 126, 234, 0.8)",
-        secondary: "rgba(118, 75, 162, 0.8)",
-        success: "rgba(72, 187, 120, 0.8)",
-        danger: "rgba(245, 87, 108, 0.8)",
-        warning: "rgba(246, 173, 85, 0.8)",
-      };
+    <h2>⚡ Performance Comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Legacy (ms)</th>
+          <th>Optimized (ms)</th>
+          <th>Speedup</th>
+          <th>Visual Performance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Grayscale</strong></td>
+          <td>26.87</td>
+          <td class="metric">7.60</td>
+          <td class="speedup">3.53×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 35%">3.53×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Threshold</strong></td>
+          <td>4.48</td>
+          <td class="metric">2.08</td>
+          <td class="speedup">2.16×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 22%">2.16×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Box Blur</strong></td>
+          <td>41.75</td>
+          <td class="metric">15.17</td>
+          <td class="speedup">2.75×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 28%">2.75×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Canvas I/O</strong></td>
+          <td>278.44</td>
+          <td class="metric">6.24</td>
+          <td class="speedup">44.66×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 100%">44.66×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Full Pipeline</strong></td>
+          <td>2,339.93</td>
+          <td class="metric">23.02</td>
+          <td class="speedup">101.65×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 100%">101.65×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Count Pixels</strong></td>
+          <td>3.73</td>
+          <td class="metric">3.38</td>
+          <td class="speedup">1.10×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 11%">1.10×</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Real-World Loop</strong></td>
+          <td>2,469.19</td>
+          <td class="metric">24.85</td>
+          <td class="speedup">99.38×</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar" style="width: 100%">99.38×</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-      // Chart.js default settings
-      Chart.defaults.font.family =
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
-      Chart.defaults.font.size = 14;
+    <h2>🎯 Multi-Resolution Performance</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Resolution</th>
+          <th>Legacy</th>
+          <th>Optimized</th>
+          <th>Speedup</th>
+          <th>Optimized FPS</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>VGA (640×480)</strong></td>
+          <td>4.56 ms</td>
+          <td class="metric">1.14 ms</td>
+          <td class="speedup">4.00×</td>
+          <td class="metric">877 fps</td>
+          <td><span class="status-badge status-pass">✅ Excellent</span></td>
+        </tr>
+        <tr>
+          <td><strong>HD (1280×720)</strong></td>
+          <td>13.48 ms</td>
+          <td class="metric">3.32 ms</td>
+          <td class="speedup">4.06×</td>
+          <td class="metric">301 fps</td>
+          <td><span class="status-badge status-pass">✅ Excellent</span></td>
+        </tr>
+        <tr>
+          <td><strong>Full HD (1920×1080)</strong></td>
+          <td>30.53 ms</td>
+          <td class="metric">6.45 ms</td>
+          <td class="speedup">4.73×</td>
+          <td class="metric">155 fps</td>
+          <td><span class="status-badge status-pass">✅ Great</span></td>
+        </tr>
+        <tr>
+          <td><strong>4K (3840×2160)</strong></td>
+          <td>113.16 ms</td>
+          <td class="metric">32.25 ms</td>
+          <td class="speedup">3.51×</td>
+          <td class="metric">31 fps</td>
+          <td><span class="status-badge status-warn">⚠️ Good</span></td>
+        </tr>
+      </tbody>
+    </table>
 
-      // 1. Speedup Chart
-      new Chart(document.getElementById("speedupChart"), {
-        type: "bar",
-        data: {
-          labels: [
-            "Grayscale",
-            "Threshold",
-            "Blur",
-            "Canvas I/O",
-            "Full Pipeline",
-            "Count Pixels",
-          ],
-          datasets: [
-            {
-              label: "Speedup (x faster)",
-              data: [2.14, 0.91, 3.3, 34.19, 73.1, 1.06],
-              backgroundColor: [
-                colors.success,
-                colors.warning,
-                colors.success,
-                colors.danger,
-                colors.danger,
-                colors.success,
-              ],
-              borderColor: [
-                "rgba(72, 187, 120, 1)",
-                "rgba(246, 173, 85, 1)",
-                "rgba(72, 187, 120, 1)",
-                "rgba(245, 87, 108, 1)",
-                "rgba(245, 87, 108, 1)",
-                "rgba(72, 187, 120, 1)",
-              ],
-              borderWidth: 2,
-              borderRadius: 8,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (context) => `${context.parsed.y.toFixed(2)}x faster`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: { display: true, text: "Speedup Factor (x)" },
-              ticks: {
-                callback: (value) => value + "x",
-              },
-            },
-          },
-        },
-      });
+    <h2>🎬 Real-World 60fps Detection</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Implementation</th>
+          <th>Avg Time/Frame</th>
+          <th>Max FPS</th>
+          <th>60fps Budget</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Legacy</strong></td>
+          <td>2,469.19 ms</td>
+          <td class="metric">0.4 fps</td>
+          <td>Over by 2,452.53ms</td>
+          <td><span class="status-badge status-fail">❌ Impossible</span></td>
+        </tr>
+        <tr>
+          <td><strong>Optimized</strong></td>
+          <td>24.85 ms</td>
+          <td class="metric">40.2 fps</td>
+          <td>Over by 8.18ms</td>
+          <td><span class="status-badge status-warn">⚠️ Close</span></td>
+        </tr>
+      </tbody>
+    </table>
 
-      // 2. Time Comparison Chart
-      new Chart(document.getElementById("timeChart"), {
-        type: "bar",
-        data: {
-          labels: [
-            "Grayscale",
-            "Threshold",
-            "Blur",
-            "Canvas I/O",
-            "Full Pipeline",
-            "Count Pixels",
-          ],
-          datasets: [
-            {
-              label: "Legacy (Array)",
-              data: [25.81, 3.6, 46.85, 275.43, 2063.87, 4.04],
-              backgroundColor: colors.danger,
-              borderColor: "rgba(245, 87, 108, 1)",
-              borderWidth: 2,
-              borderRadius: 6,
-            },
-            {
-              label: "Optimized (Uint8ClampedArray)",
-              data: [12.04, 3.98, 14.18, 8.06, 28.23, 3.8],
-              backgroundColor: colors.success,
-              borderColor: "rgba(72, 187, 120, 1)",
-              borderWidth: 2,
-              borderRadius: 6,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: true, position: "top" },
-            tooltip: {
-              callbacks: {
-                label: (context) =>
-                  `${context.dataset.label}: ${context.parsed.y.toFixed(2)}ms`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: { display: true, text: "Time (ms)" },
-              ticks: {
-                callback: (value) => value + "ms",
-              },
-            },
-          },
-        },
-      });
+    <div class="chart-container">
+      <h3>💡 Key Insights</h3>
+      <ul style="list-style: none; padding: 0">
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>36.46× average speedup</strong> across all operations
+        </li>
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>101.65× faster</strong> full pipeline processing
+        </li>
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>6,352× less memory</strong> usage (29.66 MB → ~0 MB)
+        </li>
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>40.2 fps</strong> real-time detection (vs 0.4 fps legacy)
+        </li>
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>Zero-copy Canvas integration</strong> eliminates data copying
+        </li>
+        <li style="margin: 15px 0; padding-left: 30px; position: relative">
+          <span style="position: absolute; left: 0; color: #4fc3f7">✓</span>
+          <strong>100% backward compatible</strong> with existing code
+        </li>
+      </ul>
+    </div>
 
-      // 3. Multi-Resolution Chart (simulated data)
-      new Chart(document.getElementById("resolutionChart"), {
-        type: "line",
-        data: {
-          labels: [
-            "640×480 (VGA)",
-            "1280×720 (HD)",
-            "1920×1080 (Full HD)",
-            "3840×2160 (4K)",
-          ],
-          datasets: [
-            {
-              label: "Legacy (Array)",
-              data: [4.2, 9.8, 25.8, 98.5],
-              borderColor: colors.danger,
-              backgroundColor: "rgba(245, 87, 108, 0.1)",
-              borderWidth: 3,
-              tension: 0.4,
-              fill: true,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-            },
-            {
-              label: "Optimized (Uint8ClampedArray)",
-              data: [1.8, 4.5, 12.0, 45.2],
-              borderColor: colors.success,
-              backgroundColor: "rgba(72, 187, 120, 0.1)",
-              borderWidth: 3,
-              tension: 0.4,
-              fill: true,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: true, position: "top" },
-            tooltip: {
-              callbacks: {
-                label: (context) =>
-                  `${context.dataset.label}: ${context.parsed.y.toFixed(1)}ms`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: { display: true, text: "Grayscale Time (ms)" },
-              ticks: {
-                callback: (value) => value + "ms",
-              },
-            },
-          },
-        },
-      });
-
-      // 4. Real-World FPS Chart
-      new Chart(document.getElementById("fpsChart"), {
-        type: "bar",
-        data: {
-          labels: ["Legacy", "Optimized", "60fps Target"],
-          datasets: [
-            {
-              label: "Frame Rate (fps)",
-              data: [0.48, 35.5, 60],
-              backgroundColor: [colors.danger, colors.success, colors.primary],
-              borderColor: [
-                "rgba(245, 87, 108, 1)",
-                "rgba(72, 187, 120, 1)",
-                "rgba(102, 126, 234, 1)",
-              ],
-              borderWidth: 2,
-              borderRadius: 8,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (context) => `${context.parsed.y.toFixed(1)} fps`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 70,
-              title: { display: true, text: "Frame Rate (fps)" },
-              ticks: {
-                callback: (value) => value + " fps",
-              },
-            },
-          },
-        },
-      });
-    </script>
+    <footer>
+      <p>Generated by ARuco-ts v0.2.0 | 2026-02-05</p>
+      <p style="margin-top: 10px">
+        <a
+          href="https://github.com/kalwalt/ARuco-ts"
+          style="color: #4fc3f7; text-decoration: none"
+        >
+          GitHub Repository
+        </a>
+      </p>
+    </footer>
   </body>
 </html>

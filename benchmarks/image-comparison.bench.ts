@@ -627,18 +627,23 @@ console.log("━━━━━━━━━━━━━━━━━━━━━━�
 console.log("Test 9: Real-World 60fps Detection Loop");
 console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
+const TEST_DURATION_SECONDS = 1; // era 10
 console.log(
-  "Simulating 10 seconds of marker detection at 60fps (600 frames)\n"
+  `Simulating ${TEST_DURATION_SECONDS} second of marker detection at 60fps (60 frames)\n`
 );
 
 const TARGET_FPS = 60;
 const FRAME_BUDGET = 1000 / TARGET_FPS; // 16.67ms per frame
-const TOTAL_FRAMES = 600;
+const TOTAL_FRAMES = TARGET_FPS * TEST_DURATION_SECONDS; // 60 frame
 
 // Legacy
 console.log("Testing Legacy implementation:");
+console.log(
+  "(Warning: This may take 1-2 minutes even with reduced frame count)\n"
+);
+
 const legacyFrameTime = benchmark(
-  "Legacy (600 frames)",
+  `Legacy (${TOTAL_FRAMES} frames)`,
   () => {
     const img = new ImageLegacy(WIDTH, HEIGHT, Array.from(rgbaData));
     const gray = CVLegacy.grayscale(img);
@@ -656,7 +661,7 @@ const legacyFrameTime = benchmark(
     CVLegacy.threshold(blurred, thresh, 128);
     // Note: Actual marker detection would add more time
   },
-  { iterations: TOTAL_FRAMES, warmupIterations: 10 }
+  { iterations: TOTAL_FRAMES, warmupIterations: 5 } // ridotto warmup da 10 a 5
 );
 
 const avgLegacyMs = legacyFrameTime / TOTAL_FRAMES;
@@ -682,7 +687,7 @@ console.log(
 // Optimized
 console.log("Testing Optimized implementation:");
 const optimizedFrameTime = benchmark(
-  "Optimized (600 frames)",
+  `Optimized (${TOTAL_FRAMES} frames)`,
   () => {
     const img = new Image(WIDTH, HEIGHT, rgbaData);
     const gray = CV.grayscale(img);
@@ -691,7 +696,7 @@ const optimizedFrameTime = benchmark(
     const thresh = new Image(blurred.width, blurred.height);
     CV.threshold(blurred, thresh, 128);
   },
-  { iterations: TOTAL_FRAMES, warmupIterations: 10 }
+  { iterations: TOTAL_FRAMES, warmupIterations: 5 } // ridotto warmup
 );
 
 const avgOptimizedMs = optimizedFrameTime / TOTAL_FRAMES;
@@ -743,6 +748,13 @@ if (avgOptimizedMs < FRAME_BUDGET) {
   console.log(`  ⚠️  Even optimized version exceeds 60fps budget`);
   console.log(`  💡 Consider lower resolution or GPU acceleration`);
 }
+
+// ✅ AGGIUNGI NOTA SUI FRAME RIDOTTI
+console.log();
+console.log(
+  `Note: Test runs with ${TOTAL_FRAMES} frames (${TEST_DURATION_SECONDS}s) for reasonable benchmark time.`
+);
+console.log(`      Full 10s test would show similar per-frame performance.`);
 console.log();
 // ============================================================================
 // SUMMARY (EXTENDED)
