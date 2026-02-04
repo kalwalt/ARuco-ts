@@ -1,22 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>webcam debug example</title>
+    <meta charset="UTF-8" />
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1"
+    />
+    <title>ARuco Webcam Debug Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: #fff;
+        }
 
+        #app {
+            position: relative;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        #video {
+            display: none;
+        }
+
+        #videoCanvas, #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+        }
+
+        #videoCanvas {
+            z-index: 1;
+        }
+
+        #overlayCanvas {
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%;
+        }
+    </style>
 </head>
+
 <body>
 <div id="app">
     <video loop autoplay muted playsinline id="video"></video>
-    <canvas id="canvas"></canvas>
+    <div class="canvas-container">
+        <canvas id="videoCanvas"></canvas>
+        <canvas id="overlayCanvas"></canvas>
+    </div>
 </div>
+
 <script src="../dist/ARuco.js"></script>
+
 <script>
     let detector;
+    let video, videoCanvas, overlayCanvas, videoContext, overlayContext;
     let frameCount = 0;
-    let video, canvas, context;
 
-    // Helper functions per evitare stack overflow
+    // Helper functions
     function getMin(arr) {
         let min = Infinity;
         for (let i = 0; i < arr.length; i++) {
@@ -41,63 +92,145 @@
         return sum / arr.length;
     }
 
-    // Setup
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    context = canvas.getContext('2d', {willReadFrequently: true});  // ✅ Performance hint
+    // Funzioni di rendering
+    function drawCorners(ctx, markers) {
+        let corners, corner, i, j;
 
-    // ✅ FIX: Create detector con parametri
-    try {
-        detector = new ARuco.Detector({
-            dictionaryName: 'ARUCO'
-        });
-        console.log('✅ Detector created');
-    } catch (e) {
-        console.error('❌ Detector creation failed:', e);
+        ctx.lineWidth = 3;
+
+        for (i = 0; i !== markers.length; ++i) {
+            corners = markers[i].corners;
+
+            ctx.strokeStyle = "red";
+            ctx.beginPath();
+
+            for (j = 0; j !== corners.length; ++j) {
+                corner = corners[j];
+                ctx.moveTo(corner.x, corner.y);
+                corner = corners[(j + 1) % corners.length];
+                ctx.lineTo(corner.x, corner.y);
+            }
+
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.strokeStyle = "green";
+            ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+        }
     }
 
-    // Start webcam
-    navigator.mediaDevices.getUserMedia({video: true})
-        .then(stream => {
+    function drawId(ctx, markers) {
+        let corners, corner, x, y, i, j;
+
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 1;
+        ctx.font = "24px Arial";
+
+        for (i = 0; i !== markers.length; ++i) {
+            corners = markers[i].corners;
+
+            x = Infinity;
+            y = Infinity;
+
+            for (j = 0; j !== corners.length; ++j) {
+                corner = corners[j];
+
+                x = Math.min(x, corner.x);
+                y = Math.min(y, corner.y);
+            }
+
+            ctx.fillStyle = "blue";
+            ctx.fillText(markers[i].id, x, y - 10);
+        }
+    }
+
+    // Inizializza webcam
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                }
+            });
+
+            video = document.getElementById('video');
             video.srcObject = stream;
             video.play();
-            console.log('✅ Webcam started');
-            requestAnimationFrame(tick);
-        })
-        .catch(err => {
-            console.error('❌ Webcam error:', err);
-        });
 
+            console.log('✅ Webcam started');
+
+            return new Promise((resolve) => {
+                video.addEventListener('loadeddata', () => {
+                    console.log('✅ Video ready');
+                    resolve(video);
+                });
+            });
+        } catch (err) {
+            console.error('❌ Camera error:', err);
+            throw err;
+        }
+    }
+
+    // Inizializza canvas
+    function initCanvas() {
+        videoCanvas = document.getElementById('videoCanvas');
+        overlayCanvas = document.getElementById('overlayCanvas');
+
+        const width = video.videoWidth || 640;
+        const height = video.videoHeight || 480;
+
+        videoCanvas.width = width;
+        videoCanvas.height = height;
+        overlayCanvas.width = width;
+        overlayCanvas.height = height;
+
+        videoContext = videoCanvas.getContext('2d', { willReadFrequently: true });
+        overlayContext = overlayCanvas.getContext('2d');
+
+        console.log(`✅ Canvas initialized: ${width}x${height}`);
+    }
+
+    // Inizializza detector
+    function initDetector() {
+        try {
+            detector = new ARuco.Detector({ dictionaryName: 'ARUCO' });
+            console.log('✅ Detector created');
+        } catch (e) {
+            console.error('❌ Detector creation failed:', e);
+        }
+    }
+
+    // Loop principale
     function tick() {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             // Match video dimensions
-            if (canvas.width !== video.videoWidth) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                console.log(`📐 Canvas resized: ${canvas.width}x${canvas.height}`);
+            if (videoCanvas.width !== video.videoWidth) {
+                videoCanvas.width = video.videoWidth;
+                videoCanvas.height = video.videoHeight;
+                overlayCanvas.width = video.videoWidth;
+                overlayCanvas.height = video.videoHeight;
+                console.log(`📐 Canvas resized: ${videoCanvas.width}x${videoCanvas.height}`);
             }
 
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            // Disegna video sul videoCanvas
+            videoContext.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
+            const imageData = videoContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height);
 
             frameCount++;
 
-            // Detailed log every second
+            // Debug dettagliato ogni 30 frame
             if (frameCount % 30 === 0) {
                 console.group(`📊 Frame ${frameCount} (${new Date().toLocaleTimeString()})`);
 
                 try {
-                    // Create Image
-                    const image = new CV.Image(canvas.width, canvas.height, imageData.data);
+                    const image = new CV.Image(videoCanvas.width, videoCanvas.height, imageData.data);
                     console.log('1️⃣ Image created:', {
                         size: `${image.width}x${image.height}`,
                         pixels: image.data.length
                     });
 
-                    // Grayscale
                     const gray = CV.grayscale(image);
-
-                    // ✅ FIX: Usa funzioni helper invece di spread operator
                     const grayStats = {
                         min: getMin(gray.data),
                         max: getMax(gray.data),
@@ -105,18 +238,15 @@
                     };
                     console.log('2️⃣ Grayscale:', grayStats);
 
-                    // Check if image is too dark/bright
                     if (grayStats.max < 100) {
-                        console.warn('⚠️ Image too dark! Increase lighting.');
+                        console.warn('⚠️ Image too dark!');
                     } else if (grayStats.min > 150) {
-                        console.warn('⚠️ Image too bright! Reduce lighting.');
+                        console.warn('⚠️ Image too bright!');
                     }
 
-                    // Threshold
                     const binary = new CV.Image(gray.width, gray.height);
                     CV.adaptiveThreshold(gray, binary, 7, 7);
 
-                    // ✅ FIX: Count usando loop
                     let zeros = 0, ones = 0, other = 0;
                     for (let i = 0; i < binary.data.length; i++) {
                         if (binary.data[i] === 0) zeros++;
@@ -124,131 +254,79 @@
                         else other++;
                     }
 
-                    const binaryStats = {zeros, ones, other};
-                    console.log('3️⃣ Binary:', binaryStats);
+                    console.log('3️⃣ Binary:', { zeros, ones, other });
 
-                    if (other > 0) {
-                        console.error('❌ Threshold produced non-binary values!');
-                    }
-
-                    // Find Contours
                     const contours = CV.findContours(binary, []);
                     console.log('4️⃣ Contours:', contours.length);
 
-                    if (contours.length === 0) {
-                        console.warn('⚠️ No contours found - marker not visible or too blurry');
-                    } else {
-                        // Filter candidates
+                    if (contours.length > 0) {
                         const candidates = contours.filter(c => {
                             if (c.length < 4) return false;
-
                             const approx = CV.approxPolyDP(c, c.length * 0.05);
                             if (approx.length !== 4) return false;
-
                             if (!CV.isContourConvex(approx)) return false;
-
                             const minEdge = CV.minEdgeLength(approx);
                             if (minEdge < 10) return false;
-
                             return true;
                         });
 
-                        console.log('5️⃣ Candidates (4 corners, convex, >10px):', candidates.length);
-
-                        if (candidates.length > 0) {
-                            const sample = candidates[0];
-                            const sampleApprox = CV.approxPolyDP(sample, sample.length * 0.05);
-                            console.log('   Sample candidate:', {
-                                points: sample.length,
-                                approxPoints: sampleApprox.length,
-                                minEdge: CV.minEdgeLength(sampleApprox).toFixed(2)
-                            });
-                        }
+                        console.log('5️⃣ Candidates:', candidates.length);
                     }
 
-                    // ACTUAL DETECTION
-                    if (detector) {
-                        console.log('6️⃣ Running detector.detect()...');
-                        const markers = detector.detect(image);
-                        console.log('7️⃣ Result:', markers.length, 'markers');
+                    const markers = detector.detect(imageData);
+                    console.log('6️⃣ Markers detected:', markers.length);
 
-                        if (markers.length > 0) {
-                            console.log('🎉🎉🎉 MARKER DETECTED!');
-                            markers.forEach((marker, i) => {
-                                console.log(`   Marker ${i}:`, {
-                                    id: marker.id,
-                                    corners: marker.corners.length
-                                });
-                            });
-                        } else {
-                            if (contours.length > 10) {
-                                console.warn('⚠️ Many contours but no markers detected');
-                                console.warn('   → Possible decoder/warp issue');
-                            }
-                        }
-                    } else {
-                        console.error('❌ Detector not initialized');
+                    if (markers.length > 0) {
+                        console.log('🎉 MARKER DETECTED!');
+                        markers.forEach((m, i) => {
+                            console.log(`   Marker ${i}: ID ${m.id}, corners: ${m.corners.length}`);
+                        });
                     }
 
                 } catch (e) {
-                    console.error('❌ Pipeline error:', e.message);
-                    console.error(e.stack);
+                    console.error('❌ Error:', e.message);
                 }
 
                 console.groupEnd();
             }
 
-            // Always try to detect (for real-time overlay)
+            // SEMPRE rileva e disegna sull'overlay canvas
             if (detector) {
                 try {
-                    const image = new CV.Image(canvas.width, canvas.height, imageData.data);
-                    const markers = detector.detect(image);
+                    const markers = detector.detect(imageData);
+
+                    // Pulisci overlay canvas
+                    overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
                     if (markers.length > 0) {
-                        console.log('📍 Drawing', markers.length, 'markers');
-                        // Draw markers on canvas
-                        //context.strokeStyle = 'red';
-                        //context.lineWidth = 3;
-
-                        markers.forEach(marker => {
-                            console.log(`  Marker ${idx}:`, {
-                                id: marker.id,
-                                corners: marker.corners,
-                                cornersLength: marker.corners?.length,
-                                cornersSample: marker.corners ? [marker.corners[0], marker.corners[1]] : 'undefined'
-                            });
-
-
-                            if (!marker.corners || marker.corners.length !== 4) {
-                                console.error('❌ Invalid corners!', marker.corners);
-                                return;
-                            }
-                            //const corners = marker.corners;
-
-                            context.beginPath();
-                            const corners = marker.corners;
-                            context.moveTo(corners[0].x, corners[0].y);
-                            for (let i = 1; i < corners.length; i++) {
-                                context.lineTo(corners[i].x, corners[i].y);
-                            }
-                            context.closePath();
-                            context.stroke();
-
-                            // Draw ID
-                            context.fillStyle = 'red';
-                            context.font = '30px Arial';
-                            context.fillText(`ID: ${marker.id}`, corners[0].x, corners[0].y - 10);
-                        });
+                        // Disegna marker sull'overlay
+                        drawCorners(overlayContext, markers);
+                        drawId(overlayContext, markers);
                     }
-            } catch (e) {
-                // Silent fail for real-time loop
+                } catch (e) {
+                    // Silent fail
+                }
             }
         }
+
+        requestAnimationFrame(tick);
     }
 
-    requestAnimationFrame(tick);
-    }
+    // Avvia applicazione
+    window.addEventListener('load', async () => {
+        console.log('🚀 Initializing ARuco Webcam Debug...');
+
+        try {
+            await initCamera();
+            initCanvas();
+            initDetector();
+
+            console.log('✅ All systems ready!');
+            tick();
+        } catch (err) {
+            console.error('❌ Initialization failed:', err);
+        }
+    });
 </script>
-
 </body>
 </html>
