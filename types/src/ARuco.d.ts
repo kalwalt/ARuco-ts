@@ -35,9 +35,9 @@ export declare class Dictionary {
     generateSVG(id: number): string;
 }
 export declare class Marker {
-    private id;
-    private corners;
-    private hammingDistance;
+    id: number;
+    corners: IPoint[];
+    hammingDistance: number;
     constructor(id: number, corners: any, hammingDistance: number);
 }
 export declare class Detector {

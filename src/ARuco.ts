@@ -418,9 +418,9 @@ export class Dictionary {
 }
 
 export class Marker {
-  private id: number;
-  private corners: number;
-  private hammingDistance: number;
+  public id: number;
+  public corners: IPoint[];
+  public hammingDistance: number;
 
   constructor(id: number, corners: any, hammingDistance: number) {
     this.id = id;
@@ -575,7 +575,7 @@ export class Detector {
       10
     );
     this.candidates = this.clockwiseCorners(this.candidates);
-    this.candidates = this.notTooNear(this.candidates, 10);
+    this.candidates = this.notTooNear(this.candidates, Math.max(30, image.width * 0.05));
 
     return this.findMarkers(this.grey, this.candidates, 49);
   }
