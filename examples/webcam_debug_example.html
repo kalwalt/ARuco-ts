@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webcam debug example</title>
+
+</head>
+<body>
+<div id="app">
+    <video loop autoplay muted playsinline id="video"></video>
+    <canvas id="canvas"></canvas>
+</div>
+<script src="../dist/ARuco.js"></script>
+<script>
+    let detector;
+    let frameCount = 0;
+    let video, canvas, context;
+
+    // Helper functions per evitare stack overflow
+    function getMin(arr) {
+        let min = Infinity;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] < min) min = arr[i];
+        }
+        return min;
+    }
+
+    function getMax(arr) {
+        let max = -Infinity;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] > max) max = arr[i];
+        }
+        return max;
+    }
+
+    function getAvg(arr) {
+        let sum = 0;
+        for (let i = 0; i < arr.length; i++) {
+            sum += arr[i];
+        }
+        return sum / arr.length;
+    }
+
+    // Setup
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    context = canvas.getContext('2d', { willReadFrequently: true });  // ✅ Performance hint
+
+    // ✅ FIX: Create detector con parametri
+    try {
+        detector = new ARuco.Detector({
+            dictionaryName: 'ARUCO'
+        });
+        console.log('✅ Detector created');
+    } catch (e) {
+        console.error('❌ Detector creation failed:', e);
+    }
+
+    // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            video.play();
+            console.log('✅ Webcam started');
+            requestAnimationFrame(tick);
+        })
+        .catch(err => {
+            console.error('❌ Webcam error:', err);
+        });
+
+    function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            // Match video dimensions
+            if (canvas.width !== video.videoWidth) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                console.log(`📐 Canvas resized: ${canvas.width}x${canvas.height}`);
+            }
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            frameCount++;
+
+            // Detailed log every second
+            if (frameCount % 30 === 0) {
+                console.group(`📊 Frame ${frameCount} (${new Date().toLocaleTimeString()})`);
+
+                try {
+                    // Create Image
+                    const image = new CV.Image(canvas.width, canvas.height, imageData.data);
+                    console.log('1️⃣ Image created:', {
+                        size: `${image.width}x${image.height}`,
+                        pixels: image.data.length
+                    });
+
+                    // Grayscale
+                    const gray = CV.grayscale(image);
+
+                    // ✅ FIX: Usa funzioni helper invece di spread operator
+                    const grayStats = {
+                        min: getMin(gray.data),
+                        max: getMax(gray.data),
+                        avg: getAvg(gray.data).toFixed(1)
+                    };
+                    console.log('2️⃣ Grayscale:', grayStats);
+
+                    // Check if image is too dark/bright
+                    if (grayStats.max < 100) {
+                        console.warn('⚠️ Image too dark! Increase lighting.');
+                    } else if (grayStats.min > 150) {
+                        console.warn('⚠️ Image too bright! Reduce lighting.');
+                    }
+
+                    // Threshold
+                    const binary = new CV.Image(gray.width, gray.height);
+                    CV.adaptiveThreshold(gray, binary, 7, 7);
+
+                    // ✅ FIX: Count usando loop
+                    let zeros = 0, ones = 0, other = 0;
+                    for (let i = 0; i < binary.data.length; i++) {
+                        if (binary.data[i] === 0) zeros++;
+                        else if (binary.data[i] === 255) ones++;
+                        else other++;
+                    }
+
+                    const binaryStats = { zeros, ones, other };
+                    console.log('3️⃣ Binary:', binaryStats);
+
+                    if (other > 0) {
+                        console.error('❌ Threshold produced non-binary values!');
+                    }
+
+                    // Find Contours
+                    const contours = CV.findContours(binary, []);
+                    console.log('4️⃣ Contours:', contours.length);
+
+                    if (contours.length === 0) {
+                        console.warn('⚠️ No contours found - marker not visible or too blurry');
+                    } else {
+                        // Filter candidates
+                        const candidates = contours.filter(c => {
+                            if (c.length < 4) return false;
+
+                            const approx = CV.approxPolyDP(c, c.length * 0.05);
+                            if (approx.length !== 4) return false;
+
+                            if (!CV.isContourConvex(approx)) return false;
+
+                            const minEdge = CV.minEdgeLength(approx);
+                            if (minEdge < 10) return false;
+
+                            return true;
+                        });
+
+                        console.log('5️⃣ Candidates (4 corners, convex, >10px):', candidates.length);
+
+                        if (candidates.length > 0) {
+                            const sample = candidates[0];
+                            const sampleApprox = CV.approxPolyDP(sample, sample.length * 0.05);
+                            console.log('   Sample candidate:', {
+                                points: sample.length,
+                                approxPoints: sampleApprox.length,
+                                minEdge: CV.minEdgeLength(sampleApprox).toFixed(2)
+                            });
+                        }
+                    }
+
+                    // ACTUAL DETECTION
+                    if (detector) {
+                        console.log('6️⃣ Running detector.detect()...');
+                        const markers = detector.detect(gray);
+                        console.log('7️⃣ Result:', markers.length, 'markers');
+
+                        if (markers.length > 0) {
+                            console.log('🎉🎉🎉 MARKER DETECTED!');
+                            markers.forEach((marker, i) => {
+                                console.log(`   Marker ${i}:`, {
+                                    id: marker.id,
+                                    corners: marker.corners.length
+                                });
+                            });
+                        } else {
+                            if (contours.length > 10) {
+                                console.warn('⚠️ Many contours but no markers detected');
+                                console.warn('   → Possible decoder/warp issue');
+                            }
+                        }
+                    } else {
+                        console.error('❌ Detector not initialized');
+                    }
+
+                } catch (e) {
+                    console.error('❌ Pipeline error:', e.message);
+                    console.error(e.stack);
+                }
+
+                console.groupEnd();
+            }
+
+            // Always try to detect (for real-time overlay)
+            if (detector) {
+                try {
+                    const image = new CV.Image(canvas.width, canvas.height, imageData.data);
+                    const gray = CV.grayscale(image);
+                    const markers = detector.detect(gray);
+
+                    if (markers.length > 0) {
+                        // Draw markers on canvas
+                        context.strokeStyle = 'red';
+                        context.lineWidth = 3;
+
+                        markers.forEach(marker => {
+                            context.beginPath();
+                            const corners = marker.corners;
+                            context.moveTo(corners[0].x, corners[0].y);
+                            for (let i = 1; i < corners.length; i++) {
+                                context.lineTo(corners[i].x, corners[i].y);
+                            }
+                            context.closePath();
+                            context.stroke();
+
+                            // Draw ID
+                            context.fillStyle = 'red';
+                            context.font = '30px Arial';
+                            context.fillText(`ID: ${marker.id}`, corners[0].x, corners[0].y - 10);
+                        });
+                    }
+                } catch (e) {
+                    // Silent fail for real-time loop
+                }
+            }
+        }
+
+        requestAnimationFrame(tick);
+    }
+</script>
+
+</body>
+</html>
