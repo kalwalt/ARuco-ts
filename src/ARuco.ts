@@ -558,7 +558,11 @@ export class Detector {
   detect(image: any): Marker[] {
     this.grey = CV.grayscale(image);
 
-    if (!this.thres || this.thres.width !== this.grey.width || this.thres.height !== this.grey.height) {
+    if (
+      !this.thres ||
+      this.thres.width !== this.grey.width ||
+      this.thres.height !== this.grey.height
+    ) {
       this.thres = new Image(this.grey.width, this.grey.height);
     }
 
@@ -567,10 +571,10 @@ export class Detector {
     this.contours = CV.findContours(this.thres, this.binary);
 
     this.candidates = this.findCandidates(
-        this.contours,
-        image.width * 0.01,
-        0.05,
-        10
+      this.contours,
+      image.width * 0.01,
+      0.05,
+      10
     );
 
     this.candidates = this.clockwiseCorners(this.candidates);
@@ -586,7 +590,7 @@ export class Detector {
     epsilon: number,
     minLength: number
   ): IPoint[][] {
-    let candidates: IPoint[][]  = [],
+    let candidates: IPoint[][] = [],
       len = contours.length,
       contour,
       poly,
@@ -640,7 +644,7 @@ export class Detector {
   notTooNear(candidates: IPoint[][], minDist: number): IPoint[][] {
     const notTooNear: IPoint[][] = [];
     const len = candidates.length;
-    const tooNearFlags = new Array(len).fill(false);  // ✅ Array separato per i flag
+    const tooNearFlags = new Array(len).fill(false); // ✅ Array separato per i flag
 
     let dist, dx, dy;
 
@@ -661,9 +665,9 @@ export class Detector {
           const perimJ = CV.perimeter(candidates[j]);
 
           if (perimI < perimJ) {
-            tooNearFlags[i] = true;  // ✅ Marca nel flag array
+            tooNearFlags[i] = true; // ✅ Marca nel flag array
           } else {
-            tooNearFlags[j] = true;  // ✅ Marca nel flag array
+            tooNearFlags[j] = true; // ✅ Marca nel flag array
           }
         }
       }
@@ -688,7 +692,11 @@ export class Detector {
     for (let i = 0; i < len; ++i) {
       candidate = candidates[i];
 
-      if (!this.homography || this.homography.width !== warpSize || this.homography.height !== warpSize) {
+      if (
+        !this.homography ||
+        this.homography.width !== warpSize ||
+        this.homography.height !== warpSize
+      ) {
         this.homography = new Image(warpSize, warpSize);
       }
 

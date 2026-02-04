@@ -157,8 +157,6 @@ Simulating 10 seconds of marker detection at 60fps (600 frames)
 
 Testing Legacy implementation:
 
-
-
 ## Performance Summary
 
 ### Speedup by Operation

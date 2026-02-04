@@ -1,125 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1"
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1"
     />
     <title>ARuco Webcam Debug Example</title>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #222;
-            color: #fff;
-        }
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #222;
+        color: #fff;
+      }
 
-        #app {
-            position: relative;
-            max-width: 640px;
-            margin: 0 auto;
-        }
+      #app {
+        position: relative;
+        max-width: 640px;
+        margin: 0 auto;
+      }
 
-        #video {
-            display: none;
-        }
+      #video {
+        display: none;
+      }
 
-        #videoCanvas, #overlayCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-        }
+      #videoCanvas,
+      #overlayCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+      }
 
-        #videoCanvas {
-            z-index: 1;
-        }
+      #videoCanvas {
+        z-index: 1;
+      }
 
-        #overlayCanvas {
-            z-index: 2;
-            pointer-events: none;
-        }
+      #overlayCanvas {
+        z-index: 2;
+        pointer-events: none;
+      }
 
-        .canvas-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 75%;
-        }
+      .canvas-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 75%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-<div id="app">
-    <video loop autoplay muted playsinline id="video"></video>
-    <div class="canvas-container">
+  <body>
+    <div id="app">
+      <video loop autoplay muted playsinline id="video"></video>
+      <div class="canvas-container">
         <canvas id="videoCanvas"></canvas>
         <canvas id="overlayCanvas"></canvas>
+      </div>
     </div>
-</div>
 
-<script src="../dist/ARuco.js"></script>
+    <script src="../dist/ARuco.js"></script>
 
-<script>
-    let detector;
-    let video, videoCanvas, overlayCanvas, videoContext, overlayContext;
-    let frameCount = 0;
+    <script>
+      let detector;
+      let video, videoCanvas, overlayCanvas, videoContext, overlayContext;
+      let frameCount = 0;
 
-    // Helper functions
-    function getMin(arr) {
+      // Helper functions
+      function getMin(arr) {
         let min = Infinity;
         for (let i = 0; i < arr.length; i++) {
-            if (arr[i] < min) min = arr[i];
+          if (arr[i] < min) min = arr[i];
         }
         return min;
-    }
+      }
 
-    function getMax(arr) {
+      function getMax(arr) {
         let max = -Infinity;
         for (let i = 0; i < arr.length; i++) {
-            if (arr[i] > max) max = arr[i];
+          if (arr[i] > max) max = arr[i];
         }
         return max;
-    }
+      }
 
-    function getAvg(arr) {
+      function getAvg(arr) {
         let sum = 0;
         for (let i = 0; i < arr.length; i++) {
-            sum += arr[i];
+          sum += arr[i];
         }
         return sum / arr.length;
-    }
+      }
 
-    // Funzioni di rendering
-    function drawCorners(ctx, markers) {
+      // Funzioni di rendering
+      function drawCorners(ctx, markers) {
         let corners, corner, i, j;
 
         ctx.lineWidth = 3;
 
         for (i = 0; i !== markers.length; ++i) {
-            corners = markers[i].corners;
+          corners = markers[i].corners;
 
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
+          ctx.strokeStyle = "red";
+          ctx.beginPath();
 
-            for (j = 0; j !== corners.length; ++j) {
-                corner = corners[j];
-                ctx.moveTo(corner.x, corner.y);
-                corner = corners[(j + 1) % corners.length];
-                ctx.lineTo(corner.x, corner.y);
-            }
+          for (j = 0; j !== corners.length; ++j) {
+            corner = corners[j];
+            ctx.moveTo(corner.x, corner.y);
+            corner = corners[(j + 1) % corners.length];
+            ctx.lineTo(corner.x, corner.y);
+          }
 
-            ctx.stroke();
-            ctx.closePath();
+          ctx.stroke();
+          ctx.closePath();
 
-            ctx.strokeStyle = "green";
-            ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+          ctx.strokeStyle = "green";
+          ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
         }
-    }
+      }
 
-    function drawId(ctx, markers) {
+      function drawId(ctx, markers) {
         let corners, corner, x, y, i, j;
 
         ctx.strokeStyle = "blue";
@@ -127,55 +128,55 @@
         ctx.font = "24px Arial";
 
         for (i = 0; i !== markers.length; ++i) {
-            corners = markers[i].corners;
+          corners = markers[i].corners;
 
-            x = Infinity;
-            y = Infinity;
+          x = Infinity;
+          y = Infinity;
 
-            for (j = 0; j !== corners.length; ++j) {
-                corner = corners[j];
+          for (j = 0; j !== corners.length; ++j) {
+            corner = corners[j];
 
-                x = Math.min(x, corner.x);
-                y = Math.min(y, corner.y);
-            }
+            x = Math.min(x, corner.x);
+            y = Math.min(y, corner.y);
+          }
 
-            ctx.fillStyle = "blue";
-            ctx.fillText(markers[i].id, x, y - 10);
+          ctx.fillStyle = "blue";
+          ctx.fillText(markers[i].id, x, y - 10);
         }
-    }
+      }
 
-    // Inizializza webcam
-    async function initCamera() {
+      // Inizializza webcam
+      async function initCamera() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 640 },
-                    height: { ideal: 480 }
-                }
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+            },
+          });
+
+          video = document.getElementById("video");
+          video.srcObject = stream;
+          video.play();
+
+          console.log("✅ Webcam started");
+
+          return new Promise((resolve) => {
+            video.addEventListener("loadeddata", () => {
+              console.log("✅ Video ready");
+              resolve(video);
             });
-
-            video = document.getElementById('video');
-            video.srcObject = stream;
-            video.play();
-
-            console.log('✅ Webcam started');
-
-            return new Promise((resolve) => {
-                video.addEventListener('loadeddata', () => {
-                    console.log('✅ Video ready');
-                    resolve(video);
-                });
-            });
+          });
         } catch (err) {
-            console.error('❌ Camera error:', err);
-            throw err;
+          console.error("❌ Camera error:", err);
+          throw err;
         }
-    }
+      }
 
-    // Inizializza canvas
-    function initCanvas() {
-        videoCanvas = document.getElementById('videoCanvas');
-        overlayCanvas = document.getElementById('overlayCanvas');
+      // Inizializza canvas
+      function initCanvas() {
+        videoCanvas = document.getElementById("videoCanvas");
+        overlayCanvas = document.getElementById("overlayCanvas");
 
         const width = video.videoWidth || 640;
         const height = video.videoHeight || 480;
@@ -185,148 +186,177 @@
         overlayCanvas.width = width;
         overlayCanvas.height = height;
 
-        videoContext = videoCanvas.getContext('2d', { willReadFrequently: true });
-        overlayContext = overlayCanvas.getContext('2d');
+        videoContext = videoCanvas.getContext("2d", {
+          willReadFrequently: true,
+        });
+        overlayContext = overlayCanvas.getContext("2d");
 
         console.log(`✅ Canvas initialized: ${width}x${height}`);
-    }
+      }
 
-    // Inizializza detector
-    function initDetector() {
+      // Inizializza detector
+      function initDetector() {
         try {
-            detector = new ARuco.Detector({ dictionaryName: 'ARUCO' });
-            console.log('✅ Detector created');
+          detector = new ARuco.Detector({ dictionaryName: "ARUCO" });
+          console.log("✅ Detector created");
         } catch (e) {
-            console.error('❌ Detector creation failed:', e);
+          console.error("❌ Detector creation failed:", e);
         }
-    }
+      }
 
-    // Loop principale
-    function tick() {
+      // Loop principale
+      function tick() {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            // Match video dimensions
-            if (videoCanvas.width !== video.videoWidth) {
-                videoCanvas.width = video.videoWidth;
-                videoCanvas.height = video.videoHeight;
-                overlayCanvas.width = video.videoWidth;
-                overlayCanvas.height = video.videoHeight;
-                console.log(`📐 Canvas resized: ${videoCanvas.width}x${videoCanvas.height}`);
+          // Match video dimensions
+          if (videoCanvas.width !== video.videoWidth) {
+            videoCanvas.width = video.videoWidth;
+            videoCanvas.height = video.videoHeight;
+            overlayCanvas.width = video.videoWidth;
+            overlayCanvas.height = video.videoHeight;
+            console.log(
+              `📐 Canvas resized: ${videoCanvas.width}x${videoCanvas.height}`
+            );
+          }
+
+          // Disegna video sul videoCanvas
+          videoContext.drawImage(
+            video,
+            0,
+            0,
+            videoCanvas.width,
+            videoCanvas.height
+          );
+          const imageData = videoContext.getImageData(
+            0,
+            0,
+            videoCanvas.width,
+            videoCanvas.height
+          );
+
+          frameCount++;
+
+          // Debug dettagliato ogni 30 frame
+          if (frameCount % 30 === 0) {
+            console.group(
+              `📊 Frame ${frameCount} (${new Date().toLocaleTimeString()})`
+            );
+
+            try {
+              const image = new CV.Image(
+                videoCanvas.width,
+                videoCanvas.height,
+                imageData.data
+              );
+              console.log("1️⃣ Image created:", {
+                size: `${image.width}x${image.height}`,
+                pixels: image.data.length,
+              });
+
+              const gray = CV.grayscale(image);
+              const grayStats = {
+                min: getMin(gray.data),
+                max: getMax(gray.data),
+                avg: getAvg(gray.data).toFixed(1),
+              };
+              console.log("2️⃣ Grayscale:", grayStats);
+
+              if (grayStats.max < 100) {
+                console.warn("⚠️ Image too dark!");
+              } else if (grayStats.min > 150) {
+                console.warn("⚠️ Image too bright!");
+              }
+
+              const binary = new CV.Image(gray.width, gray.height);
+              CV.adaptiveThreshold(gray, binary, 7, 7);
+
+              let zeros = 0,
+                ones = 0,
+                other = 0;
+              for (let i = 0; i < binary.data.length; i++) {
+                if (binary.data[i] === 0) zeros++;
+                else if (binary.data[i] === 255) ones++;
+                else other++;
+              }
+
+              console.log("3️⃣ Binary:", { zeros, ones, other });
+
+              const contours = CV.findContours(binary, []);
+              console.log("4️⃣ Contours:", contours.length);
+
+              if (contours.length > 0) {
+                const candidates = contours.filter((c) => {
+                  if (c.length < 4) return false;
+                  const approx = CV.approxPolyDP(c, c.length * 0.05);
+                  if (approx.length !== 4) return false;
+                  if (!CV.isContourConvex(approx)) return false;
+                  const minEdge = CV.minEdgeLength(approx);
+                  if (minEdge < 10) return false;
+                  return true;
+                });
+
+                console.log("5️⃣ Candidates:", candidates.length);
+              }
+
+              const markers = detector.detect(imageData);
+              console.log("6️⃣ Markers detected:", markers.length);
+
+              if (markers.length > 0) {
+                console.log("🎉 MARKER DETECTED!");
+                markers.forEach((m, i) => {
+                  console.log(
+                    `   Marker ${i}: ID ${m.id}, corners: ${m.corners.length}`
+                  );
+                });
+              }
+            } catch (e) {
+              console.error("❌ Error:", e.message);
             }
 
-            // Disegna video sul videoCanvas
-            videoContext.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
-            const imageData = videoContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height);
+            console.groupEnd();
+          }
 
-            frameCount++;
+          // SEMPRE rileva e disegna sull'overlay canvas
+          if (detector) {
+            try {
+              const markers = detector.detect(imageData);
 
-            // Debug dettagliato ogni 30 frame
-            if (frameCount % 30 === 0) {
-                console.group(`📊 Frame ${frameCount} (${new Date().toLocaleTimeString()})`);
+              // Pulisci overlay canvas
+              overlayContext.clearRect(
+                0,
+                0,
+                overlayCanvas.width,
+                overlayCanvas.height
+              );
 
-                try {
-                    const image = new CV.Image(videoCanvas.width, videoCanvas.height, imageData.data);
-                    console.log('1️⃣ Image created:', {
-                        size: `${image.width}x${image.height}`,
-                        pixels: image.data.length
-                    });
-
-                    const gray = CV.grayscale(image);
-                    const grayStats = {
-                        min: getMin(gray.data),
-                        max: getMax(gray.data),
-                        avg: getAvg(gray.data).toFixed(1)
-                    };
-                    console.log('2️⃣ Grayscale:', grayStats);
-
-                    if (grayStats.max < 100) {
-                        console.warn('⚠️ Image too dark!');
-                    } else if (grayStats.min > 150) {
-                        console.warn('⚠️ Image too bright!');
-                    }
-
-                    const binary = new CV.Image(gray.width, gray.height);
-                    CV.adaptiveThreshold(gray, binary, 7, 7);
-
-                    let zeros = 0, ones = 0, other = 0;
-                    for (let i = 0; i < binary.data.length; i++) {
-                        if (binary.data[i] === 0) zeros++;
-                        else if (binary.data[i] === 255) ones++;
-                        else other++;
-                    }
-
-                    console.log('3️⃣ Binary:', { zeros, ones, other });
-
-                    const contours = CV.findContours(binary, []);
-                    console.log('4️⃣ Contours:', contours.length);
-
-                    if (contours.length > 0) {
-                        const candidates = contours.filter(c => {
-                            if (c.length < 4) return false;
-                            const approx = CV.approxPolyDP(c, c.length * 0.05);
-                            if (approx.length !== 4) return false;
-                            if (!CV.isContourConvex(approx)) return false;
-                            const minEdge = CV.minEdgeLength(approx);
-                            if (minEdge < 10) return false;
-                            return true;
-                        });
-
-                        console.log('5️⃣ Candidates:', candidates.length);
-                    }
-
-                    const markers = detector.detect(imageData);
-                    console.log('6️⃣ Markers detected:', markers.length);
-
-                    if (markers.length > 0) {
-                        console.log('🎉 MARKER DETECTED!');
-                        markers.forEach((m, i) => {
-                            console.log(`   Marker ${i}: ID ${m.id}, corners: ${m.corners.length}`);
-                        });
-                    }
-
-                } catch (e) {
-                    console.error('❌ Error:', e.message);
-                }
-
-                console.groupEnd();
+              if (markers.length > 0) {
+                // Disegna marker sull'overlay
+                drawCorners(overlayContext, markers);
+                drawId(overlayContext, markers);
+              }
+            } catch (e) {
+              // Silent fail
             }
-
-            // SEMPRE rileva e disegna sull'overlay canvas
-            if (detector) {
-                try {
-                    const markers = detector.detect(imageData);
-
-                    // Pulisci overlay canvas
-                    overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-                    if (markers.length > 0) {
-                        // Disegna marker sull'overlay
-                        drawCorners(overlayContext, markers);
-                        drawId(overlayContext, markers);
-                    }
-                } catch (e) {
-                    // Silent fail
-                }
-            }
+          }
         }
 
         requestAnimationFrame(tick);
-    }
+      }
 
-    // Avvia applicazione
-    window.addEventListener('load', async () => {
-        console.log('🚀 Initializing ARuco Webcam Debug...');
+      // Avvia applicazione
+      window.addEventListener("load", async () => {
+        console.log("🚀 Initializing ARuco Webcam Debug...");
 
         try {
-            await initCamera();
-            initCanvas();
-            initDetector();
+          await initCamera();
+          initCanvas();
+          initDetector();
 
-            console.log('✅ All systems ready!');
-            tick();
+          console.log("✅ All systems ready!");
+          tick();
         } catch (err) {
-            console.error('❌ Initialization failed:', err);
+          console.error("❌ Initialization failed:", err);
         }
-    });
-</script>
-</body>
+      });
+    </script>
+  </body>
 </html>
