@@ -100,7 +100,7 @@ export class CV {
     while (i < len) {
       // Weighted average: 0.299R + 0.587G + 0.114B
       dstData[j++] =
-        (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) | 0;
+        (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) & 0xff;
       i += 4;
     }
 
@@ -149,7 +149,7 @@ export class CV {
 
     // Build lookup table (768 = 3 * 256 per gestire range -255 to 510)
     for (let i = 0; i < 768; ++i) {
-      tab[i] = i - 255 <= -threshold ? 255 : 0;
+      tab[i] = (i - 255 <= -threshold) ? 255 : 0;
     }
 
     // Apply adaptive threshold WITH CRITICAL +255 OFFSET
@@ -733,8 +733,7 @@ export class CV {
 
         dst[pos++] =
           (dy2 * (dx2 * src[p1 + sx1] + dx1 * src[p2 + sx2]) +
-            dy1 * (dx2 * src[p3 + sx1] + dx1 * src[p4 + sx2])) |
-          0;
+            dy1 * (dx2 * src[p3 + sx1] + dx1 * src[p4 + sx2])) & 0xff;
       }
     }
 
@@ -923,7 +922,7 @@ export class CV {
       dst[posDst++] = 0;
 
       for (let j = 0; j < width; ++j) {
-        dst[posDst++] = 0 === src[posSrc++] ? 0 : 1;
+        dst[posDst++] = (src[posSrc++] === 0 ? 0 : 1);
       }
 
       dst[posDst++] = 0;

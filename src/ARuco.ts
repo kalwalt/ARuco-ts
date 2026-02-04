@@ -446,9 +446,6 @@ export class Detector {
   constructor(config: IConfig) {
     console.log(`aruco-ts v${version} initialized`);
     this.config = config;
-    this.grey = new Image();
-    this.thres = new Image();
-    this.homography = new Image();
     this.binary = [];
     this.contours = [];
     this.polys = [];
@@ -560,6 +557,11 @@ export class Detector {
 
   detect(image: any) {
     this.grey = CV.grayscale(image);
+
+    if (!this.thres || this.thres.width !== this.grey.width || this.thres.height !== this.grey.height) {
+      this.thres = new Image(this.grey.width, this.grey.height);
+    }
+
     CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
 
     this.contours = CV.findContours(this.thres, this.binary);
@@ -683,6 +685,10 @@ export class Detector {
 
     for (let i = 0; i < len; ++i) {
       candidate = candidates[i];
+
+      if (!this.homography || this.homography.width !== warpSize || this.homography.height !== warpSize) {
+        this.homography = new Image(warpSize, warpSize);
+      }
 
       CV.warp(imageSrc, this.homography, candidate, warpSize);
 

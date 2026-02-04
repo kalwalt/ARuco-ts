@@ -113,6 +113,184 @@
     print(`  ❌ ERROR: ${e.message}\n`);
   }
 
+  // Test 5: Find Contours
+  print('Test 5: Find Contours');
+
+  const binary = new CV.Image(50, 50);
+  binary.data.fill(0);
+
+  for (let y = 20; y < 30; y++) {
+    for (let x = 20; x < 30; x++) {
+      binary.data[y * 50 + x] = 255;
+    }
+  }
+
+  let contours = [];  // ✅ Dichiara QUI fuori dal try
+
+  try {
+    print(`  Binary image size: ${binary.width}x${binary.height}`);
+    const whitePixels = binary.data.filter(v => v === 255).length;
+    print(`  White pixels: ${whitePixels}`);
+
+    contours = CV.findContours(binary, []);  // ✅ Assegna senza let
+
+    print(`  Contours found: ${contours.length}`);
+
+    if (contours.length > 0) {
+      print(`  First contour points: ${contours[0].length}`);
+      print(`  Sample points: ${JSON.stringify(contours[0].slice(0, 3))}`);
+      print('  ✅ PASS\n');
+    } else {
+      print('  ❌ FAIL - No contours found\n');
+    }
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}`);
+    print(`  Stack: ${e.stack}\n`);
+  }
+
+  // Test 6: ApproxPolyDP - Ora contours è accessibile!
+  print('Test 6: ApproxPolyDP');
+
+  if (contours.length > 0) {
+    try {
+      const contour = contours[0];
+      const epsilon = contour.length * 0.05;
+      const approx = CV.approxPolyDP(contour, epsilon);
+
+      print(`  Input points: ${contour.length}`);
+      print(`  Epsilon: ${epsilon.toFixed(2)}`);
+      print(`  Output points: ${approx.length}`);
+      print(`  Expected: 4 (square)`);
+
+      if (approx.length === 4) {
+        print('  ✅ PASS\n');
+      } else {
+        print(`  ⚠️ Got ${approx.length} points instead of 4\n`);
+      }
+    } catch (e) {
+      print(`  ❌ ERROR: ${e.message}\n`);
+    }
+  } else {
+    print('  ⚠️ SKIP - No contours from Test 5\n');
+  }
+
+  // Test 7: isContourConvex
+  print('Test 7: isContourConvex');
+
+  if (contours.length > 0) {
+    try {
+      const contour = contours[0];
+      const epsilon = contour.length * 0.05;
+      const approx = CV.approxPolyDP(contour, epsilon);
+
+      const isConvex = CV.isContourConvex(approx);
+
+      print(`  Points: ${approx.length}`);
+      print(`  Is convex: ${isConvex}`);
+      print(`  Expected: true (square is convex)`);
+
+      if (isConvex === true) {
+        print('  ✅ PASS\n');
+      } else {
+        print('  ❌ FAIL\n');
+      }
+    } catch (e) {
+      print(`  ❌ ERROR: ${e.message}\n`);
+    }
+  } else {
+    print('  ⚠️ SKIP\n');
+  }
+
+  // Test 8: minEdgeLength
+  print('Test 8: minEdgeLength');
+
+  if (contours.length > 0) {
+    try {
+      const contour = contours[0];
+      const epsilon = contour.length * 0.05;
+      const approx = CV.approxPolyDP(contour, epsilon);
+
+      const minEdge = CV.minEdgeLength(approx);
+
+      print(`  Min edge length: ${minEdge.toFixed(2)}`);
+      print(`  Expected: ~10 (square is 10x10)`);
+
+      if (minEdge >= 9 && minEdge <= 11) {
+        print('  ✅ PASS\n');
+      } else {
+        print('  ⚠️ Got ${minEdge.toFixed(2)} instead of ~10\n');
+      }
+    } catch (e) {
+      print(`  ❌ ERROR: ${e.message}\n`);
+    }
+  } else {
+    print('  ⚠️ SKIP\n');
+  }
+
+  // Test 9: Warp
+  print('Test 9: Warp');
+
+  if (contours.length > 0) {
+    try {
+      const contour = contours[0];
+      const epsilon = contour.length * 0.05;
+      const approx = CV.approxPolyDP(contour, epsilon);
+
+      print(`  Input contour: ${approx.length} corners`);
+
+      // Warp to 7x7 (typical marker size)
+      const warped = new CV.Image(7, 7);
+      CV.warp(binary, warped, approx, 7);
+
+      print(`  Warped size: ${warped.width}x${warped.height}`);
+      print(`  Warped data length: ${warped.data.length}`);
+      print(`  Warped data type: ${warped.data.constructor.name}`);
+
+      // Check if warp produced valid data
+      const warpedMin = Math.min(...warped.data);
+      const warpedMax = Math.max(...warped.data);
+
+      print(`  Warped min/max: ${warpedMin}/${warpedMax}`);
+
+      if (warped.data.length === 49 && warpedMax > 0) {
+        print('  ✅ PASS\n');
+      } else {
+        print('  ❌ FAIL - Invalid warped data\n');
+      }
+    } catch (e) {
+      print(`  ❌ ERROR: ${e.message}`);
+      print(`  Stack: ${e.stack}\n`);
+    }
+  } else {
+    print('  ⚠️ SKIP\n');
+  }
+
+  // Test 10: countNonZero
+  print('Test 10: countNonZero');
+
+  try {
+    const testImg = new CV.Image(10, 10);
+    testImg.data.fill(0);
+
+    // Set some pixels to white
+    for (let i = 0; i < 25; i++) {
+      testImg.data[i] = 255;
+    }
+
+    const count = CV.countNonZero(testImg, { x: 0, y: 0, width: 10, height: 10 });
+
+    print(`  Non-zero pixels: ${count}`);
+    print(`  Expected: 25`);
+
+    if (count === 25) {
+      print('  ✅ PASS\n');
+    } else {
+      print(`  ❌ FAIL - Got ${count} instead of 25\n`);
+    }
+  } catch (e) {
+    print(`  ❌ ERROR: ${e.message}\n`);
+  }
+
   print('=== TESTS COMPLETE ===');
 </script>
 </body>
