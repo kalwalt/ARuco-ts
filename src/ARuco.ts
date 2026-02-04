@@ -555,7 +555,7 @@ export class Detector {
     }
   }
 
-  detect(image: any) {
+  detect(image: any): Marker[] {
     this.grey = CV.grayscale(image);
 
     if (!this.thres || this.thres.width !== this.grey.width || this.thres.height !== this.grey.height) {
@@ -566,16 +566,16 @@ export class Detector {
 
     this.contours = CV.findContours(this.thres, this.binary);
 
-    //Scale Fix: https://stackoverflow.com/questions/35936397/marker-detection-on-paper-sheet-using-javascript
-    //this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
     this.candidates = this.findCandidates(
-      this.contours,
-      image.width * 0.01,
-      0.05,
-      10
+        this.contours,
+        image.width * 0.01,
+        0.05,
+        10
     );
+
     this.candidates = this.clockwiseCorners(this.candidates);
-    this.candidates = this.notTooNear(this.candidates, Math.max(30, image.width * 0.05));
+    const minDist = Math.max(30, image.width * 0.05);
+    this.candidates = this.notTooNear(this.candidates, minDist);
 
     return this.findMarkers(this.grey, this.candidates, 49);
   }
@@ -586,7 +586,7 @@ export class Detector {
     epsilon: number,
     minLength: number
   ): IPoint[][] {
-    let candidates = [],
+    let candidates: IPoint[][]  = [],
       len = contours.length,
       contour,
       poly,
@@ -637,21 +637,18 @@ export class Detector {
     return candidates;
   }
 
-  notTooNear(candidates: any, minDist: number) {
-    let notTooNear = [],
-      len = candidates.length,
-      dist,
-      dx,
-      dy,
-      i,
-      j,
-      k;
+  notTooNear(candidates: IPoint[][], minDist: number): IPoint[][] {
+    const notTooNear: IPoint[][] = [];
+    const len = candidates.length;
+    const tooNearFlags = new Array(len).fill(false);  // ✅ Array separato per i flag
 
-    for (i = 0; i < len; ++i) {
-      for (j = i + 1; j < len; ++j) {
+    let dist, dx, dy;
+
+    for (let i = 0; i < len; ++i) {
+      for (let j = i + 1; j < len; ++j) {
         dist = 0;
 
-        for (k = 0; k < 4; ++k) {
+        for (let k = 0; k < 4; ++k) {
           dx = candidates[i][k].x - candidates[j][k].x;
           dy = candidates[i][k].y - candidates[j][k].y;
 
@@ -659,17 +656,22 @@ export class Detector {
         }
 
         if (dist / 4 < minDist * minDist) {
-          if (CV.perimeter(candidates[i]) < CV.perimeter(candidates[j])) {
-            candidates[i].tooNear = true;
+          // ✅ Confronta perimetri usando CV.perimeter
+          const perimI = CV.perimeter(candidates[i]);
+          const perimJ = CV.perimeter(candidates[j]);
+
+          if (perimI < perimJ) {
+            tooNearFlags[i] = true;  // ✅ Marca nel flag array
           } else {
-            candidates[j].tooNear = true;
+            tooNearFlags[j] = true;  // ✅ Marca nel flag array
           }
         }
       }
     }
 
-    for (i = 0; i < len; ++i) {
-      if (!candidates[i].tooNear) {
+    // ✅ Filtra usando il flag array
+    for (let i = 0; i < len; ++i) {
+      if (!tooNearFlags[i]) {
         notTooNear.push(candidates[i]);
       }
     }

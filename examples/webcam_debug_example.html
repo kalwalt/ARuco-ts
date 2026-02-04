@@ -44,7 +44,7 @@
     // Setup
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
-    context = canvas.getContext('2d', { willReadFrequently: true });  // ✅ Performance hint
+    context = canvas.getContext('2d', {willReadFrequently: true});  // ✅ Performance hint
 
     // ✅ FIX: Create detector con parametri
     try {
@@ -57,7 +57,7 @@
     }
 
     // Start webcam
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({video: true})
         .then(stream => {
             video.srcObject = stream;
             video.play();
@@ -124,7 +124,7 @@
                         else other++;
                     }
 
-                    const binaryStats = { zeros, ones, other };
+                    const binaryStats = {zeros, ones, other};
                     console.log('3️⃣ Binary:', binaryStats);
 
                     if (other > 0) {
@@ -169,7 +169,7 @@
                     // ACTUAL DETECTION
                     if (detector) {
                         console.log('6️⃣ Running detector.detect()...');
-                        const markers = detector.detect(gray);
+                        const markers = detector.detect(image);
                         console.log('7️⃣ Result:', markers.length, 'markers');
 
                         if (markers.length > 0) {
@@ -202,15 +202,29 @@
             if (detector) {
                 try {
                     const image = new CV.Image(canvas.width, canvas.height, imageData.data);
-                    const gray = CV.grayscale(image);
-                    const markers = detector.detect(gray);
+                    const markers = detector.detect(image);
 
                     if (markers.length > 0) {
+                        console.log('📍 Drawing', markers.length, 'markers');
                         // Draw markers on canvas
-                        context.strokeStyle = 'red';
-                        context.lineWidth = 3;
+                        //context.strokeStyle = 'red';
+                        //context.lineWidth = 3;
 
                         markers.forEach(marker => {
+                            console.log(`  Marker ${idx}:`, {
+                                id: marker.id,
+                                corners: marker.corners,
+                                cornersLength: marker.corners?.length,
+                                cornersSample: marker.corners ? [marker.corners[0], marker.corners[1]] : 'undefined'
+                            });
+
+
+                            if (!marker.corners || marker.corners.length !== 4) {
+                                console.error('❌ Invalid corners!', marker.corners);
+                                return;
+                            }
+                            //const corners = marker.corners;
+
                             context.beginPath();
                             const corners = marker.corners;
                             context.moveTo(corners[0].x, corners[0].y);
@@ -226,13 +240,13 @@
                             context.fillText(`ID: ${marker.id}`, corners[0].x, corners[0].y - 10);
                         });
                     }
-                } catch (e) {
-                    // Silent fail for real-time loop
-                }
+            } catch (e) {
+                // Silent fail for real-time loop
             }
         }
+    }
 
-        requestAnimationFrame(tick);
+    requestAnimationFrame(tick);
     }
 </script>
 
